@@ -1,4 +1,4 @@
-#!/home/mbuhidar/Code/mbuhidar/C64/typeintokenizer/venv/bin/python3
+#!/home/mbuhidar/Code/mbuhidar/C64/typein_tokenizer/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -1,4 +1,4 @@
-from typeintokenizer.tokenizer import main
+from typein_tokenizer.tokenizer import main
 # from typeintokenizer import tokenizer
 import pytest
 

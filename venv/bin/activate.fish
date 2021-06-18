@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/mbuhidar/Code/mbuhidar/C64/typeintokenizer/venv"
+set -gx VIRTUAL_ENV "/home/mbuhidar/Code/mbuhidar/C64/typein_tokenizer/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

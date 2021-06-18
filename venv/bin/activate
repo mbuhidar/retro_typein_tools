@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/mbuhidar/Code/mbuhidar/C64/typeintokenizer/venv"
+VIRTUAL_ENV="/home/mbuhidar/Code/mbuhidar/C64/typein_tokenizer/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
