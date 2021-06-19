@@ -4,7 +4,8 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 
-def main(argv=None):
+def parse_args(argv):
+
     # create parser object
     parser = argparse.ArgumentParser(description = "A tokenizer for Commodore BASIC typein programs.", formatter_class=RawTextHelpFormatter)
 
@@ -40,10 +41,15 @@ def main(argv=None):
     parser.add_argument("file_out", type=str, metavar="output_file",
                         help = "Specify the output file name including path")
                         
-    # parse the arguments from standard input
-    args = parser.parse_args(argv)
+    # parse and return the arguments
+    return parser.parse_args(argv)
+    
+def main(argv=None):
 
-    # test args capture
+    args = parse_args(argv)
+
+    # print diagnostics - temp for debugging
+    print(args)
     print(args.loadaddr[0])
     print(args.version[0])
     print(args.source[0])
