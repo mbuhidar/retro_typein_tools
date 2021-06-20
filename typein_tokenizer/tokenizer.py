@@ -1,8 +1,86 @@
 
-
 import argparse
 from argparse import RawTextHelpFormatter
 import sys
+
+TOKENS = (
+    ('end', 128),
+    ('for', 129),
+    ('next', 130),
+    ('data', 131),
+    ('input#', 132),
+    ('input', 133),
+    ('dim', 134),
+    ('read', 135),
+    ('let', 136),
+    ('goto', 137),
+    ('run', 138),
+    ('if', 139),
+    ('restore', 140),
+    ('gosub', 141),
+    ('return', 142),
+    ('rem', 143),
+    ('stop', 144),
+    ('on', 145),
+    ('wait', 146),
+    ('load', 147),
+    ('save', 148),
+    ('verify', 149),
+    ('def', 150),
+    ('poke', 151),
+    ('print#', 152),
+    ('print', 153),
+    ('cont', 154),
+    ('list', 155),
+    ('clr', 156),
+    ('cmd', 157),
+    ('sys', 158),
+    ('open', 159),
+    ('close', 160),
+    ('get', 161),
+    ('new', 162),
+    ('tab(', 163),
+    ('to', 164),
+    ('fn', 165),
+    ('spc(', 166),
+    ('then', 167),
+    ('not', 168),
+    ('step', 169),
+    ('+', 170),
+    ('-', 171),
+    ('*', 172),
+    ('/', 173),
+    ('^', 174),
+    ('and', 175),
+    ('or', 176),
+    ('>', 177),
+    ('=', 178),
+    ('<', 179),
+    ('sgn', 180),
+    ('int', 181),
+    ('abs', 182),
+    ('usr', 183),
+    ('fre', 184),
+    ('pos', 185),
+    ('sqr', 186),
+    ('rnd', 187),
+    ('log', 188),
+    ('exp', 189),
+    ('cos', 190),
+    ('sin', 191),
+    ('tan', 192),
+    ('atn', 193),
+    ('peek', 194),
+    ('len', 195),
+    ('str$', 196),
+    ('val', 197),
+    ('asc', 198),
+    ('chr$', 199),
+    ('left$', 200),
+    ('right$', 201),
+    ('mid$', 202),
+    ('go', 203),
+)
 
 def parse_args(argv):
 
@@ -43,7 +121,12 @@ def parse_args(argv):
                         
     # parse and return the arguments
     return parser.parse_args(argv)
-    
+
+def read_file(filename):
+    with open(filename) as file:
+        lines = file.readlines()
+        return lines
+
 def main(argv=None):
 
     args = parse_args(argv)
@@ -56,6 +139,9 @@ def main(argv=None):
     print(args.file_in)
     print(args.file_out)
     
+    lines_list = read_file(args.file_in)
+    print(lines_list)
+
 if __name__ == '__main__':
     sys.exit(main())
 
