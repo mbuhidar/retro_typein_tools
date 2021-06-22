@@ -3,6 +3,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 
+# Common Commodore BASIC tokens
 TOKENS = (
     ('end', 128),
     ('for', 129),
@@ -122,14 +123,37 @@ def parse_args(argv):
     # parse and return the arguments
     return parser.parse_args(argv)
 
+# read input file and return list of lowercase strings
 def read_file(filename):
     with open(filename) as file:
         lines = file.readlines()
-        return lines
+        lower_lines = []
+        for line in lines:
+            # remove any lines with no characters
+            if not line.strip():
+                continue
+            lower_lines.append(line.rstrip().lower())
+        return lower_lines
 
+'''
+class TokenizedLine():
+    def __init__(self, line, addr):
+        (line_num, bytes) = tokenize(line)
+        self.line_num = line_num
+        self.bytes = bytes
+        self.addr = addr
+        self.next_addr = None
+
+    def __len__(self):
+        return len(self.bytes) = 5
+'''
+        
 def main(argv=None):
-
+    # call function to parse command line input arguments
     args = parse_args(argv)
+
+    # define load address from input argument
+    addr = args.loadaddr[0]
 
     # print diagnostics - temp for debugging
     print(args)
@@ -139,8 +163,13 @@ def main(argv=None):
     print(args.file_in)
     print(args.file_out)
     
+    # call function to read input file lines and print each line
     lines_list = read_file(args.file_in)
-    print(lines_list)
+    for line in lines_list:
+        tokenized_line = TokenizedLine(line, addr)
+        addr += len(tokenized_line)
+        tokenized_lines.append(tokenized_line)
+        print(line)
 
 if __name__ == '__main__':
     sys.exit(main())
