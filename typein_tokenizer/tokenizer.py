@@ -135,19 +135,6 @@ def read_file(filename):
             lower_lines.append(line.rstrip().lower())
         return lower_lines
 
-'''
-class TokenizedLine():
-    def __init__(self, line, addr):
-        (line_num, bytes) = tokenize(line)
-        self.line_num = line_num
-        self.bytes = bytes
-        self.addr = addr
-        self.next_addr = None
-
-    def __len__(self):
-        return len(self.bytes) = 5
-'''
-        
 def main(argv=None):
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -166,9 +153,6 @@ def main(argv=None):
     # call function to read input file lines and print each line
     lines_list = read_file(args.file_in)
     for line in lines_list:
-        tokenized_line = TokenizedLine(line, addr)
-        addr += len(tokenized_line)
-        tokenized_lines.append(tokenized_line)
         print(line)
 
 if __name__ == '__main__':
