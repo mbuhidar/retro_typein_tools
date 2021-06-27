@@ -1,11 +1,48 @@
 
 import argparse
 from argparse import RawTextHelpFormatter
-import os.path
 from os import path
 import re
 import sys
 
+# Dictionary for special character conversion from ahoy to petcat
+AHOY_TO_PETCAT = {
+                  "{SC}": "{clr}",
+                  "{HM}": "{home}",
+                  "{CU}": "{up}",
+                  "{CD}": "{down}",
+                  "{CL}": "{left}",
+                  "{CR}": "{rght}",
+                  "{SS}": "{$a0}",
+                  "{IN}": "{inst}",
+                  "{RV}": "{rvon}",
+                  "{RO}": "{rvof}",
+                  "{BK}": "{blk}",
+                  "{WH}": "{wht}",
+                  "{RD}": "{red}",
+                  "{CY}": "{cyn}",
+                  "{PU}": "{pur}",
+                  "{GN}": "{grn}",
+                  "{BL}": "{blu}",
+                  "{YL}": "{yel}",
+                  "{OR}": "{orng}",
+                  "{BR}": "{brn}",
+                  "{LR}": "{lred}",
+                  "{G1}": "{gry1}",
+                  "{G2}": "{gry2}",
+                  "{LG}": "{lgrn}",
+                  "{LB}": "{lblu}",
+                  "{G3}": "{gry3}",
+                  "{F1}": "{f1}",
+                  "{F2}": "{f2}",
+                  "{F3}": "{f3}",
+                  "{F4}": "{f4}",
+                  "{F5}": "{f5}",
+                  "{F6}": "{f6}",
+                  "{F7}": "{f7}",
+                  "{F8}": "{f8}",
+                 }
+                  
 # Common Commodore BASIC tokens
 TOKENS = (
     ('end', 128),
@@ -144,6 +181,7 @@ def read_file(filename):
 
 # convert ahoy special characters to petcat special characters
 def ahoy_lines_list(lines_list):
+    new_lines = []
     for line in lines_list:
         str_split = re.split(r"\{\w{2}\}", line)
         # Check for loose braces in each substring, return error statement        
@@ -151,7 +189,27 @@ def ahoy_lines_list(lines_list):
             loose_brace = re.search(r"\}|{", sub_str)
             if loose_brace is not None:
                 print("Loose brace error.")
-        print(sub_str)
+        # Create list of ahoy special character code strings
+        code_split = re.findall(r"\{\w{2}\}", line)
+
+        new_codes = []
+        for item in code_split:
+            new_codes.append(AHOY_TO_PETCAT[item.upper()])
+        if new_codes:
+            new_codes.append('')
+            print(code_split, new_codes)
+
+            new_line = []
+            for count, segment in enumerate(new_codes):
+                new_line.append(str_split[count])
+                new_line.append(new_codes[count])
+        else:
+            new_line = str_split
+        new_line = ''.join(new_line)
+        print(new_line)
+        
+        new_lines.append(new_line)
+    return new_lines
 
 # split each line into line number and remaining line
 def split_line_num(line):
@@ -186,16 +244,17 @@ def main(argv=None):
     lines_list = read_file(args.file_in)
     
     # convert to petcat format and write petcat-ready file
-    if args.source[0] == 'mhoy':
+    if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
-    outfile = args.file_in.split('.')[0]
-
+        
+    outfile = args.file_in.split('.')[0] + '.petcat'
+    overwrite = 'y'
     if path.isfile(outfile):
-        overwrite = input(f'Output file {outfile} already exists. Overwrite? (Y = yes) ')
-        if overwrite.lower() == 'y':
-            with open(outfile, "w") as file:
-                for line in lines_list:
-                    file.write(line + '\n')
+        overwrite = input(f'Output file "{outfile}" already exists. Overwrite? (Y = yes) ')
+    if overwrite.lower() == 'y':
+        with open(outfile, "w") as file:
+            for line in lines_list:
+                file.write(line + '\n')
 
 '''        
     for line in lines_list:
