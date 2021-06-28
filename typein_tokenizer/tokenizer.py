@@ -247,7 +247,7 @@ def main(argv=None):
     if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
         
-    outfile = args.file_in.split('.')[0] + '.petcat'
+    outfile = args.file_in.split('.')[0] + '.bas'
     overwrite = 'y'
     if path.isfile(outfile):
         overwrite = input(f'Output file "{outfile}" already exists. Overwrite? (Y = yes) ')
