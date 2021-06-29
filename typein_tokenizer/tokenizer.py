@@ -181,23 +181,30 @@ def read_file(filename):
 
 # convert ahoy special characters to petcat special characters
 def ahoy_lines_list(lines_list):
+
     new_lines = []
+    
     for line in lines_list:
+        # Check for loose braces and return error
+        # Split each lines on ahoy special characters
         str_split = re.split(r"\{\w{2}\}", line)
+
         # Check for loose braces in each substring, return error statement        
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
             if loose_brace is not None:
-                print("Loose brace error.")
+                raise Exception(f"Loose brace error in line:\n {line}")
+                return None
+                
+                
+        # Replace ahoy special characters with petcat special characters
         # Create list of ahoy special character code strings
-        code_split = re.findall(r"\{\w{2}\}", line)
-
+        code_split = re.findall(r"\{\w{2}\}", line)        
         new_codes = []
         for item in code_split:
             new_codes.append(AHOY_TO_PETCAT[item.upper()])
         if new_codes:
             new_codes.append('')
-            print(code_split, new_codes)
 
             new_line = []
             for count, segment in enumerate(new_codes):
@@ -205,10 +212,7 @@ def ahoy_lines_list(lines_list):
                 new_line.append(new_codes[count])
         else:
             new_line = str_split
-        new_line = ''.join(new_line)
-        print(new_line)
-        
-        new_lines.append(new_line)
+        new_lines.append(''.join(new_line))
     return new_lines
 
 # split each line into line number and remaining line
@@ -233,19 +237,22 @@ def main(argv=None):
     # define load address from input argument
     addr = args.loadaddr[0]
 
-    # print diagnostics - temp for debugging
+    ''' print diagnostics - temp for debugging
     print(args)
     print(args.loadaddr[0])
     print(args.version[0])
     print(args.source[0])
     print(args.file_in)
-    
-    # call function to read input file lines and print each line
+    '''
+
+    # call function to read input file lines
     lines_list = read_file(args.file_in)
     
     # convert to petcat format and write petcat-ready file
     if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
+        for line in lines_list:
+            print(str(line))
         
     outfile = args.file_in.split('.')[0] + '.bas'
     overwrite = 'y'
