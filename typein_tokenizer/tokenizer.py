@@ -193,9 +193,10 @@ def ahoy_lines_list(lines_list):
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
             if loose_brace is not None:
-                raise Exception(f"Loose brace error in line:\n {line}")
-                return None
-                
+                print(f"Loose brace error in line:\n {line}")
+                print("Special characters should be enclosed in two braces.")
+                print("Please check for unmatched single braces in above line.")
+                sys.exit(1)
                 
         # Replace ahoy special characters with petcat special characters
         # Create list of ahoy special character code strings
@@ -246,8 +247,12 @@ def main(argv=None):
     '''
 
     # call function to read input file lines
-    lines_list = read_file(args.file_in)
-    
+    try:
+        lines_list = read_file(args.file_in)
+    except IOError:
+        print("File read failed - please check source file name and path.")
+        sys.exit(1)
+
     # convert to petcat format and write petcat-ready file
     if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
