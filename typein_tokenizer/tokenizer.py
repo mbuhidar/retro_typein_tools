@@ -186,17 +186,14 @@ def ahoy_lines_list(lines_list):
     
     for line in lines_list:
         # Check for loose braces and return error
-        # Split each lines on ahoy special characters
+        # Split each line on ahoy special characters
         str_split = re.split(r"\{\w{2}\}", line)
 
         # Check for loose braces in each substring, return error statement        
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
             if loose_brace is not None:
-                print(f"Loose brace error in line:\n {line}")
-                print("Special characters should be enclosed in two braces.")
-                print("Please check for unmatched single braces in above line.")
-                sys.exit(1)
+                return None
                 
         # Replace ahoy special characters with petcat special characters
         # Create list of ahoy special character code strings
@@ -256,6 +253,11 @@ def main(argv=None):
     # convert to petcat format and write petcat-ready file
     if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
+        if lines_list is None:
+            print(f"Loose brace error in line:\n {line}")
+            print("Special characters should be enclosed in two braces.")
+            print("Please check for unmatched single braces in above line.")
+            sys.exit(1)
         for line in lines_list:
             print(str(line))
         

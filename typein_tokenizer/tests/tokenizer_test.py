@@ -1,13 +1,15 @@
 from typein_tokenizer.tokenizer import parse_args
 from typein_tokenizer.tokenizer import read_file
+from typein_tokenizer.tokenizer import ahoy_lines_list
 from typein_tokenizer.tokenizer import split_line_num
 import pytest
 
 def test_parse_args():
-'''
-Unit test to check that function parse_args() yields the correct list of
-arguments for a range of different command line input combinations.
-'''
+    '''
+    Unit test to check that function parse_args() yields the correct list of
+    arguments for a range of different command line input combinations.
+    '''
+
     argv = [
             ['infile.bas'],
             ['infile.bas', '-s', 'pet'],
@@ -35,11 +37,26 @@ def infile_data():
     return read_file('test_infile.txt')
 
 def test_read_file(infile_data):
-'''
-Unit test to check that function read_file() is properly reading data from a
-file source.
-'''
+    '''
+    Unit test to check that function read_file() is properly reading data from a
+    file source.
+    '''
     assert infile_data == ['10 print"hello!"', '20 goto10']
+
+@pytest.mark.parametrize("lines_list, new_lines", [
+                        (['1 print""', '2 goto10'], ['1 print""', '2 goto10']),
+                        (['10 print"hello"', '20 {goto10'], None),
+                        (['{WH}{CY}', '{RV}'], ['{wht}{cyn}', '{rvon}']),
+                        ])
+
+def test_ahoy_lines_list(lines_list, new_lines):
+    '''
+    Unit test to check that function ahoy_lines_list() replaces ahoy special 
+    character codes with petcat special character codes in each line of the
+    program.  Also checks for loose braces and prompt an error message and 
+    program exit.
+    '''
+    assert ahoy_lines_list(lines_list) == new_lines
 
 @pytest.mark.parametrize("line, sp_line", [
                         ('10 print"hello!"', (10, 'print"hello!"')),
@@ -48,9 +65,9 @@ file source.
                         ])
 
 def test_split_line_num(line, sp_line):
-'''
-Unit test to check that function split_line_num() is properly splitting each
-line into tuples consisting of line number(int) and remaining line text(str).
-'''
+    '''
+    Unit test to check that function split_line_num() is properly splitting each
+    line into tuples consisting of line number(int) and remaining line text(str).
+    '''
     assert split_line_num(line) == (sp_line)
     
