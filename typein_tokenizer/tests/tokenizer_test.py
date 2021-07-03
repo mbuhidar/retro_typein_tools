@@ -50,9 +50,18 @@ def test_read_file(infile_data):
 @pytest.mark.parametrize(
     "lines_list, new_lines",
     [
-        (['1 print"hi"', '2 goto10'], ['1 print"hi"', '2 goto10']),
+        (['10 print"hi"', '20 goto10'], ['10 print"hi"', '20 goto10']),
         (['10 print"hello"', '20 {goto10'], (None, '20 {goto10')),
+        (['{WH}CY}', '10 print"hello"'], (None, '{WH}CY}')),
         (['{WH}{CY}', '{RV}'], ['{wht}{cyn}', '{rvon}']),
+        (['{WH}{CD}{RV}{HM}{RD}{CR}{GN}{BL}{OR}{F1}{F2}'],
+         ['{wht}{down}{rvon}{home}{red}{rght}{grn}{blu}{orng}{f1}{f2}']),
+        (['{F3}{F4}{F5}{F6}{F7}{F8}{BK}{CU}{RO}'],
+         ['{f3}{f4}{f5}{f6}{f7}{f8}{blk}{up}{rvof}']),
+        (['{SC}{IN}{BR}{LR}{G1}{G2}{LG}{LB}{G3}'],
+         ['{clr}{inst}{brn}{lred}{gry1}{gry2}{lgrn}{lblu}{gry3}']),
+        (['{PU}{CL}{YL}{CY}{SS}'],
+         ['{pur}{left}{yel}{cyn}{$a0}']),
     ],
 )
 
