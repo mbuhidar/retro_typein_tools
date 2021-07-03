@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 
 import argparse
 from argparse import RawTextHelpFormatter
@@ -7,44 +8,44 @@ import sys
 
 # Dictionary for special character conversion from ahoy to petcat
 AHOY_TO_PETCAT = {
-                  "{SC}": "{clr}",
-                  "{HM}": "{home}",
-                  "{CU}": "{up}",
-                  "{CD}": "{down}",
-                  "{CL}": "{left}",
-                  "{CR}": "{rght}",
-                  "{SS}": "{$a0}",
-                  "{IN}": "{inst}",
-                  "{RV}": "{rvon}",
-                  "{RO}": "{rvof}",
-                  "{BK}": "{blk}",
-                  "{WH}": "{wht}",
-                  "{RD}": "{red}",
-                  "{CY}": "{cyn}",
-                  "{PU}": "{pur}",
-                  "{GN}": "{grn}",
-                  "{BL}": "{blu}",
-                  "{YL}": "{yel}",
-                  "{OR}": "{orng}",
-                  "{BR}": "{brn}",
-                  "{LR}": "{lred}",
-                  "{G1}": "{gry1}",
-                  "{G2}": "{gry2}",
-                  "{LG}": "{lgrn}",
-                  "{LB}": "{lblu}",
-                  "{G3}": "{gry3}",
-                  "{F1}": "{f1}",
-                  "{F2}": "{f2}",
-                  "{F3}": "{f3}",
-                  "{F4}": "{f4}",
-                  "{F5}": "{f5}",
-                  "{F6}": "{f6}",
-                  "{F7}": "{f7}",
-                  "{F8}": "{f8}",
-                 }
+    "{SC}": "{clr}",
+    "{HM}": "{home}",
+    "{CU}": "{up}",
+    "{CD}": "{down}",
+    "{CL}": "{left}",
+    "{CR}": "{rght}",
+    "{SS}": "{$a0}",
+    "{IN}": "{inst}",
+    "{RV}": "{rvon}",
+    "{RO}": "{rvof}",
+    "{BK}": "{blk}",
+    "{WH}": "{wht}",
+    "{RD}": "{red}",
+    "{CY}": "{cyn}",
+    "{PU}": "{pur}",
+    "{GN}": "{grn}",
+    "{BL}": "{blu}",
+    "{YL}": "{yel}",
+    "{OR}": "{orng}",
+    "{BR}": "{brn}",
+    "{LR}": "{lred}",
+    "{G1}": "{gry1}",
+    "{G2}": "{gry2}",
+    "{LG}": "{lgrn}",
+    "{LB}": "{lblu}",
+    "{G3}": "{gry3}",
+    "{F1}": "{f1}",
+    "{F2}": "{f2}",
+    "{F3}": "{f3}",
+    "{F4}": "{f4}",
+    "{F5}": "{f5}",
+    "{F6}": "{f6}",
+    "{F7}": "{f7}",
+    "{F8}": "{f8}",
+}
                   
-# Common Commodore BASIC tokens
-TOKENS = (
+# Core Commodore BASIC tokens
+CORE_TOKENS = (
     ('end', 128),
     ('for', 129),
     ('next', 130),
@@ -131,38 +132,45 @@ def parse_args(argv):
     formatter_class=RawTextHelpFormatter)
 
     # define arguments for parser object
-    parser.add_argument("-l", "--loadaddr", type=str, nargs=1, required=False,
-                        metavar = "load_address", default = ["0x0801"],
-                        help = "Specifies the target BASIC memory address when loading:\n"
-                                "- 0x0801 - C64 (default)\n"
-                                "- 0x1001 - VIC20 Unexpanded\n"
-                                "- 0x0401 - VIC20 +3K\n"
-                                "- 0x1201 - VIC20 +8K\n"
-                                "- 0x1201 - VIC20 +16\n"
-                                "- 0x1201 - VIC20 +24K\n")
+    parser.add_argument(
+        "-l", "--loadaddr", type=str, nargs=1, required=False, 
+        metavar="load_address", default=["0x0801"],
+        help="Specifies the target BASIC memory address when loading:\n"
+             "- 0x0801 - C64 (default)\n"
+             "- 0x1001 - VIC20 Unexpanded\n"
+             "- 0x0401 - VIC20 +3K\n"
+             "- 0x1201 - VIC20 +8K\n"
+             "- 0x1201 - VIC20 +16\n"
+             "- 0x1201 - VIC20 +24K\n"
+    )
 
-    parser.add_argument("-v", "--version", choices=['1', '2', '3', '4', '7'],
-                        type=str, nargs=1, required=False,
-                        metavar = "basic_version", default=['2'],
-                        help = "Specifies the BASIC version for use in tokenizing file.\n"
-                        "- 1 - Basic v1.0  PET\n"
-                        "- 2 - Basic v2.0  C64/VIC20/PET (default)\n"
-                        "- 3 - Basic v3.5  C16/C116/Plus/4\n"
-                        "- 4 - Basic v4.0  PET/CBM2\n"
-                        "- 7 - Basic v7.0  C128\n")
+    parser.add_argument(
+        "-v", "--version", choices=['1', '2', '3', '4', '7'], type=str,
+        nargs=1, required=False, metavar="basic_version", default=['2'],
+        help = "Specifies the BASIC version for use in tokenizing file.\n"
+               "- 1 - Basic v1.0  PET\n"
+               "- 2 - Basic v2.0  C64/VIC20/PET (default)\n"
+               "- 3 - Basic v3.5  C16/C116/Plus/4\n"
+               "- 4 - Basic v4.0  PET/CBM2\n"
+               "- 7 - Basic v7.0  C128\n"
+    )
 
-    parser.add_argument("-s", "--source", choices=["pet", "ahoy"], type=str,
-                        nargs=1, required=False,
-                        metavar = "source_format", default=["ahoy"],
-                        help = "Specifies the source BASIC file format:\n"
-                        "pet - use standard pet control character mnemonics\n"
-                        "ahoy - use Ahoy! magazine control character mnemonics (default)\n")
+    parser.add_argument(
+        "-s", "--source", choices=["pet", "ahoy"], type=str, nargs=1,
+        required=False, metavar = "source_format", default=["ahoy"],
+        help="Specifies the source BASIC file format:\n"
+             "pet - use standard pet control character mnemonics\n"
+             "ahoy - use Ahoy! magazine control character mnemonics "
+             "(default)\n"
+    )
 
-    parser.add_argument("file_in", type=str, metavar="input_file",
-                        help = "Specify the input file name including path\n"
-                        "Note:  Output files will use input file basename\n"
-                        "with extensions '.pet' for petcat-ready file and\n"
-                        "'.prg' for Commordore run fule format.")
+    parser.add_argument(
+        "file_in", type=str, metavar="input_file",
+        help = "Specify the input file name including path\n"
+               "Note:  Output files will use input file basename\n"
+               "with extensions '.pet' for petcat-ready file and\n"
+               "'.prg' for Commordore run fule format."
+    )
 
     # parse and return the arguments
     return parser.parse_args(argv)
@@ -193,7 +201,7 @@ def ahoy_lines_list(lines_list):
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
             if loose_brace is not None:
-                return None
+                return (None, line)
                 
         # Replace ahoy special characters with petcat special characters
         # Create list of ahoy special character code strings
@@ -235,14 +243,6 @@ def main(argv=None):
     # define load address from input argument
     addr = args.loadaddr[0]
 
-    ''' print diagnostics - temp for debugging
-    print(args)
-    print(args.loadaddr[0])
-    print(args.version[0])
-    print(args.source[0])
-    print(args.file_in)
-    '''
-
     # call function to read input file lines
     try:
         lines_list = read_file(args.file_in)
@@ -253,8 +253,8 @@ def main(argv=None):
     # convert to petcat format and write petcat-ready file
     if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
-        if lines_list is None:
-            print(f"Loose brace error in line:\n {line}")
+        if lines_list[0] is None:
+            print(f"Loose brace error in line:\n {lines_list[1]}")
             print("Special characters should be enclosed in two braces.")
             print("Please check for unmatched single braces in above line.")
             sys.exit(1)

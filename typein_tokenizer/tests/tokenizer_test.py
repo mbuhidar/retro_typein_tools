@@ -11,20 +11,20 @@ def test_parse_args():
     '''
 
     argv = [
-            ['infile.bas'],
-            ['infile.bas', '-s', 'pet'],
-            ['infile.bas', '-v', '7'],
-            ['infile.bas', '-l', '0x1001'],
-            ['-v', '4', 'infile.bas', '-s', 'ahoy', '-l', '0x1001']
-           ]
+        ['infile.bas'],
+        ['infile.bas', '-s', 'pet'],
+        ['infile.bas', '-v', '7'],
+        ['infile.bas', '-l', '0x1001'],
+        ['-v', '4', 'infile.bas', '-s', 'ahoy', '-l', '0x1001'],
+    ]
             
     arg_valid = [
-                 ['0x0801', '2', 'ahoy', 'infile.bas'],
-                 ['0x0801', '2', 'pet', 'infile.bas'],
-                 ['0x0801', '7', 'ahoy', 'infile.bas'],
-                 ['0x1001', '2', 'ahoy', 'infile.bas'],
-                 ['0x1001', '4', 'ahoy', 'infile.bas']
-                ]
+        ['0x0801', '2', 'ahoy', 'infile.bas'],
+        ['0x0801', '2', 'pet', 'infile.bas'],
+        ['0x0801', '7', 'ahoy', 'infile.bas'],
+        ['0x1001', '2', 'ahoy', 'infile.bas'],
+        ['0x1001', '4', 'ahoy', 'infile.bas'],
+    ]
   
     for i in range(len(argv)):
         args = parse_args(argv[i])
@@ -34,7 +34,11 @@ def test_parse_args():
 
 @pytest.fixture
 def infile_data():
-    return read_file('test_infile.txt')
+    try:
+        infile = read_file('test_infile.txt')
+    except:
+        infile = read_file('tests/test_infile.txt')
+    return infile
 
 def test_read_file(infile_data):
     '''
@@ -43,11 +47,14 @@ def test_read_file(infile_data):
     '''
     assert infile_data == ['10 print"hello!"', '20 goto10']
 
-@pytest.mark.parametrize("lines_list, new_lines", [
-                        (['1 print""', '2 goto10'], ['1 print""', '2 goto10']),
-                        (['10 print"hello"', '20 {goto10'], None),
-                        (['{WH}{CY}', '{RV}'], ['{wht}{cyn}', '{rvon}']),
-                        ])
+@pytest.mark.parametrize(
+    "lines_list, new_lines",
+    [
+        (['1 print"hi"', '2 goto10'], ['1 print"hi"', '2 goto10']),
+        (['10 print"hello"', '20 {goto10'], (None, '20 {goto10')),
+        (['{WH}{CY}', '{RV}'], ['{wht}{cyn}', '{rvon}']),
+    ],
+)
 
 def test_ahoy_lines_list(lines_list, new_lines):
     '''
@@ -58,11 +65,14 @@ def test_ahoy_lines_list(lines_list, new_lines):
     '''
     assert ahoy_lines_list(lines_list) == new_lines
 
-@pytest.mark.parametrize("line, sp_line", [
-                        ('10 print"hello!"', (10, 'print"hello!"')),
-                        ('20   goto10', (20, 'goto10')),
-                        ('30{wh}val = 3.2*num', (30, '{wh}val = 3.2*num')),
-                        ])
+@pytest.mark.parametrize(
+    "line, sp_line",
+    [
+        ('10 print"hello!"', (10, 'print"hello!"')),
+        ('20   goto10', (20, 'goto10')),
+        ('30{wh}val = 3.2*num', (30, '{wh}val = 3.2*num')),
+    ],
+)
 
 def test_split_line_num(line, sp_line):
     '''
