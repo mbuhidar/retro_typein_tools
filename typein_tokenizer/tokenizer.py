@@ -115,13 +115,51 @@ CORE_TOKENS = (
     ('peek', 194),
     ('len', 195),
     ('str$', 196),
-    ('val', 197),
-    ('asc', 198),
-    ('chr$', 199),
-    ('left$', 200),
+    ('val',    197),
+    ('asc',    198),
+    ('chr$',   199),
+    ('left$',  200),
     ('right$', 201),
-    ('mid$', 202),
-    ('go', 203),
+    ('mid$',   202),
+    ('go',     203),
+)
+
+# Tokens for special character designations used by petcat
+PETCAT_TOKENS = (
+    ('{clr}',  147),
+    ('{home}',  19),
+    ('{up}',   145),
+    ('{down}',  17),
+    ('{left}', 157),
+    ('{rght}',  29),
+    ('{$a0}',  160),
+    ('{inst}', 148),
+    ('{rvon}',  18),
+    ('{rvof}', 146),
+    ('{blk}',  144),
+    ('{wht}',    5),
+    ('{red}',   28),
+    ('{cyn}',  159),
+    ('{pur}',  156),
+    ('{grn}',   30),
+    ('{blu}',   31),
+    ('{yel}',  158),
+    ('{orng}', 129),
+    ('{brn}',  149),
+    ('{lred}', 150),
+    ('{gry1}', 151),
+    ('{gry2}', 152),
+    ('{lgrn}', 153),
+    ('{lblu}', 154),
+    ('{gry3}', 155),
+    ('{f1}',   133),
+    ('{f2}',   134),
+    ('{f3}',   135),
+    ('{f4}',   136),
+    ('{f5}',   137),
+    ('{f6}',   138),
+    ('{f7}',   139),
+    ('{f8}',   140),
 )
 
 def parse_args(argv):
@@ -230,19 +268,52 @@ def split_line_num(line):
         line = line[1:]
     return (int(''.join(acc)), line.lstrip())
     
+# manage the tokenization process for each line text string
+def scan_manager(ln):
+    in_quotes = False
+    in_remark = False
+    bytes = []
     
-# convert unique magazine character codes to petcat character codes (preserve)
-# tokenize remaining line
-# - don't tokenize words within print quotes or in REM statements
-# - 
+    while ln:
+        (byte, ln) = scan(ln, tokenize = not (in_quotes or in_remark))
+        bytes.append(byte)
+        if byte == ord('"'):
+            in_quotes = not in_quotes
+        if byte == 143:
+            in_remark = True
+    bytes.append(0)
+    return bytes
+
+# scan each line segement and convert to tokenized bytes.  
+# returns byte and remaining line segment
+def scan(ln, tokenize=True):
+    for (token, value) in PETCAT_TOKENS:
+        if ln.startswith(token):
+            return (value, ln[len(token):])
+    if tokenize:
+        for (token, value) in TOKENS:
+            if ln.startswith(token):
+                return (value, ln[len(token):])
+    char_val = ord(ln[0])
+    if char_val >= 65 and char_val <= 90:
+       char_val = char_val + 128
+    return (char_val, ln[1:])
+
+def low_high_bytes(num):
+    """num is an integer 0-65535"""
+    low = num & 255
+    high = (num >> 8) & 255
+    return low, high
+
 
 def main(argv=None):
     # call function to parse command line input arguments
     args = parse_args(argv)
 
     # define load address from input argument
-    addr = args.loadaddr[0]
+    load_addr = args.loadaddr[0]
 
+    
     # call function to read input file lines
     try:
         lines_list = read_file(args.file_in)
@@ -270,14 +341,45 @@ def main(argv=None):
             for line in lines_list:
                 file.write(line + '\n')
 
-'''        
+    # configure TOKENS based on Commodore BASIC version chosen
+    if args.version[0] == '2':
+        global TOKENS
+        TOKENS = CORE_TOKENS
+    
+    addr = int(load_addr, 16)
+    out_list = []
+    
     for line in lines_list:
         # split each line into line number and remaining text
         (line_num, line_txt) = split_line_num(line)
-        print(line)
-        print((line_num, line_txt))
-'''
+        
+        token_ln = []
+        # add load address at start of first line only
+        if addr == int(load_addr, 16):
+            token_ln.append(addr.to_bytes(2, 'little'))
 
+        byte_list = scan_manager(line_txt)
+
+        addr = addr + len(byte_list) + 4
+        
+        token_ln.append(addr.to_bytes(2, 'little'))
+        token_ln.append(line_num.to_bytes(2, 'little'))
+
+        token_ln.append(byte_list)
+
+        token_ln = [byte for sublist in token_ln for byte in sublist]
+        
+        # print(line)
+        # print(addr)
+        # print(low_high_bytes(addr))
+        # print(token_ln)
+        out_list.append(token_ln)
+        
+    out_list.append([0, 0])
+    
+    out_list = [f'{byte:08b}' for sublist in out_list for byte in sublist]
+    
+    print(out_list) 
 if __name__ == '__main__':
     sys.exit(main())
 
