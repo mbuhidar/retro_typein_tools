@@ -32,7 +32,7 @@
 520 rem walk on sidewalk
 530 bo=129:bc=15:goto137
 540 rem check for complete job
-545 ll=0:print"{up}{up}{up}   looking over your work."
+545 ll=0:print"{up}{up}{up}         looking over your work."
 546 forgg=1to0:pokes+1,gg:foryy=255to0step-1:pokes,yy:next:next:pokes+1,0
 550 forv=1024to2023:pv=peek(v+co)and15:gosub560:next
 552 ifll=mmthen600

@@ -225,6 +225,12 @@ def read_file(filename):
             lower_lines.append(line.rstrip().lower())
         return lower_lines
 
+# write list of integers as binary file
+def write_binary(filename, int_list):
+    with open(filename, "wb") as file:
+        for byte in int_list:
+            file.write(byte.to_bytes(1, byteorder='big'))
+
 # convert ahoy special characters to petcat special characters
 def ahoy_lines_list(lines_list):
 
@@ -295,16 +301,9 @@ def scan(ln, tokenize=True):
             if ln.startswith(token):
                 return (value, ln[len(token):])
     char_val = ord(ln[0])
-    if char_val >= 65 and char_val <= 90:
-       char_val = char_val + 128
+    if char_val >= 97 and char_val <= 122:
+       char_val = char_val - 32
     return (char_val, ln[1:])
-
-def low_high_bytes(num):
-    """num is an integer 0-65535"""
-    low = num & 255
-    high = (num >> 8) & 255
-    return low, high
-
 
 def main(argv=None):
     # call function to parse command line input arguments
@@ -312,7 +311,6 @@ def main(argv=None):
 
     # define load address from input argument
     load_addr = args.loadaddr[0]
-
     
     # call function to read input file lines
     try:
@@ -335,11 +333,15 @@ def main(argv=None):
     outfile = args.file_in.split('.')[0] + '.bas'
     overwrite = 'y'
     if path.isfile(outfile):
-        overwrite = input(f'Output file "{outfile}" already exists. Overwrite? (Y = yes) ')
+        overwrite = input(f'Output file "{outfile}" already exists. '
+                           'Overwrite? (Y = yes) ')
     if overwrite.lower() == 'y':
         with open(outfile, "w") as file:
             for line in lines_list:
                 file.write(line + '\n')
+    else:
+        print('File not overwritten')
+        sys.exit(1)
 
     # configure TOKENS based on Commodore BASIC version chosen
     if args.version[0] == '2':
@@ -369,17 +371,29 @@ def main(argv=None):
 
         token_ln = [byte for sublist in token_ln for byte in sublist]
         
-        # print(line)
+        print(line)
         # print(addr)
-        # print(low_high_bytes(addr))
-        # print(token_ln)
+        print(token_ln)
         out_list.append(token_ln)
         
     out_list.append([0, 0])
     
-    out_list = [f'{byte:08b}' for sublist in out_list for byte in sublist]
-    
+    out_list = [byte for sublist in out_list for byte in sublist]
+
     print(out_list) 
+    print([f'{byte:08b}' for byte in out_list])
+    print(out_list[561])
+    bin_file = args.file_in.split('.')[0] + '.prg'
+    overwrite_bin = 'y'
+    if path.isfile(bin_file):
+        overwrite_bin = input(f'Output file "{bin_file}" already exists. '
+                               'Overwrite? (Y = yes) ')
+    if overwrite_bin.lower() == 'y':
+        write_binary(bin_file, out_list)
+    else:
+        print('File not overwritten')
+        sys.exit(1)
+
 if __name__ == '__main__':
     sys.exit(main())
 
