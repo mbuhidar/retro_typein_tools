@@ -46,83 +46,86 @@ AHOY_TO_PETCAT = {
                   
 # Core Commodore BASIC tokens
 CORE_TOKENS = (
-    ('end', 128),
-    ('for', 129),
-    ('next', 130),
-    ('data', 131),
-    ('input#', 132),
-    ('input', 133),
-    ('dim', 134),
-    ('read', 135),
-    ('let', 136),
-    ('goto', 137),
-    ('run', 138),
-    ('if', 139),
+    ('end',     128),
+    ('for',     129),
+    ('next',    130),
+    ('data',    131),
+    ('input#',  132),
+    ('input',   133),
+    ('dim',     134),
+    ('read',    135),
+    ('let',     136),
+    ('goto',    137),
+    ('run',     138),
+    ('if',      139),
     ('restore', 140),
-    ('gosub', 141),
-    ('return', 142),
-    ('rem', 143),
-    ('stop', 144),
-    ('on', 145),
-    ('wait', 146),
-    ('load', 147),
-    ('save', 148),
-    ('verify', 149),
-    ('def', 150),
-    ('poke', 151),
-    ('print#', 152),
-    ('print', 153),
-    ('cont', 154),
-    ('list', 155),
-    ('clr', 156),
-    ('cmd', 157),
-    ('sys', 158),
-    ('open', 159),
-    ('close', 160),
-    ('get', 161),
-    ('new', 162),
-    ('tab(', 163),
-    ('to', 164),
-    ('fn', 165),
-    ('spc(', 166),
-    ('then', 167),
-    ('not', 168),
-    ('step', 169),
-    ('+', 170),
-    ('-', 171),
-    ('*', 172),
-    ('/', 173),
-    ('^', 174),
-    ('and', 175),
-    ('or', 176),
-    ('>', 177),
-    ('=', 178),
-    ('<', 179),
-    ('sgn', 180),
-    ('int', 181),
-    ('abs', 182),
-    ('usr', 183),
-    ('fre', 184),
-    ('pos', 185),
-    ('sqr', 186),
-    ('rnd', 187),
-    ('log', 188),
-    ('exp', 189),
-    ('cos', 190),
-    ('sin', 191),
-    ('tan', 192),
-    ('atn', 193),
-    ('peek', 194),
-    ('len', 195),
-    ('str$', 196),
-    ('val',    197),
-    ('asc',    198),
-    ('chr$',   199),
-    ('left$',  200),
-    ('right$', 201),
-    ('mid$',   202),
-    ('go',     203),
+    ('gosub',   141),
+    ('return',  142),
+    ('rem',     143),
+    ('stop',    144),
+    ('on',      145),
+    ('wait',    146),
+    ('load',    147),
+    ('save',    148),
+    ('verify',  149),
+    ('def',     150),
+    ('poke',    151),
+    ('print#',  152),
+    ('print',   153),
+    ('cont',    154),
+    ('list',    155),
+    ('clr',     156),
+    ('cmd',     157),
+    ('sys',     158),
+    ('open',    159),
+    ('close',   160),
+    ('get',     161),
+    ('new',     162),
+    ('tab(',    163),
+    ('to',      164),
+    ('fn',      165),
+    ('spc(',    166),
+    ('then',    167),
+    ('not',     168),
+    ('step',    169),
+    ('+',       170),
+    ('-',       171),
+    ('*',       172),
+    ('/',       173),
+    ('^',       174),
+    ('and',     175),
+    ('or',      176),
+    ('>',       177),
+    ('=',       178),
+    ('<',       179),
+    ('sgn',     180),
+    ('int',     181),
+    ('abs',     182),
+    ('usr',     183),
+    ('fre',     184),
+    ('pos',     185),
+    ('sqr',     186),
+    ('rnd',     187),
+    ('log',     188),
+    ('exp',     189),
+    ('cos',     190),
+    ('sin',     191),
+    ('tan',     192),
+    ('atn',     193),
+    ('peek',    194),
+    ('len',     195),
+    ('str$',    196),
+    ('val',     197),
+    ('asc',     198),
+    ('chr$',    199),
+    ('left$',   200),
+    ('right$',  201),
+    ('mid$',    202),
+    ('go',      203),
 )
+
+global TOKENS
+TOKENS = CORE_TOKENS # case for Commodore BASIC v2 only. TODO: Add versions
 
 # Tokens for special character designations used by petcat
 PETCAT_TOKENS = (
@@ -163,13 +166,12 @@ PETCAT_TOKENS = (
 )
 
 def parse_args(argv):
-
-    # create parser object
+    # parse command line inputs and generate cli documentation
     parser = argparse.ArgumentParser(description =\
-    "A tokenizer for Commodore BASIC typein programs.",\
+    "A tokenizer for Commodore BASIC typein programs. So far, supports Ahoy \n"
+    "magazine and Commodore BASIC 2.0 (C64 and VIC20).",\
     formatter_class=RawTextHelpFormatter)
 
-    # define arguments for parser object
     parser.add_argument(
         "-l", "--loadaddr", type=str, nargs=1, required=False, 
         metavar="load_address", default=["0x0801"],
@@ -210,11 +212,20 @@ def parse_args(argv):
                "'.prg' for Commordore run fule format."
     )
 
-    # parse and return the arguments
     return parser.parse_args(argv)
 
-# read input file and return list of lowercase strings
 def read_file(filename):
+    """Opens and reads magazine source, strips whitespace, and
+       returns a list of lines converted to lowercase 
+
+    Args:
+        filename (str): The file name of the magazine source file
+
+    Returns:
+        list: a list of strings for each non-blank line from the source file
+            converted to lowercase
+    """
+
     with open(filename) as file:
         lines = file.readlines()
         lower_lines = []
@@ -225,8 +236,18 @@ def read_file(filename):
             lower_lines.append(line.rstrip().lower())
         return lower_lines
 
-# write list of integers as binary file
 def write_binary(filename, int_list):
+    """Write binary file readable on Commodore computers or emulators
+
+    Args:
+        filename (str): The file name of the file to write as binary
+        int_list (list): List of integers to convert to binary bytes and 
+            output write to file
+
+    Returns:
+        None: implicit return
+    """
+    
     with open(filename, "wb") as file:
         for byte in int_list:
             file.write(byte.to_bytes(1, byteorder='big'))
@@ -237,36 +258,53 @@ def ahoy_lines_list(lines_list):
     new_lines = []
     
     for line in lines_list:
-        # Check for loose braces and return error
-        # Split each line on ahoy special characters
+        # split each line on ahoy special characters
         str_split = re.split(r"\{\w{2}\}", line)
 
-        # Check for loose braces in each substring, return error statement        
+        # check for loose braces in each substring, return error indication        
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
             if loose_brace is not None:
                 return (None, line)
                 
-        # Replace ahoy special characters with petcat special characters
-        # Create list of ahoy special character code strings
+        # create list of ahoy special character code strings
         code_split = re.findall(r"\{\w{2}\}", line)        
+
         new_codes = []
+        
+        # for each ahoy special character, append the petcat equivalent
         for item in code_split:
             new_codes.append(AHOY_TO_PETCAT[item.upper()])
+            
+        # add blank item to list of special characters to aide enumerate
         if new_codes:
             new_codes.append('')
 
             new_line = []
+
+            # piece the string segments and petcat codes back together
             for count, segment in enumerate(new_codes):
                 new_line.append(str_split[count])
                 new_line.append(new_codes[count])
+        # handle case where line contained no special characters
         else:
             new_line = str_split
         new_lines.append(''.join(new_line))
     return new_lines
 
-# split each line into line number and remaining line
 def split_line_num(line):
+    """Split each line into line number and remaining line text
+
+    Args:
+        line (str): Text of each line to split
+
+    Returns:
+        tuple consisting of:
+            line number (int): Line number split from the beginning of line
+            remaining text (str): Text for remainder of line with whitespace 
+                stripped
+    """
+    
     line = line.lstrip()
     acc = []
     while line and line[0].isdigit():
@@ -293,13 +331,40 @@ def scan_manager(ln):
 # scan each line segement and convert to tokenized bytes.  
 # returns byte and remaining line segment
 def scan(ln, tokenize=True):
+    """Scan beginning of each line for BASIC keywords, petcat special 
+       characters, or ascii characters, convert to tokenized bytes, and
+       return remaining line segment after converted characters are removed
+
+    Args:
+        ln (str): Text of each line segment to parse and convert
+        tokenize (bool): Flag to indicate if start of line segment should be
+            tokenized (False if line segment start is within quotes or after
+            a REM statement) 
+
+    Returns:
+        tuple consisting of:
+            character/token value (int): Decimal value of ascii character or
+                tokenized word
+            remainder of line (str): Text for remainder of line with keyword, 
+                specical character, or alphanumeric character stripped
+    """
+
+    # check if each line passed in starts with a petcat special character
+    # if so, return value of token and line with token string removed
     for (token, value) in PETCAT_TOKENS:
         if ln.startswith(token):
             return (value, ln[len(token):])
+    # if tokenize flag is True (i.e. line beginning is not inside quotes or
+    # after a REM statement), check if line starts with a BASIC keyword
+    # if so, return value of token and line with BASIC keyword removed
     if tokenize:
         for (token, value) in TOKENS:
             if ln.startswith(token):
                 return (value, ln[len(token):])
+    # for characters without token values, convert to unicode (ascii) value
+    # and, for latin letters, shift values by -32 to account for difference
+    # between ascii and petscii used by Commodore BASIC
+    # finally, return character value and line with character removed
     char_val = ord(ln[0])
     if char_val >= 97 and char_val <= 122:
        char_val = char_val - 32
@@ -320,6 +385,7 @@ def main(argv=None):
         sys.exit(1)
 
     # convert to petcat format and write petcat-ready file
+    # TODO: Add COMPUTE and other magazine format
     if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
         if lines_list[0] is None:
@@ -330,6 +396,7 @@ def main(argv=None):
         for line in lines_list:
             print(str(line))
         
+    # TODO: Move source file reading to a generalized function
     outfile = args.file_in.split('.')[0] + '.bas'
     overwrite = 'y'
     if path.isfile(outfile):
@@ -343,12 +410,8 @@ def main(argv=None):
         print('File not overwritten')
         sys.exit(1)
 
-    # configure TOKENS based on Commodore BASIC version chosen
-    if args.version[0] == '2':
-        global TOKENS
-        TOKENS = CORE_TOKENS
-    
     addr = int(load_addr, 16)
+
     out_list = []
     
     for line in lines_list:
@@ -383,6 +446,9 @@ def main(argv=None):
     print(out_list) 
     print([f'{byte:08b}' for byte in out_list])
     print(out_list[561])
+    
+    # Write binary file compatible with Commodore computers or emulators
+    # TODO: Move file overwrite management to generalized function
     bin_file = args.file_in.split('.')[0] + '.prg'
     overwrite_bin = 'y'
     if path.isfile(bin_file):
