@@ -5,33 +5,32 @@ from typein_tokenizer.tokenizer import parse_args, \
                                        split_line_num, \
                                        scan
 
-def test_parse_args():
+@pytest.mark.parametrize(
+    "argv, arg_valid",
+    [
+        (['infile.bas'],
+        ['0x0801', '2', 'ahoy', 'infile.bas']),
+        (['infile.bas', '-s', 'pet'],
+        ['0x0801', '2', 'pet', 'infile.bas']),
+        (['infile.bas', '-v', '7'],
+        ['0x0801', '7', 'ahoy', 'infile.bas']),
+        (['infile.bas', '-l', '0x1001'],
+        ['0x1001', '2', 'ahoy', 'infile.bas']),
+        (['-v', '4', 'infile.bas', '-s', 'ahoy', '-l', '0x1001'],
+        ['0x1001', '4', 'ahoy', 'infile.bas']),
+    ],
+)
+
+def test_parse_args(argv, arg_valid):
     """
     Unit test to check that function parse_args() yields the correct list of
     arguments for a range of different command line input combinations.
     """
 
-    argv = [
-        ['infile.bas'],
-        ['infile.bas', '-s', 'pet'],
-        ['infile.bas', '-v', '7'],
-        ['infile.bas', '-l', '0x1001'],
-        ['-v', '4', 'infile.bas', '-s', 'ahoy', '-l', '0x1001'],
-    ]
-            
-    arg_valid = [
-        ['0x0801', '2', 'ahoy', 'infile.bas'],
-        ['0x0801', '2', 'pet', 'infile.bas'],
-        ['0x0801', '7', 'ahoy', 'infile.bas'],
-        ['0x1001', '2', 'ahoy', 'infile.bas'],
-        ['0x1001', '4', 'ahoy', 'infile.bas'],
-    ]
-  
-    for i in range(len(argv)):
-        args = parse_args(argv[i])
-        arg_list = [args.loadaddr[0], args.version[0], args.source[0],
-        args.file_in]
-        assert arg_list == arg_valid[i]
+    args = parse_args(argv)
+    arg_list = [args.loadaddr[0], args.version[0],
+                args.source[0], args.file_in]
+    assert arg_list == arg_valid
 
 @pytest.fixture
 def infile_data():
