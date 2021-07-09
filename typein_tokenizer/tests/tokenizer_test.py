@@ -3,7 +3,8 @@ from typein_tokenizer.tokenizer import parse_args, \
                                        read_file, \
                                        ahoy_lines_list, \
                                        split_line_num, \
-                                       scan
+                                       scan, \
+                                       scan_manager
 
 @pytest.mark.parametrize(
     "argv, arg_valid",
@@ -75,7 +76,7 @@ def test_ahoy_lines_list(lines_list, new_lines):
     assert ahoy_lines_list(lines_list) == new_lines
 
 @pytest.mark.parametrize(
-    "line, sp_line",
+    "line, split_line",
     [
         ('10 print"hello!"', (10, 'print"hello!"')),
         ('20   goto10', (20, 'goto10')),
@@ -83,35 +84,73 @@ def test_ahoy_lines_list(lines_list, new_lines):
     ],
 )
 
-def test_split_line_num(line, sp_line):
+def test_split_line_num(line, split_line):
     """
     Unit test to check that function split_line_num() is properly splitting each
     line into tuples consisting of line number(int) and remaining line text(str).
     """
-    assert split_line_num(line) == (sp_line)
+    assert split_line_num(line) == (split_line)
     
 # TODO: Write test for write_binary() function
 # def test_write_binary():
+''' Example code:
 
-# TODO: Write test for scan_manager() function
-# def test_scan_manager():
+    def writetoafile(fname):
+        with open(fname, 'w') as fp:
+            fp.write('Hello\n')
+    
+    def test_writetofile(tmpdir):
+        file = tmpdir.join('output.txt')
+        writetoafile(file.strpath)  # or use str(file)
+        assert file.read() == 'Hello\n'
+'''
 
-# TODO: Write test for scan() function
-#def test_scan()
+'''
+def test_write_binary(tmpdir):
+    file = tmpdir.join('output.prg')
+    write_binary(  )
+    assert file.read() == '321136'
+'''
 
 @pytest.mark.parametrize(
-    "ln, tokenize, byte, rem_line",
+    "ln, bytes",
     [
-        (' space test', False, 32, 'space test'),
-        ('goto11', True, 137, '11'),
+        ('rem lawn', [143, 32, 76, 65, 87, 78, 0]),
+        ('goto110', [137, 49, 49, 48, 0]),
+        ('printtab(10);sc$', [153, 163, 49, 48, 41, 59, 83, 67, 36, 0]),
+        ('printtab(16)"{lgrn}{down}l',
+         [153, 163, 49, 54, 41, 34, 153, 17, 76, 0]),
+        ('data15,103,255,169', 
+         [131, 49, 53, 44, 49, 48, 51, 44, 50, 53, 53, 44, 49, 54, 57, 0]),
     ],
 )
 
-def test_scan(ln, tokenize, byte, rem_line):
+def test_scan_manager(ln, bytes):
+    """
+    Unit test to check that function scan_manager() is properly managing the
+    conversion of a line of text to a list of tokenized bytes in decimal form.
+    """
+
+    assert scan_manager(ln) == bytes
+
+@pytest.mark.parametrize(
+    "ln, tokenize, byte, remaining_line",
+    [
+        (' space test', False, 32, 'space test'),
+        ('goto11', True, 137, '11'),
+        ('goto11', False, 71, 'oto11'),
+        ('rem start mower', True, 143, ' start mower'),
+        (' start mower', False, 32, 'start mower'),
+        ('{wht}"tab(32)', True, 5, '"tab(32)'),
+    ],
+)
+
+def test_scan(ln, tokenize, byte, remaining_line):
     """
     Unit test to check that function scan() is properly converting the start
     of each passed in line to a tokenized byte for BASIC keywords, petcat
     special characters, and alphanumeric characters.
     """
-    assert scan(ln, tokenize) == (byte, rem_line)
+    
+    assert scan(ln, tokenize) == (byte, remaining_line)
 

@@ -125,7 +125,7 @@ CORE_TOKENS = (
 )
 
 global TOKENS
-TOKENS = CORE_TOKENS # case for Commodore BASIC v2 only. TODO: Add versions
+TOKENS = CORE_TOKENS # case for Commodore BASIC v2. TODO: Add versions
 
 # Tokens for special character designations used by petcat
 PETCAT_TOKENS = (
