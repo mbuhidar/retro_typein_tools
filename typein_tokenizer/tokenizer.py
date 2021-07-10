@@ -124,8 +124,8 @@ CORE_TOKENS = (
     ('go',      203),
 )
 
-global TOKENS
-TOKENS = CORE_TOKENS # case for Commodore BASIC v2. TODO: Add versions
+global TOKENS_V2
+TOKENS_V2 = CORE_TOKENS # case for Commodore BASIC v2. TODO: Add versions
 
 # Tokens for special character designations used by petcat
 PETCAT_TOKENS = (
@@ -358,7 +358,7 @@ def scan(ln, tokenize=True):
     # after a REM statement), check if line starts with a BASIC keyword
     # if so, return value of token and line with BASIC keyword removed
     if tokenize:
-        for (token, value) in TOKENS:
+        for (token, value) in TOKENS_V2:
             if ln.startswith(token):
                 return (value, ln[len(token):])
     # for characters without token values, convert to unicode (ascii) value
@@ -388,10 +388,11 @@ def main(argv=None):
     # TODO: Add COMPUTE and other magazine format
     if args.source[0] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
+        # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
-            print(f"Loose brace error in line:\n {lines_list[1]}")
-            print("Special characters should be enclosed in two braces.")
-            print("Please check for unmatched single braces in above line.")
+            print(f"Loose brace error in line:\n {lines_list[1]}\n"\
+                   "Special characters should be enclosed in two braces.\n"\
+                   "Please check for unmatched single braces in above line.")
             sys.exit(1)
         for line in lines_list:
             print(str(line))
