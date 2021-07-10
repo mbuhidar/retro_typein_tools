@@ -4,7 +4,8 @@ from typein_tokenizer.tokenizer import parse_args, \
                                        ahoy_lines_list, \
                                        split_line_num, \
                                        scan, \
-                                       scan_manager
+                                       scan_manager, \
+                                       write_binary
 
 @pytest.mark.parametrize(
     "argv, arg_valid",
@@ -89,28 +90,26 @@ def test_split_line_num(line, split_line):
     Unit test to check that function split_line_num() is properly splitting each
     line into tuples consisting of line number(int) and remaining line text(str).
     """
+
     assert split_line_num(line) == (split_line)
     
-# TODO: Write test for write_binary() function
-# def test_write_binary():
-''' Example code:
-
-    def writetoafile(fname):
-        with open(fname, 'w') as fp:
-            fp.write('Hello\n')
-    
-    def test_writetofile(tmpdir):
-        file = tmpdir.join('output.txt')
-        writetoafile(file.strpath)  # or use str(file)
-        assert file.read() == 'Hello\n'
-'''
-
-'''
 def test_write_binary(tmpdir):
+    """
+    Unit test to check that function write_binary() is properly writing a list
+    of decimals to a binary file.
+    """
+    
     file = tmpdir.join('output.prg')
-    write_binary(  )
-    assert file.read() == '321136'
-'''
+    # For reference, the ahoy input for the byte list below is:
+    # 10 print"hello"
+    # 20 goto10
+    write_binary(file, [1, 8, 16, 8, 10, 0, 153, 40, 34,
+                        72, 69, 76, 76, 79, 34, 41, 0,
+                        24, 8, 20, 0, 137, 49, 48, 0, 0, 0])
+    with open(file, 'rb') as f:
+        contents = f.read()
+    assert contents == b'\x01\x08\x10\x08\n\x00\x99("HELLO")\
+\x00\x18\x08\x14\x00\x8910\x00\x00\x00'
 
 @pytest.mark.parametrize(
     "ln, bytes",

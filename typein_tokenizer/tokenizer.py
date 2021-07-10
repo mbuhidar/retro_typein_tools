@@ -445,7 +445,6 @@ def main(argv=None):
 
     print(out_list) 
     print([f'{byte:08b}' for byte in out_list])
-    print(out_list[561])
     
     # Write binary file compatible with Commodore computers or emulators
     # TODO: Move file overwrite management to generalized function
