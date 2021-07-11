@@ -153,3 +153,5 @@ def test_scan(ln, tokenize, byte, remaining_line):
     
     assert scan(ln, tokenize) == (byte, remaining_line)
 
+# TODO: Write test for check_overwrite()
+
