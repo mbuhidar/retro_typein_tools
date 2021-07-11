@@ -370,6 +370,41 @@ def scan(ln, tokenize=True):
        char_val = char_val - 32
     return (char_val, ln[1:])
 
+def check_overwrite(filename):
+    overwrite = 'y'
+    if path.isfile(filename):
+        overwrite = input(f'Output file "{filename}" already exists. '
+                           'Overwrite? (Y = yes) ')
+    if overwrite.lower() == 'y':
+        return True
+    else:
+        print('File not overwritten - exiting.')
+        sys.exit(1)
+
+def hex_to_ahoy_repellent_code(hex_value):
+    '''
+    Function to convert hex to alpha only representation that the
+    Ahoy Bug Repellent tool uses.  Algorithm:  First hex character maps
+    directly to the alpha character shown in the below mapping. Second 
+    alpha character is determined by indexing from first character by the
+    value of the second hex digit.
+
+    hex:   0 1 2 3 4 5 6 7 8 9 a b c d e f
+    alpha: A B C D E F G H I J K L M N O P
+    
+    So, hex 47 is alpha EL, hex 97 is alpha JA, hex df is alpha NM  
+    '''
+
+    alpha_map = "ABCDEFGHIJKLMNOP"
+    
+    hex_chars =  str(hex_value)[-2:]
+    idx0 = int(hex_chars[0], 16)
+    idx1 = int(hex_chars[0], 16) + int(hex_chars[1], 16)
+    if idx1 > 15:
+        idx1 = idx1 - 16
+
+    return alpha_map[idx0] + alpha_map[idx1]
+
 def main(argv=None):
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -377,6 +412,7 @@ def main(argv=None):
     # define load address from input argument
     load_addr = args.loadaddr[0]
     
+    # TODO: Improve implementation of input file reading using with block
     # call function to read input file lines
     try:
         lines_list = read_file(args.file_in)
@@ -397,19 +433,12 @@ def main(argv=None):
         for line in lines_list:
             print(str(line))
         
-    # TODO: Move source file reading to a generalized function
+    # Write petcat ready file with extension .bas 
     outfile = args.file_in.split('.')[0] + '.bas'
-    overwrite = 'y'
-    if path.isfile(outfile):
-        overwrite = input(f'Output file "{outfile}" already exists. '
-                           'Overwrite? (Y = yes) ')
-    if overwrite.lower() == 'y':
+    if check_overwrite(outfile):
         with open(outfile, "w") as file:
             for line in lines_list:
                 file.write(line + '\n')
-    else:
-        print('File not overwritten')
-        sys.exit(1)
 
     addr = int(load_addr, 16)
 
@@ -430,14 +459,12 @@ def main(argv=None):
         
         token_ln.append(addr.to_bytes(2, 'little'))
         token_ln.append(line_num.to_bytes(2, 'little'))
-
         token_ln.append(byte_list)
-
         token_ln = [byte for sublist in token_ln for byte in sublist]
         
         print(line)
-        # print(addr)
         print(token_ln)
+
         out_list.append(token_ln)
         
     out_list.append([0, 0])
@@ -448,17 +475,9 @@ def main(argv=None):
     print([f'{byte:08b}' for byte in out_list])
     
     # Write binary file compatible with Commodore computers or emulators
-    # TODO: Move file overwrite management to generalized function
     bin_file = args.file_in.split('.')[0] + '.prg'
-    overwrite_bin = 'y'
-    if path.isfile(bin_file):
-        overwrite_bin = input(f'Output file "{bin_file}" already exists. '
-                               'Overwrite? (Y = yes) ')
-    if overwrite_bin.lower() == 'y':
+    if check_overwrite(bin_file):
         write_binary(bin_file, out_list)
-    else:
-        print('File not overwritten')
-        sys.exit(1)
 
 if __name__ == '__main__':
     sys.exit(main())
