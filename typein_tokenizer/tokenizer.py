@@ -320,6 +320,7 @@ def scan_manager(ln):
     
     while ln:
         (byte, ln) = scan(ln, tokenize = not (in_quotes or in_remark))
+        # if byte is not None:
         bytes.append(byte)
         if byte == ord('"'):
             in_quotes = not in_quotes
@@ -368,6 +369,8 @@ def scan(ln, tokenize=True):
     char_val = ord(ln[0])
     if char_val >= 97 and char_val <= 122:
        char_val = char_val - 32
+    # if char_val == 32:
+    #     char_val = None
     return (char_val, ln[1:])
 
 def check_overwrite(filename):
@@ -405,6 +408,37 @@ def hex_to_ahoy_repellent_code(hex_value):
 
     return alpha_map[idx0] + alpha_map[idx1]
 
+def ahoy_checksum(byte_list):
+    print(byte_list)
+    prior_val = 0
+    char_position = 1
+    in_quotes = False
+
+    for item in byte_list:
+
+        if item == 34:
+            in_quotes = not in_quotes
+            # char_position = char_position + 1
+            # continue
+        if item == 32 and in_quotes is False:
+            continue
+        else:
+            xor = (item + prior_val) ^ char_position        
+            prior_val = xor
+            char_position = char_position + 1
+    
+    xor = (item + prior_val) ^ char_position       
+    # print(char_position, hex(item), hex(xor)) 
+    # get high nibble of xor 
+    high_nib = (xor & 0xf0) >> 4 
+    high_char_val = high_nib + 65 # 0x41
+    # get low nibble of xor 
+    low_nib = xor & 0x0f
+    low_char_val = low_nib + 65 # 0x41
+    # print(high_nib, high_char_val, low_char_val)
+    checksum = chr(high_char_val) + chr(low_char_val)
+    return checksum
+        
 def main(argv=None):
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -465,19 +499,25 @@ def main(argv=None):
         print(line)
         print(token_ln)
 
+        # call line checker from here
+        print(ahoy_checksum(byte_list))
+
         out_list.append(token_ln)
         
     out_list.append([0, 0])
     
-    out_list = [byte for sublist in out_list for byte in sublist]
+    dec_list = [byte for sublist in out_list for byte in sublist]
 
-    print(out_list) 
-    print([f'{byte:08b}' for byte in out_list])
+    hex_list = [hex(byte) for sublist in out_list for byte in sublist]
+
+    print(dec_list)
+    print(hex_list)
+    print([f'{byte:08b}' for byte in dec_list])
     
     # Write binary file compatible with Commodore computers or emulators
     bin_file = args.file_in.split('.')[0] + '.prg'
     if check_overwrite(bin_file):
-        write_binary(bin_file, out_list)
+        write_binary(bin_file, dec_list)
 
 if __name__ == '__main__':
     sys.exit(main())
