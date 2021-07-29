@@ -409,33 +409,38 @@ def hex_to_ahoy_repellent_code(hex_value):
     return alpha_map[idx0] + alpha_map[idx1]
 
 def ahoy_checksum(byte_list):
+    '''
+    UNFINISHED... Function to create Ahoy checksums from passed in byte list 
+    to match the codes printed in the magazine to check each line for typed in
+    accuracy.  Functionally works, but there is a logic difference to original
+    that is yielding incorrect checksum character representations.
+    '''
+
     print(byte_list)
-    prior_val = 0
+    xor_value = 0
     char_position = 1
     in_quotes = False
-
+    
     for item in byte_list:
-
+        # Detect quote symbol in line and toggle in-quotes flag
         if item == 34:
             in_quotes = not in_quotes
-            # char_position = char_position + 1
-            # continue
+        # Detect spaces that are outside of quotes and ignore them, else 
+        # execute primary checksum generation algorithm
         if item == 32 and in_quotes is False:
             continue
         else:
-            xor = (item + prior_val) ^ char_position        
-            prior_val = xor
+            xor_value = (item + xor_value) ^ char_position        
             char_position = char_position + 1
-    
-    xor = (item + prior_val) ^ char_position       
-    # print(char_position, hex(item), hex(xor)) 
-    # get high nibble of xor 
-    high_nib = (xor & 0xf0) >> 4 
+        # development line - delete later
+        # print(char_position-1, hex(item), hex(xor_value))
+
+    # get high nibble of xor_value 
+    high_nib = (xor_value & 0xf0) >> 4 
     high_char_val = high_nib + 65 # 0x41
-    # get low nibble of xor 
-    low_nib = xor & 0x0f
+    # get low nibble of xor_value 
+    low_nib = xor_value & 0x0f
     low_char_val = low_nib + 65 # 0x41
-    # print(high_nib, high_char_val, low_char_val)
     checksum = chr(high_char_val) + chr(low_char_val)
     return checksum
         
@@ -499,7 +504,7 @@ def main(argv=None):
         print(line)
         print(token_ln)
 
-        # call line checker from here
+        # call checksum generator function
         print(ahoy_checksum(byte_list))
 
         out_list.append(token_ln)
@@ -510,9 +515,10 @@ def main(argv=None):
 
     hex_list = [hex(byte) for sublist in out_list for byte in sublist]
 
-    print(dec_list)
-    print(hex_list)
-    print([f'{byte:08b}' for byte in dec_list])
+    # development lines - delete later
+    # print(dec_list)
+    # print(hex_list)
+    # print([f'{byte:08b}' for byte in dec_list])
     
     # Write binary file compatible with Commodore computers or emulators
     bin_file = args.file_in.split('.')[0] + '.prg'
