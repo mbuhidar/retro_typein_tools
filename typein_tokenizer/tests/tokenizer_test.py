@@ -6,7 +6,9 @@ from typein_tokenizer.tokenizer import parse_args, \
                                        scan, \
                                        scan_manager, \
                                        write_binary, \
-                                       hex_to_ahoy_repellent_code 
+                                       hex_to_ahoy_repellent_code, \
+                                       ahoy_checksum
+
 @pytest.mark.parametrize(
     "argv, arg_valid",
     [
@@ -168,4 +170,32 @@ def test_scan(ln, tokenize, byte, remaining_line):
 def test_hex_to_ahoy_repellent_code(hex_input, ahoy_alpha):
     
     assert hex_to_ahoy_repellent_code(hex_input) == ahoy_alpha
+
+
+@pytest.mark.parametrize(
+    "byte_list, checksum",
+    [
+        # '10 GZ'
+        ([71, 90, 0], 'KF'),
+        # '30 G Z'
+        ([71, 32, 90, 0], 'KF'),
+        # '40 PRINT"HELLO WORLD"
+        ([153, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0], 'PE'),
+        # '50 PRINT "HELLO WORLD"
+        ([153, 32, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0], 'PE'),
+        # '60 AA1'
+        ([65, 65, 49, 0], 'LO'),
+        # '70 AA1'
+        ([65, 65, 50, 0], 'LN'),
+        # add AA is IE; BB is IE; CC is II; DD is II
+    ],
+)
+
+def test_ahoy_checksum(byte_list, checksum):
+    """
+    Unit test to check that function ahoy_checksum() is properly calculating
+    and returning the proper ahoy checksum code.
+    """
+
+    assert ahoy_checksum(byte_list) == checksum
 

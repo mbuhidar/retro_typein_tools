@@ -6,164 +6,14 @@ from os import path
 import re
 import sys
 
-# Dictionary for special character conversion from ahoy to petcat
-AHOY_TO_PETCAT = {
-    "{SC}": "{clr}",
-    "{HM}": "{home}",
-    "{CU}": "{up}",
-    "{CD}": "{down}",
-    "{CL}": "{left}",
-    "{CR}": "{rght}",
-    "{SS}": "{$a0}",
-    "{IN}": "{inst}",
-    "{RV}": "{rvon}",
-    "{RO}": "{rvof}",
-    "{BK}": "{blk}",
-    "{WH}": "{wht}",
-    "{RD}": "{red}",
-    "{CY}": "{cyn}",
-    "{PU}": "{pur}",
-    "{GN}": "{grn}",
-    "{BL}": "{blu}",
-    "{YL}": "{yel}",
-    "{OR}": "{orng}",
-    "{BR}": "{brn}",
-    "{LR}": "{lred}",
-    "{G1}": "{gry1}",
-    "{G2}": "{gry2}",
-    "{LG}": "{lgrn}",
-    "{LB}": "{lblu}",
-    "{G3}": "{gry3}",
-    "{F1}": "{f1}",
-    "{F2}": "{f2}",
-    "{F3}": "{f3}",
-    "{F4}": "{f4}",
-    "{F5}": "{f5}",
-    "{F6}": "{f6}",
-    "{F7}": "{f7}",
-    "{F8}": "{f8}",
-}
-                  
-# Core Commodore BASIC tokens
-CORE_TOKENS = (
-    ('end',     128),
-    ('for',     129),
-    ('next',    130),
-    ('data',    131),
-    ('input#',  132),
-    ('input',   133),
-    ('dim',     134),
-    ('read',    135),
-    ('let',     136),
-    ('goto',    137),
-    ('run',     138),
-    ('if',      139),
-    ('restore', 140),
-    ('gosub',   141),
-    ('return',  142),
-    ('rem',     143),
-    ('stop',    144),
-    ('on',      145),
-    ('wait',    146),
-    ('load',    147),
-    ('save',    148),
-    ('verify',  149),
-    ('def',     150),
-    ('poke',    151),
-    ('print#',  152),
-    ('print',   153),
-    ('cont',    154),
-    ('list',    155),
-    ('clr',     156),
-    ('cmd',     157),
-    ('sys',     158),
-    ('open',    159),
-    ('close',   160),
-    ('get',     161),
-    ('new',     162),
-    ('tab(',    163),
-    ('to',      164),
-    ('fn',      165),
-    ('spc(',    166),
-    ('then',    167),
-    ('not',     168),
-    ('step',    169),
-    ('+',       170),
-    ('-',       171),
-    ('*',       172),
-    ('/',       173),
-    ('^',       174),
-    ('and',     175),
-    ('or',      176),
-    ('>',       177),
-    ('=',       178),
-    ('<',       179),
-    ('sgn',     180),
-    ('int',     181),
-    ('abs',     182),
-    ('usr',     183),
-    ('fre',     184),
-    ('pos',     185),
-    ('sqr',     186),
-    ('rnd',     187),
-    ('log',     188),
-    ('exp',     189),
-    ('cos',     190),
-    ('sin',     191),
-    ('tan',     192),
-    ('atn',     193),
-    ('peek',    194),
-    ('len',     195),
-    ('str$',    196),
-    ('val',     197),
-    ('asc',     198),
-    ('chr$',    199),
-    ('left$',   200),
-    ('right$',  201),
-    ('mid$',    202),
-    ('go',      203),
-)
+import char_maps
+
+AHOY_TO_PETCAT = char_maps.AHOY_TO_PETCAT
+CORE_TOKENS = char_maps.CORE_TOKENS
+PETCAT_TOKENS = char_maps.PETCAT_TOKENS
 
 global TOKENS_V2
 TOKENS_V2 = CORE_TOKENS # case for Commodore BASIC v2. TODO: Add versions
-
-# Tokens for special character designations used by petcat
-PETCAT_TOKENS = (
-    ('{clr}',  147),
-    ('{home}',  19),
-    ('{up}',   145),
-    ('{down}',  17),
-    ('{left}', 157),
-    ('{rght}',  29),
-    ('{$a0}',  160),
-    ('{inst}', 148),
-    ('{rvon}',  18),
-    ('{rvof}', 146),
-    ('{blk}',  144),
-    ('{wht}',    5),
-    ('{red}',   28),
-    ('{cyn}',  159),
-    ('{pur}',  156),
-    ('{grn}',   30),
-    ('{blu}',   31),
-    ('{yel}',  158),
-    ('{orng}', 129),
-    ('{brn}',  149),
-    ('{lred}', 150),
-    ('{gry1}', 151),
-    ('{gry2}', 152),
-    ('{lgrn}', 153),
-    ('{lblu}', 154),
-    ('{gry3}', 155),
-    ('{f1}',   133),
-    ('{f2}',   134),
-    ('{f3}',   135),
-    ('{f4}',   136),
-    ('{f5}',   137),
-    ('{f6}',   138),
-    ('{f7}',   139),
-    ('{f8}',   140),
-)
 
 def parse_args(argv):
     # parse command line inputs and generate cli documentation
@@ -420,20 +270,34 @@ def ahoy_checksum(byte_list):
     xor_value = 0
     char_position = 1
     in_quotes = False
+
+    for char_val in byte_list:
     
-    for item in byte_list:
+        if char_val >= 97 and char_val <= 122:
+            char_val = char_val - 32
+
         # Detect quote symbol in line and toggle in-quotes flag
-        if item == 34:
+        if char_val == 34:
             in_quotes = not in_quotes
+
         # Detect spaces that are outside of quotes and ignore them, else 
         # execute primary checksum generation algorithm
-        if item == 32 and in_quotes is False:
+        if char_val == 32 and in_quotes is False:
             continue
         else:
-            xor_value = (item + xor_value) ^ char_position        
+            next_value = char_val + xor_value 
+            if next_value > 255:
+                # Limit result to fit in single byte (could also subtract 256)
+                next_value = next_value ^ 256 
+
+            xor_value = next_value ^ char_position        
+
+            print("char_pos:", char_position,
+                  "  char_val: ", char_val,
+                  "  next_val: ", next_value, hex(next_value),
+                  "  xor_val: ", xor_value, hex(xor_value))
+
             char_position = char_position + 1
-        # development line - delete later
-        # print(char_position-1, hex(item), hex(xor_value))
 
     # get high nibble of xor_value 
     high_nib = (xor_value & 0xf0) >> 4 
@@ -473,11 +337,13 @@ def main(argv=None):
             print(str(line))
         
     # Write petcat ready file with extension .bas 
+    ''' temp disable writing .bas file
     outfile = args.file_in.split('.')[0] + '.bas'
     if check_overwrite(outfile):
         with open(outfile, "w") as file:
             for line in lines_list:
                 file.write(line + '\n')
+    '''
 
     addr = int(load_addr, 16)
 
@@ -521,9 +387,11 @@ def main(argv=None):
     # print([f'{byte:08b}' for byte in dec_list])
     
     # Write binary file compatible with Commodore computers or emulators
+    ''' temp disable writing .prg file
     bin_file = args.file_in.split('.')[0] + '.prg'
     if check_overwrite(bin_file):
         write_binary(bin_file, dec_list)
+    '''
 
 if __name__ == '__main__':
     sys.exit(main())
