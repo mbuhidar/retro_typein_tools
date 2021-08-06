@@ -187,7 +187,15 @@ def test_hex_to_ahoy_repellent_code(hex_input, ahoy_alpha):
         ([65, 65, 49, 0], 'LO'),
         # '70 AA1'
         ([65, 65, 50, 0], 'LN'),
+        # '80 "G"
+        ([34, 71, 34, 0], 'IM'),
+        # '10 PRINT"HI W"
+        ([153, 34, 72, 73, 32, 87, 34, 0], 'PN'),
+        # '11006 printtab(12)"{down}mike buhidar jr."'
+        ([153, 163, 49, 50, 41, 34, 17, 77, 73, 75, 69, 32, 66, 85, 72, 73,\
+          68, 65, 82, 32, 74, 82, 46, 34, 0], 'EI'),
         # add AA is IE; BB is IE; CC is II; DD is II
+        
     ],
 )
 

@@ -266,15 +266,20 @@ def ahoy_checksum(byte_list):
     that is yielding incorrect checksum character representations.
     '''
 
-    print(byte_list)
     xor_value = 0
     char_position = 1
+    carry_flag = 1
     in_quotes = False
 
     for char_val in byte_list:
     
-        if char_val >= 97 and char_val <= 122:
-            char_val = char_val - 32
+        # set carry flag to zero for char values less than ascii value for
+        # quote character since assembly code for repellent sets carry flag 
+        # based on cmp 0x22 (decimal 34)
+        if char_val < 34:
+            carry_flag = 0
+        else:
+            carry_flag = 1
 
         # Detect quote symbol in line and toggle in-quotes flag
         if char_val == 34:
@@ -285,17 +290,12 @@ def ahoy_checksum(byte_list):
         if char_val == 32 and in_quotes is False:
             continue
         else:
-            next_value = char_val + xor_value 
-            if next_value > 255:
-                # Limit result to fit in single byte (could also subtract 256)
-                next_value = next_value ^ 256 
+            next_value = char_val + xor_value + carry_flag
 
             xor_value = next_value ^ char_position        
 
-            print("char_pos:", char_position,
-                  "  char_val: ", char_val,
-                  "  next_val: ", next_value, hex(next_value),
-                  "  xor_val: ", xor_value, hex(xor_value))
+            # limit next value to fit in one byte
+            next_value = next_value & 255
 
             char_position = char_position + 1
 
@@ -337,17 +337,16 @@ def main(argv=None):
             print(str(line))
         
     # Write petcat ready file with extension .bas 
-    ''' temp disable writing .bas file
     outfile = args.file_in.split('.')[0] + '.bas'
     if check_overwrite(outfile):
         with open(outfile, "w") as file:
             for line in lines_list:
                 file.write(line + '\n')
-    '''
 
     addr = int(load_addr, 16)
 
     out_list = []
+    ahoy_checksums = []
     
     for line in lines_list:
         # split each line into line number and remaining text
@@ -367,11 +366,8 @@ def main(argv=None):
         token_ln.append(byte_list)
         token_ln = [byte for sublist in token_ln for byte in sublist]
         
-        print(line)
-        print(token_ln)
-
-        # call checksum generator function
-        print(ahoy_checksum(byte_list))
+        # call checksum generator function to built list of tuples
+        ahoy_checksums.append((line_num, ahoy_checksum(byte_list)))
 
         out_list.append(token_ln)
         
@@ -380,18 +376,19 @@ def main(argv=None):
     dec_list = [byte for sublist in out_list for byte in sublist]
 
     hex_list = [hex(byte) for sublist in out_list for byte in sublist]
-
+    
+    for cs in ahoy_checksums:
+        print(cs[0], cs[1])
+    
     # development lines - delete later
     # print(dec_list)
     # print(hex_list)
     # print([f'{byte:08b}' for byte in dec_list])
     
     # Write binary file compatible with Commodore computers or emulators
-    ''' temp disable writing .prg file
     bin_file = args.file_in.split('.')[0] + '.prg'
     if check_overwrite(bin_file):
         write_binary(bin_file, dec_list)
-    '''
 
 if __name__ == '__main__':
     sys.exit(main())
