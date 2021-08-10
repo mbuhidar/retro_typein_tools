@@ -2,7 +2,7 @@
 
 import argparse
 from argparse import RawTextHelpFormatter
-from os import path
+from os import path, get_terminal_size
 import re
 import sys
 
@@ -308,6 +308,35 @@ def ahoy_checksum(byte_list):
     checksum = chr(high_char_val) + chr(low_char_val)
     return checksum
         
+
+def print_checksums(ahoy_checksums):
+    
+    # Determine current column width of terminal window
+    term_width = get_terminal_size()[0]
+
+    # Determine number of columns to print based on terminal window width
+    columns = int(term_width / 12) 
+
+    rows = int(len(ahoy_checksums) / columns) + 1
+
+    for i in range(rows):
+        for j in range(columns):
+            if i * columns + j+1 <= len(ahoy_checksums):
+                line_no = ahoy_checksums[i + (rows-1) * j][0]
+                code = ahoy_checksums[i + (rows-1) * j][1]
+                left_space = 7 - len(str(line_no)) - len(code)
+                print(" "*left_space, line_no, code, " "*4, end='') 
+            else:
+                pass
+        print(end='\r')
+    print()
+
+    for cs in ahoy_checksums:
+        print(cs[0], cs[1])
+
+    print('col='+str(columns)+'  rows='+str(rows))
+
+
 def main(argv=None):
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -315,7 +344,6 @@ def main(argv=None):
     # define load address from input argument
     load_addr = args.loadaddr[0]
     
-    # TODO: Improve implementation of input file reading using with block
     # call function to read input file lines
     try:
         lines_list = read_file(args.file_in)
@@ -333,15 +361,17 @@ def main(argv=None):
                    "Special characters should be enclosed in two braces.\n"\
                    "Please check for unmatched single braces in above line.")
             sys.exit(1)
-        for line in lines_list:
-            print(str(line))
         
-    # Write petcat ready file with extension .bas 
+    # Write petcat-ready file with extension .bas 
     outfile = args.file_in.split('.')[0] + '.bas'
+
+    print('Writing petcat-ready file "' + outfile + '.\n')
+
     if check_overwrite(outfile):
         with open(outfile, "w") as file:
             for line in lines_list:
                 file.write(line + '\n')
+        print('\nFile "' + outfile + '" written successfully.\n')
 
     addr = int(load_addr, 16)
 
@@ -377,18 +407,19 @@ def main(argv=None):
 
     hex_list = [hex(byte) for sublist in out_list for byte in sublist]
     
-    for cs in ahoy_checksums:
-        print(cs[0], cs[1])
-    
-    # development lines - delete later
-    # print(dec_list)
-    # print(hex_list)
-    # print([f'{byte:08b}' for byte in dec_list])
-    
     # Write binary file compatible with Commodore computers or emulators
+
     bin_file = args.file_in.split('.')[0] + '.prg'
+
+    print('Writing binary output file "' + bin_file + '.\n')
+    
     if check_overwrite(bin_file):
         write_binary(bin_file, dec_list)
+
+        print('\nFile "' + bin_file + '" written successfully.\n')
+
+    print_checksums(ahoy_checksums)
+
 
 if __name__ == '__main__':
     sys.exit(main())
