@@ -206,4 +206,20 @@ def test_ahoy_checksum(byte_list, checksum):
     """
 
     assert ahoy_checksum(byte_list) == checksum
+'''
+@pytest.mark.parametrize(
+    "ahoy_checksums, prt_lines, prt_codes",
+    [
+        ([(10, 'AP'), (16, 'IP'), (17, 'GE'), (20, 'MP'), (120, 'NN')],
+        'put function return values here'),
+    ],
+)
+
+def test_print_checksums(ahoy_checksums, prt_lines, prt_codes):
+    """
+    Unit test to check that function print_checksums() is propery creating
+    lists for lines and codes to print in a matrix format.
+    """
+    assert print_checksums(ahoy_checksums) == (prt_lines, prt_codes)
+'''
 

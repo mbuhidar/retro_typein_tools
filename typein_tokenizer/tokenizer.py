@@ -5,6 +5,7 @@ from argparse import RawTextHelpFormatter
 from os import path, get_terminal_size
 import re
 import sys
+import math
 
 import char_maps
 
@@ -309,33 +310,25 @@ def ahoy_checksum(byte_list):
     return checksum
         
 
-def print_checksums(ahoy_checksums):
-    
-    # Determine current column width of terminal window
-    term_width = get_terminal_size()[0]
+def print_checksums(ahoy_checksums, terminal_width):
 
     # Determine number of columns to print based on terminal window width
-    columns = int(term_width / 12) 
+    columns = int(terminal_width / 12) 
+    # Determine number of rows based on column count
+    rows = math.ceil(len(ahoy_checksums) / columns)
 
-    rows = int(len(ahoy_checksums) / columns) + 1
-
+    # Print each line number, code combination in matrix format
     for i in range(rows):
         for j in range(columns):
-            if i * columns + j+1 <= len(ahoy_checksums):
-                line_no = ahoy_checksums[i + (rows-1) * j][0]
-                code = ahoy_checksums[i + (rows-1) * j][1]
-                left_space = 7 - len(str(line_no)) - len(code)
-                print(" "*left_space, line_no, code, " "*4, end='') 
-            else:
-                pass
-        print(end='\r')
-    print()
+            indx = i + (j * rows)
+            if indx < len(ahoy_checksums):
+                prt_line = str(ahoy_checksums[indx][0])
+                prt_code = str(ahoy_checksums[indx][1])
+                left_space = 7 - len(prt_line) - len(prt_code)
+                print(" "*left_space, prt_line, prt_code, " "*2, end='') 
+        print(end='\n')
 
-    for cs in ahoy_checksums:
-        print(cs[0], cs[1])
-
-    print('col='+str(columns)+'  rows='+str(rows))
-
+    print(f'\nLines: {len(ahoy_checksums)}')
 
 def main(argv=None):
     # call function to parse command line input arguments
@@ -418,8 +411,7 @@ def main(argv=None):
 
         print('\nFile "' + bin_file + '" written successfully.\n')
 
-    print_checksums(ahoy_checksums)
-
+    print_checksums(ahoy_checksums, get_terminal_size()[0])
 
 if __name__ == '__main__':
     sys.exit(main())
