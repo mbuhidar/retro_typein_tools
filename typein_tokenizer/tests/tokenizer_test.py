@@ -7,7 +7,8 @@ from typein_tokenizer.tokenizer import parse_args, \
                                        scan_manager, \
                                        write_binary, \
                                        hex_to_ahoy_repellent_code, \
-                                       ahoy_checksum
+                                       ahoy_checksum, \
+                                       print_checksums
 
 @pytest.mark.parametrize(
     "argv, arg_valid",
@@ -206,20 +207,28 @@ def test_ahoy_checksum(byte_list, checksum):
     """
 
     assert ahoy_checksum(byte_list) == checksum
-'''
+
 @pytest.mark.parametrize(
-    "ahoy_checksums, prt_lines, prt_codes",
+    "ahoy_checksums, term_width, term_capture",
     [
-        ([(10, 'AP'), (16, 'IP'), (17, 'GE'), (20, 'MP'), (120, 'NN')],
-        'put function return values here'),
+        ([(11110, 'AP')],
+         31,
+         ' 11110 AP   \n\nLines: 1\n'),
+        ([(10, 'HE'), (20, 'PH'), (30, 'IM'), (40, 'CD'), (50, 'OB'),\
+          (60, 'OF'), (70, 'OG'), (80, 'NI'), (90, 'DG'), (100, 'IC'),\
+          (64000, 'KK')],
+          44,
+          '    10 HE       50 OB       90 DG   \n    20 PH       60 OF      100 IC   \n    30 IM       70 OG    64000 KK   \n    40 CD       80 NI   \n\nLines: 11\n')
     ],
 )
 
-def test_print_checksums(ahoy_checksums, prt_lines, prt_codes):
+def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
     """
     Unit test to check that function print_checksums() is propery creating
     lists for lines and codes to print in a matrix format.
     """
-    assert print_checksums(ahoy_checksums) == (prt_lines, prt_codes)
-'''
+    print_checksums(ahoy_checksums, term_width)
+    captured = capsys.readouterr()
+    assert captured.out == term_capture
+
 
