@@ -115,6 +115,7 @@ def ahoy_lines_list(lines_list):
         # check for loose braces in each substring, return error indication        
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
+            #TODO: Improve loose brace error handling, works but inconsistent
             if loose_brace is not None:
                 return (None, line)
                 
@@ -235,36 +236,12 @@ def check_overwrite(filename):
         print('File not overwritten - exiting.')
         sys.exit(1)
 
-def hex_to_ahoy_repellent_code(hex_value):
-    '''
-    Function to convert hex to alpha only representation that the
-    Ahoy Bug Repellent tool uses.  Algorithm:  First hex character maps
-    directly to the alpha character shown in the below mapping. Second 
-    alpha character is determined by indexing from first character by the
-    value of the second hex digit.
-
-    hex:   0 1 2 3 4 5 6 7 8 9 a b c d e f
-    alpha: A B C D E F G H I J K L M N O P
-    
-    So, hex 47 is alpha EL, hex 97 is alpha JA, hex df is alpha NM  
-    '''
-
-    alpha_map = "ABCDEFGHIJKLMNOP"
-    
-    hex_chars =  str(hex_value)[-2:]
-    idx0 = int(hex_chars[0], 16)
-    idx1 = int(hex_chars[0], 16) + int(hex_chars[1], 16)
-    if idx1 > 15:
-        idx1 = idx1 - 16
-
-    return alpha_map[idx0] + alpha_map[idx1]
-
 def ahoy_checksum(byte_list):
     '''
-    UNFINISHED... Function to create Ahoy checksums from passed in byte list 
-    to match the codes printed in the magazine to check each line for typed in
-    accuracy.  Functionally works, but there is a logic difference to original
-    that is yielding incorrect checksum character representations.
+    Function to create Ahoy checksums from passed in byte list to match the
+    codes printed in the magazine to check each line for typed in accuracy.
+    Functionally works, but there is a logic difference to original that is
+    yielding incorrect checksum character representations.
     '''
 
     xor_value = 0

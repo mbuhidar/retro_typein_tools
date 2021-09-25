@@ -6,7 +6,6 @@ from typein_tokenizer.tokenizer import parse_args, \
                                        scan, \
                                        scan_manager, \
                                        write_binary, \
-                                       hex_to_ahoy_repellent_code, \
                                        ahoy_checksum, \
                                        print_checksums
 
@@ -157,20 +156,6 @@ def test_scan(ln, tokenize, byte, remaining_line):
     assert scan(ln, tokenize) == (byte, remaining_line)
 
 # TODO: Write test for check_overwrite()
-
-@pytest.mark.parametrize(
-    "hex_input, ahoy_alpha",
-    [
-        ('0x47', 'EL'),
-        ('0x97', 'JA'),
-        ('0xdf', 'NM'),
-        (hex(223), 'NM'),
-    ],
-)
-
-def test_hex_to_ahoy_repellent_code(hex_input, ahoy_alpha):
-    
-    assert hex_to_ahoy_repellent_code(hex_input) == ahoy_alpha
 
 
 @pytest.mark.parametrize(
