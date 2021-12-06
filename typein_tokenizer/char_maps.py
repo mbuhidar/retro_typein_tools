@@ -116,6 +116,8 @@ CORE_TOKENS = (
     ('mid$',    202),
     ('go',      203),
 )
+
+TOKENS_V2 = CORE_TOKENS # Case for Commodore BASIC v2.0 TODO: Add versions
     
 # Tokens for special character designations used by petcat
 PETCAT_TOKENS = (

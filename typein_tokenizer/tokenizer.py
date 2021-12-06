@@ -9,12 +9,6 @@ import math
 
 import char_maps
 
-AHOY_TO_PETCAT = char_maps.AHOY_TO_PETCAT
-CORE_TOKENS = char_maps.CORE_TOKENS
-PETCAT_TOKENS = char_maps.PETCAT_TOKENS
-
-global TOKENS_V2
-TOKENS_V2 = CORE_TOKENS # case for Commodore BASIC v2. TODO: Add versions
 
 def parse_args(argv):
     # parse command line inputs and generate cli documentation
@@ -104,7 +98,7 @@ def write_binary(filename, int_list):
             file.write(byte.to_bytes(1, byteorder='big'))
 
 # convert ahoy special characters to petcat special characters
-def ahoy_lines_list(lines_list):
+def ahoy_lines_list(lines_list, char_maps):
 
     new_lines = []
     
@@ -126,7 +120,7 @@ def ahoy_lines_list(lines_list):
         
         # for each ahoy special character, append the petcat equivalent
         for item in code_split:
-            new_codes.append(AHOY_TO_PETCAT[item.upper()])
+            new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
             
         # add blank item to list of special characters to aide enumerate
         if new_codes:
@@ -171,7 +165,7 @@ def scan_manager(ln):
     bytes = []
     
     while ln:
-        (byte, ln) = scan(ln, tokenize = not (in_quotes or in_remark))
+        (byte, ln) = scan(ln, char_maps, tokenize = not (in_quotes or in_remark))
         # if byte is not None:
         bytes.append(byte)
         if byte == ord('"'):
@@ -183,7 +177,7 @@ def scan_manager(ln):
 
 # scan each line segement and convert to tokenized bytes.  
 # returns byte and remaining line segment
-def scan(ln, tokenize=True):
+def scan(ln, char_maps, tokenize=True):
     """Scan beginning of each line for BASIC keywords, petcat special 
        characters, or ascii characters, convert to tokenized bytes, and
        return remaining line segment after converted characters are removed
@@ -204,14 +198,14 @@ def scan(ln, tokenize=True):
 
     # check if each line passed in starts with a petcat special character
     # if so, return value of token and line with token string removed
-    for (token, value) in PETCAT_TOKENS:
+    for (token, value) in char_maps.PETCAT_TOKENS:
         if ln.startswith(token):
             return (value, ln[len(token):])
     # if tokenize flag is True (i.e. line beginning is not inside quotes or
     # after a REM statement), check if line starts with a BASIC keyword
     # if so, return value of token and line with BASIC keyword removed
     if tokenize:
-        for (token, value) in TOKENS_V2:
+        for (token, value) in char_maps.TOKENS_V2:
             if ln.startswith(token):
                 return (value, ln[len(token):])
     # for characters without token values, convert to unicode (ascii) value
@@ -324,7 +318,7 @@ def main(argv=None):
     # convert to petcat format and write petcat-ready file
     # TODO: Add COMPUTE and other magazine format
     if args.source[0] == 'ahoy':
-        lines_list = ahoy_lines_list(lines_list)
+        lines_list = ahoy_lines_list(lines_list, char_maps)
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
             print(f"Loose brace error in line:\n {lines_list[1]}\n"\

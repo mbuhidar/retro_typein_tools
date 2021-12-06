@@ -9,6 +9,7 @@ from typein_tokenizer.tokenizer import parse_args, \
                                        ahoy_checksum, \
                                        print_checksums
 
+
 @pytest.mark.parametrize(
     "argv, arg_valid",
     [
@@ -69,14 +70,15 @@ def test_read_file(infile_data):
     ],
 )
 
-def test_ahoy_lines_list(lines_list, new_lines):
+# char_maps is defined in a fixture in conftest.py
+def test_ahoy_lines_list(lines_list, new_lines, char_maps):
     """
     Unit test to check that function ahoy_lines_list() replaces ahoy special 
     character codes with petcat special character codes in each line of the
     program.  Also checks for loose braces and prompt an error message and 
     program exit.
     """
-    assert ahoy_lines_list(lines_list) == new_lines
+    assert ahoy_lines_list(lines_list, char_maps) == new_lines
 
 @pytest.mark.parametrize(
     "line, split_line",
@@ -146,14 +148,15 @@ def test_scan_manager(ln, bytes):
     ],
 )
 
-def test_scan(ln, tokenize, byte, remaining_line):
+# char_maps is defined in a fixture in conftest.py
+def test_scan(ln, tokenize, byte, remaining_line, char_maps):
     """
     Unit test to check that function scan() is properly converting the start
     of each passed in line to a tokenized byte for BASIC keywords, petcat
     special characters, and alphanumeric characters.
     """
     
-    assert scan(ln, tokenize) == (byte, remaining_line)
+    assert scan(ln, char_maps, tokenize) == (byte, remaining_line)
 
 # TODO: Write test for check_overwrite()
 
@@ -215,5 +218,3 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
     print_checksums(ahoy_checksums, term_width)
     captured = capsys.readouterr()
     assert captured.out == term_capture
-
-
