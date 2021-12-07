@@ -1,31 +1,30 @@
 import pytest
-from typein_tokenizer.tokenizer import parse_args, \
-                                       read_file, \
-                                       ahoy_lines_list, \
-                                       split_line_num, \
-                                       scan, \
-                                       scan_manager, \
-                                       write_binary, \
-                                       ahoy_checksum, \
-                                       print_checksums
+from tokenizer import parse_args, \
+                      read_file, \
+                      ahoy_lines_list, \
+                      split_line_num, \
+                      scan, \
+                      scan_manager, \
+                      write_binary, \
+                      ahoy_checksum, \
+                      print_checksums
 
 
 @pytest.mark.parametrize(
     "argv, arg_valid",
     [
         (['infile.bas'],
-        ['0x0801', '2', 'ahoy', 'infile.bas']),
+         ['0x0801', '2', 'ahoy', 'infile.bas']),
         (['infile.bas', '-s', 'pet'],
-        ['0x0801', '2', 'pet', 'infile.bas']),
+         ['0x0801', '2', 'pet', 'infile.bas']),
         (['infile.bas', '-v', '7'],
-        ['0x0801', '7', 'ahoy', 'infile.bas']),
+         ['0x0801', '7', 'ahoy', 'infile.bas']),
         (['infile.bas', '-l', '0x1001'],
-        ['0x1001', '2', 'ahoy', 'infile.bas']),
+         ['0x1001', '2', 'ahoy', 'infile.bas']),
         (['-v', '4', 'infile.bas', '-s', 'ahoy', '-l', '0x1001'],
-        ['0x1001', '4', 'ahoy', 'infile.bas']),
+         ['0x1001', '4', 'ahoy', 'infile.bas']),
     ],
 )
-
 def test_parse_args(argv, arg_valid):
     """
     Unit test to check that function parse_args() yields the correct list of
@@ -37,20 +36,23 @@ def test_parse_args(argv, arg_valid):
                 args.source[0], args.file_in]
     assert arg_list == arg_valid
 
+
 @pytest.fixture
 def infile_data():
     try:
         infile = read_file('test_infile.txt')
-    except:
+    except OSError:
         infile = read_file('tests/test_infile.txt')
     return infile
 
+
 def test_read_file(infile_data):
     """
-    Unit test to check that function read_file() is properly reading data from a
-    file source.
+    Unit test to check that function read_file() is properly reading data from
+    a file source.
     """
     assert infile_data == ['10 print"hello!"', '20 goto10']
+
 
 @pytest.mark.parametrize(
     "lines_list, new_lines",
@@ -69,16 +71,16 @@ def test_read_file(infile_data):
          ['{pur}{left}{yel}{cyn}{$a0}']),
     ],
 )
-
 # char_maps is defined in a fixture in conftest.py
 def test_ahoy_lines_list(lines_list, new_lines, char_maps):
     """
-    Unit test to check that function ahoy_lines_list() replaces ahoy special 
+    Unit test to check that function ahoy_lines_list() replaces ahoy special
     character codes with petcat special character codes in each line of the
-    program.  Also checks for loose braces and prompt an error message and 
+    program.  Also checks for loose braces and prompt an error message and
     program exit.
     """
     assert ahoy_lines_list(lines_list, char_maps) == new_lines
+
 
 @pytest.mark.parametrize(
     "line, split_line",
@@ -88,21 +90,22 @@ def test_ahoy_lines_list(lines_list, new_lines, char_maps):
         ('30{wh}val = 3.2*num', (30, '{wh}val = 3.2*num')),
     ],
 )
-
 def test_split_line_num(line, split_line):
     """
-    Unit test to check that function split_line_num() is properly splitting each
-    line into tuples consisting of line number(int) and remaining line text(str).
+    Unit test to check that function split_line_num() is properly splitting
+    each line into tuples consisting of line number(int) and remaining line
+    text(str).
     """
 
     assert split_line_num(line) == (split_line)
-    
+
+
 def test_write_binary(tmpdir):
     """
     Unit test to check that function write_binary() is properly writing a list
     of decimals to a binary file.
     """
-    
+
     file = tmpdir.join('output.prg')
     # For reference, the ahoy input for the byte list below is:
     # 10 print"hello"
@@ -115,6 +118,7 @@ def test_write_binary(tmpdir):
     assert contents == b'\x01\x08\x10\x08\n\x00\x99("HELLO")\
 \x00\x18\x08\x14\x00\x8910\x00\x00\x00'
 
+
 @pytest.mark.parametrize(
     "ln, bytes",
     [
@@ -123,11 +127,10 @@ def test_write_binary(tmpdir):
         ('printtab(10);sc$', [153, 163, 49, 48, 41, 59, 83, 67, 36, 0]),
         ('printtab(16)"{lgrn}{down}l',
          [153, 163, 49, 54, 41, 34, 153, 17, 76, 0]),
-        ('data15,103,255,169', 
+        ('data15,103,255,169',
          [131, 49, 53, 44, 49, 48, 51, 44, 50, 53, 53, 44, 49, 54, 57, 0]),
     ],
 )
-
 def test_scan_manager(ln, bytes):
     """
     Unit test to check that function scan_manager() is properly managing the
@@ -135,6 +138,7 @@ def test_scan_manager(ln, bytes):
     """
 
     assert scan_manager(ln) == bytes
+
 
 @pytest.mark.parametrize(
     "ln, tokenize, byte, remaining_line",
@@ -147,7 +151,6 @@ def test_scan_manager(ln, bytes):
         ('{wht}"tab(32)', True, 5, '"tab(32)'),
     ],
 )
-
 # char_maps is defined in a fixture in conftest.py
 def test_scan(ln, tokenize, byte, remaining_line, char_maps):
     """
@@ -155,7 +158,7 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
     of each passed in line to a tokenized byte for BASIC keywords, petcat
     special characters, and alphanumeric characters.
     """
-    
+
     assert scan(ln, char_maps, tokenize) == (byte, remaining_line)
 
 # TODO: Write test for check_overwrite()
@@ -171,7 +174,8 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
         # '40 PRINT"HELLO WORLD"
         ([153, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0], 'PE'),
         # '50 PRINT "HELLO WORLD"
-        ([153, 32, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0], 'PE'),
+        ([153, 32, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0],
+            'PE'),
         # '60 AA1'
         ([65, 65, 49, 0], 'LO'),
         # '70 AA1'
@@ -184,10 +188,8 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
         ([153, 163, 49, 50, 41, 34, 17, 77, 73, 75, 69, 32, 66, 85, 72, 73,\
           68, 65, 82, 32, 74, 82, 46, 34, 0], 'EI'),
         # add AA is IE; BB is IE; CC is II; DD is II
-        
     ],
 )
-
 def test_ahoy_checksum(byte_list, checksum):
     """
     Unit test to check that function ahoy_checksum() is properly calculating
@@ -196,20 +198,22 @@ def test_ahoy_checksum(byte_list, checksum):
 
     assert ahoy_checksum(byte_list) == checksum
 
+
 @pytest.mark.parametrize(
     "ahoy_checksums, term_width, term_capture",
     [
         ([(11110, 'AP')],
          31,
          ' 11110 AP   \n\nLines: 1\n'),
-        ([(10, 'HE'), (20, 'PH'), (30, 'IM'), (40, 'CD'), (50, 'OB'),\
-          (60, 'OF'), (70, 'OG'), (80, 'NI'), (90, 'DG'), (100, 'IC'),\
+        ([(10, 'HE'), (20, 'PH'), (30, 'IM'), (40, 'CD'), (50, 'OB'),
+          (60, 'OF'), (70, 'OG'), (80, 'NI'), (90, 'DG'), (100, 'IC'),
           (64000, 'KK')],
-          44,
-          '    10 HE       50 OB       90 DG   \n    20 PH       60 OF      100 IC   \n    30 IM       70 OG    64000 KK   \n    40 CD       80 NI   \n\nLines: 11\n')
+         44,
+         '    10 HE       50 OB       90 DG   \n    20 PH       60 OF      '
+         '100 IC   \n    30 IM       70 OG    64000 KK   \n    40 CD       '
+         '80 NI   \n\nLines: 11\n')
     ],
 )
-
 def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
     """
     Unit test to check that function print_checksums() is propery creating

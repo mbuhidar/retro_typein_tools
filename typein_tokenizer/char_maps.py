@@ -36,7 +36,7 @@ AHOY_TO_PETCAT = {
     "{F7}": "{f7}",
     "{F8}": "{f8}",
 }
-                      
+
 # Core Commodore BASIC tokens
 CORE_TOKENS = (
     ('end',     128),
@@ -117,8 +117,8 @@ CORE_TOKENS = (
     ('go',      203),
 )
 
-TOKENS_V2 = CORE_TOKENS # Case for Commodore BASIC v2.0 TODO: Add versions
-    
+TOKENS_V2 = CORE_TOKENS  # Case for Commodore BASIC v2.0 TODO: Add versions
+
 # Tokens for special character designations used by petcat
 PETCAT_TOKENS = (
     ('{clr}',  147),
@@ -156,4 +156,3 @@ PETCAT_TOKENS = (
     ('{f7}',   139),
     ('{f8}',   140),
 )
-
