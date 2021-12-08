@@ -11,7 +11,9 @@ import char_maps
 
 
 def parse_args(argv):
-    # parse command line inputs and generate cli documentation
+    """Parses command line inputs and generate command line interface and
+    documentation.
+    """
     parser = argparse.ArgumentParser(description=
         "A tokenizer for Commodore BASIC typein programs. So far, supports \n"
         "Ahoy magazine and Commodore BASIC 2.0 (C64 and VIC20).",
