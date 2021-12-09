@@ -8,6 +8,7 @@ format, it outputs two files using the basename from the input file.
 
 As an example for an Ahoy! magazine file:
 
+```
 Input:    basename.ahoy
 
 Output1:  basename.bas (VICE petcat-ready BASIC source code with special
@@ -15,13 +16,17 @@ characters converted to VICE petcat special character codes)
 
 Output2:  basename.prg (tokenized file that can be run on a Commodore 
 computer or on an emulator like VICE)
+```
 
 ### Usage
 
 From the directory where tokenizer.py exists, type:
 
+```
 python3 check_and_convert.py [-l load_address] [-v basic_version] [-s source_format] input_file
+```
 
+```
 positional arguments:
   input_file            Specify the input file name including path
                         Note:  Output files will use input file basename
@@ -49,12 +54,15 @@ optional arguments:
                         Specifies the source BASIC file format:
                         pet - use standard pet control character mnemonics
                         ahoy - use Ahoy! magazine control character mnemonics (default)
+```
 
 ### Using the output files
 
 If you want to use the VICE petcat utility to tokenize the BASIC file, type:
 
+```
 petcat -w2 -o program.prg -- program.bas 
+```
 
 Generates an executable program.prg file that can be run on a Commodore 
 computer or emulator.  In this example, it tokenizes for Commodore BASIC v2.
@@ -62,4 +70,6 @@ computer or emulator.  In this example, it tokenizes for Commodore BASIC v2.
 You can also use the .prg file generated directly from the tokenizer program
 by running it with the following command (must have VICE installed):
 
+```
 x64sc -basicload program.prg &
+```
