@@ -1,10 +1,10 @@
-Typein Tokenizer
-================
+# Retro_Type-In_Tools
 
-Typein Tokenizer is a tokenizer for Commodore BASIC programs focused on 
-tokenizing magazine type-in programs.  Given an input text file containing
-BASIC source code in magazine type-in format, it outputs two files using
-the basename from the input file.
+## check_and_convert
+Check_and_Convert is a tokenizer for Commodore BASIC programs focused on 
+tokenizing magazine type-in programs popular in the mid- and late-eighties. 
+Given an input text file containing BASIC source code in magazine type-in
+format, it outputs two files using the basename from the input file.
 
 As an example for an Ahoy! magazine file:
 
@@ -14,20 +14,19 @@ Output1:  basename.bas (VICE petcat-ready BASIC source code with special
 characters converted to VICE petcat special character codes)
 
 Output2:  basename.prg (tokenized file that can be run on a Commodore 
-computer or on an emulator like VICE.
+computer or on an emulator like VICE)
 
-Usage
-=====
+### Usage
 
 From the directory where tokenizer.py exists, type:
 
-python3 tokenizer.py [-l load_address] [-v basic_version] [-s source_format] input_file
+python3 check_and_convert.py [-l load_address] [-v basic_version] [-s source_format] input_file
 
 positional arguments:
   input_file            Specify the input file name including path
                         Note:  Output files will use input file basename
                         with extensions '.pet' for petcat-ready file and
-                        '.prg' for Commordore run fule format.
+                        '.prg' for Commodore executable file format.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -51,10 +50,9 @@ optional arguments:
                         pet - use standard pet control character mnemonics
                         ahoy - use Ahoy! magazine control character mnemonics (default)
 
-Using the output files
-======================
+### Using the output files
 
-If you prefer to use the VICE petcat utility to tokenize the BASIC file, type:
+If you want to use the VICE petcat utility to tokenize the BASIC file, type:
 
 petcat -w2 -o program.prg -- program.bas 
 
@@ -65,4 +63,3 @@ You can also use the .prg file generated directly from the tokenizer program
 by running it with the following command (must have VICE installed):
 
 x64sc -basicload program.prg &
-

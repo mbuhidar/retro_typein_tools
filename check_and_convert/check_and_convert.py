@@ -1,4 +1,8 @@
-#! /usr/bin/python3
+"""
+Imports Commodore BASIC type-in programs in various magazine formats,
+checks for errors, and converts to an executable file for use with an
+emulator or on original hardware.
+"""
 
 import argparse
 from argparse import RawTextHelpFormatter

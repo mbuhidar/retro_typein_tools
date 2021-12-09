@@ -1,3 +1,7 @@
+"""
+Pytest fixture to define char_maps for global use.
+"""
+
 import pytest
 
 

@@ -1,3 +1,6 @@
+"""
+Type-in entry special character conversion and keyword token maps.py
+"""
 
 # Dictionary for special character conversion from ahoy to petcat
 AHOY_TO_PETCAT = {
