@@ -1,13 +1,13 @@
 import pytest
-from check_and_convert import parse_args, \
-                              read_file, \
-                              ahoy_lines_list, \
-                              split_line_num, \
-                              scan, \
-                              scan_manager, \
-                              write_binary, \
-                              ahoy_checksum, \
-                              print_checksums
+from debug_tokenize import parse_args, \
+                           read_file, \
+                           ahoy_lines_list, \
+                           split_line_num, \
+                           scan, \
+                           scan_manager, \
+                           write_binary, \
+                           ahoy_checksum, \
+                           print_checksums
 
 
 @pytest.mark.parametrize(

@@ -1,7 +1,7 @@
-# Retro_Type-In_Tools
+# Retro Type-In Tools
 
-## check_and_convert
-Check_and_Convert is a tokenizer for Commodore BASIC programs focused on 
+## debug_tokenize
+The debug_tokenize tool is a converter for Commodore BASIC programs focused on 
 tokenizing magazine type-in programs popular in the mid- and late-eighties. 
 Given an input text file containing BASIC source code in magazine type-in
 format, it outputs two files using the basename from the input file.
@@ -20,10 +20,10 @@ computer or on an emulator like VICE)
 
 ### Usage
 
-From the directory where tokenizer.py exists, type:
+From the directory where debug_tokenize.py exists, type:
 
 ```
-python3 check_and_convert.py [-l load_address] [-v basic_version] [-s source_format] input_file
+python3 debug_tokenize.py [-l load_address] [-v basic_version] [-s source_format] input_file
 ```
 
 ```
