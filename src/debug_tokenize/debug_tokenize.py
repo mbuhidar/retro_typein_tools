@@ -11,7 +11,7 @@ import re
 import sys
 import math
 
-import char_maps
+import debug_tokenize.char_maps
 
 
 def parse_args(argv):
