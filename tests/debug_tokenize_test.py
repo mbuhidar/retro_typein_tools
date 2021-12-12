@@ -1,7 +1,7 @@
 import pytest
-from src.debug_tokenize import debug_tokenize
-'''
-from debug_tokenize import parse_args, \
+# from src.debug_tokenize import debug_tokenize
+
+from debug_tokenize.debug_tokenize import parse_args, \
                            read_file, \
                            ahoy_lines_list, \
                            split_line_num, \
@@ -10,7 +10,7 @@ from debug_tokenize import parse_args, \
                            write_binary, \
                            ahoy_checksum, \
                            print_checksums
-'''
+
 
 @pytest.mark.parametrize(
     "argv, arg_valid",
