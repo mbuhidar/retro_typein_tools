@@ -40,9 +40,9 @@ def test_parse_args(argv, arg_valid):
 @pytest.fixture
 def infile_data():
     try:
-        infile = read_file('test_infile.txt')
+        infile = read_file('trial_infile.txt')
     except OSError:
-        infile = read_file('tests/test_infile.txt')
+        infile = read_file('tests/trial_infile.txt')
     return infile
 
 
