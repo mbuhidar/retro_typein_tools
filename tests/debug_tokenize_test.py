@@ -2,14 +2,14 @@ import pytest
 # from src.debug_tokenize import debug_tokenize
 
 from debug_tokenize.debug_tokenize import parse_args, \
-                           read_file, \
-                           ahoy_lines_list, \
-                           split_line_num, \
-                           scan, \
-                           scan_manager, \
-                           write_binary, \
-                           ahoy_checksum, \
-                           print_checksums
+                                          read_file, \
+                                          ahoy_lines_list, \
+                                          split_line_num, \
+                                          scan, \
+                                          scan_manager, \
+                                          write_binary, \
+                                          ahoy_checksum, \
+                                          print_checksums
 
 
 @pytest.mark.parametrize(
@@ -122,7 +122,7 @@ def test_write_binary(tmpdir):
 
 
 @pytest.mark.parametrize(
-    "ln, bytes",
+    "ln, bytestr",
     [
         ('rem lawn', [143, 32, 76, 65, 87, 78, 0]),
         ('goto110', [137, 49, 49, 48, 0]),
@@ -133,13 +133,13 @@ def test_write_binary(tmpdir):
          [131, 49, 53, 44, 49, 48, 51, 44, 50, 53, 53, 44, 49, 54, 57, 0]),
     ],
 )
-def test_scan_manager(ln, bytes):
+def test_scan_manager(ln, bytestr):
     """
     Unit test to check that function scan_manager() is properly managing the
     conversion of a line of text to a list of tokenized bytes in decimal form.
     """
 
-    assert scan_manager(ln) == bytes
+    assert scan_manager(ln) == bytestr
 
 
 @pytest.mark.parametrize(
@@ -177,7 +177,7 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
         ([153, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0], 'PE'),
         # '50 PRINT "HELLO WORLD"
         ([153, 32, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0],
-            'PE'),
+         'PE'),
         # '60 AA1'
         ([65, 65, 49, 0], 'LO'),
         # '70 AA1'

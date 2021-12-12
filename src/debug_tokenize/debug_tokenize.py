@@ -173,18 +173,18 @@ def split_line_num(line):
 def scan_manager(ln):
     in_quotes = False
     in_remark = False
-    bytes = []
+    bytestr = []
 
     while ln:
         (byte, ln) = scan(ln, char_maps, tokenize=not (in_quotes or in_remark))
         # if byte is not None:
-        bytes.append(byte)
+        bytestr.append(byte)
         if byte == ord('"'):
             in_quotes = not in_quotes
         if byte == 143:
             in_remark = True
-    bytes.append(0)
-    return bytes
+    bytestr.append(0)
+    return bytestr
 
 
 # scan each line segement and convert to tokenized bytes.
