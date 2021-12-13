@@ -1,6 +1,6 @@
 # retro-typein-tools
-Tools for typing, debugging, and converting 1980s magazine type-in games and 
-programs for Commodore and Atari emulators and original hardware. 
+Tools for typing-in, debugging, and converting 1980s magazine type-in games and 
+programs for use with Commodore and Atari emulators and original hardware. 
 
 ## Installation
 `pip install retro-typein-tools`
@@ -10,22 +10,22 @@ programs for Commodore and Atari emulators and original hardware.
 The `debug_tokenize` tool is a debugger and converter for Commodore BASIC 
 programs focused on tokenizing magazine type-in programs popular in the 1980s. 
 Given an input text file containing BASIC source code in magazine type-in
-format, it checks the typed line entries against line checksums printed in the
-magazines to insure program is bug free then it outputs two files using the
-basename from the input file.
+format, it checks the typed line entries against line checksums that were 
+printed in the magazines to insure program is bug-free.  It then outputs two
+files using the basename from the input file. The first file is for use with a
+separate tokenizer if desired and the second file is an executable for direct
+use with an emulator or original hardware.
 
 ### Usage
 
-After installation, use `debug_tokenize` from command line - consult the help
-for the latest usage: 
+After installation, use `debug_tokenize` directly from the command line - 
+consult the help for the latest usage: 
 
 ```
 debug_tokenize [-l load_address] [-v basic_version] [-s source_format] input_file
 ```
 
 ```
-debug_tokenize --help
-
 positional arguments:
   input_file            Specify the input file name including path
                         Note:  Output files will use input file basename
@@ -42,6 +42,7 @@ optional arguments:
                         - 0x1201 - VIC20 +8K
                         - 0x1201 - VIC20 +16
                         - 0x1201 - VIC20 +24K
+
   -v basic_version, --version basic_version
                         Specifies the BASIC version for use in tokenizing file.
                         - 1 - Basic v1.0  PET
@@ -49,6 +50,7 @@ optional arguments:
                         - 3 - Basic v3.5  C16/C116/Plus/4
                         - 4 - Basic v4.0  PET/CBM2
                         - 7 - Basic v7.0  C128
+
   -s source_format, --source source_format
                         Specifies the source BASIC file format:
                         pet - use standard pet control character mnemonics
@@ -87,4 +89,4 @@ program by running it with the following command (must have VICE installed):
 x64sc -basicload program.prg &
 ```
 
-Of course, you can also use the .prg file to run on original hardware also.
+Of course, you can also use the .prg file to run on original hardware.
