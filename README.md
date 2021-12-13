@@ -1,37 +1,31 @@
-# Retro Type-In Tools
-Tools for debugging and converting 1980s magazine type-in programs for 
-Commodore, Atari, and other computers.
+# retro-typein-tools
+Tools for typing, debugging, and converting 1980s magazine type-in games and 
+programs for Commodore and Atari emulators and original hardware. 
 
 ## Installation
 `pip install retro-typein-tools`
 
-## debug_tokenize
-The debug_tokenize tool is a converter for Commodore BASIC programs focused on 
-tokenizing magazine type-in programs popular in the mid- and late-eighties. 
+## Tool: debug_tokenize
+
+The `debug_tokenize` tool is a debugger and converter for Commodore BASIC 
+programs focused on tokenizing magazine type-in programs popular in the 1980s. 
 Given an input text file containing BASIC source code in magazine type-in
-format, it outputs two files using the basename from the input file.
-
-As an example for an Ahoy! magazine file:
-
-```
-Input:    basename.ahoy
-
-Output1:  basename.bas (VICE petcat-ready BASIC source code with special
-characters converted to VICE petcat special character codes)
-
-Output2:  basename.prg (tokenized file that can be run on a Commodore 
-computer or on an emulator like VICE)
-```
+format, it checks the typed line entries against line checksums printed in the
+magazines to insure program is bug free then it outputs two files using the
+basename from the input file.
 
 ### Usage
 
-From the directory where debug_tokenize.py exists, type:
+After installation, use `debug_tokenize` from command line - consult the help
+for the latest usage: 
 
 ```
-python3 debug_tokenize.py [-l load_address] [-v basic_version] [-s source_format] input_file
+debug_tokenize [-l load_address] [-v basic_version] [-s source_format] input_file
 ```
 
 ```
+debug_tokenize --help
+
 positional arguments:
   input_file            Specify the input file name including path
                         Note:  Output files will use input file basename
@@ -61,9 +55,23 @@ optional arguments:
                         ahoy - use Ahoy! magazine control character mnemonics (default)
 ```
 
+
+As an example for an Ahoy! magazine file:
+
+```
+Input:    basename.ahoy
+
+Output1:  basename.bas (VICE petcat-ready BASIC source code with special
+characters converted to VICE petcat special character codes)
+
+Output2:  basename.prg (tokenized file that can be run on a Commodore 
+computer or on an emulator like VICE)
+```
+
 ### Using the output files
 
-If you want to use the VICE petcat utility to tokenize the BASIC file, type:
+If installed, you can use the VICE petcat utility to tokenize the BASIC file
+by typing:
 
 ```
 petcat -w2 -o program.prg -- program.bas 
@@ -72,9 +80,11 @@ petcat -w2 -o program.prg -- program.bas
 Generates an executable program.prg file that can be run on a Commodore 
 computer or emulator.  In this example, it tokenizes for Commodore BASIC v2.
 
-You can also use the .prg file generated directly from the tokenizer program
-by running it with the following command (must have VICE installed):
+You can also run the .prg file generated directly from the `debug_tokenizer`
+program by running it with the following command (must have VICE installed):
 
 ```
 x64sc -basicload program.prg &
 ```
+
+Of course, you can also use the .prg file to run on original hardware also.
