@@ -33,7 +33,9 @@ positional arguments:
                         '.prg' for Commodore executable file format.
 
 optional arguments:
+
   -h, --help            show this help message and exit
+
   -l load_address, --loadaddr load_address
                         Specifies the target BASIC memory address when loading:
                         - 0x0801 - C64 (default)
