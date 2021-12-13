@@ -1,4 +1,9 @@
 # Retro Type-In Tools
+Tools for debugging and converting 1980s magazine type-in programs for 
+Commodore, Atari, and other computers.
+
+## Installation
+`pip install retro-typein-tools`
 
 ## debug_tokenize
 The debug_tokenize tool is a converter for Commodore BASIC programs focused on 
