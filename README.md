@@ -21,9 +21,9 @@ use with an emulator or original hardware.
 After installation, use `debug_tokenize` directly from the command line - 
 consult the help for the latest usage: 
 
-Note: Currently only options for C64 load address, Basic v2.0, and Ahoy debugger
-from April 1984 through April 1987 issues are available (defaults).  More 
-options to come in future releases.
+**Note:** Currently only options for C64 load address, Basic v2.0, and Ahoy
+debugger from April 1984 through April 1987 issues are available (defaults).
+More options to come in future releases.
 
 ```
 debug_tokenize [-l load_address] [-v basic_version] [-s source_format] input_file
