@@ -246,8 +246,6 @@ def ahoy_checksum(byte_list):
     '''
     Function to create Ahoy checksums from passed in byte list to match the
     codes printed in the magazine to check each line for typed in accuracy.
-    Functionally works, but there is a logic difference to original that is
-    yielding incorrect checksum character representations.
     '''
 
     xor_value = 0
