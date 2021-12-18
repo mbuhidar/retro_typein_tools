@@ -213,6 +213,11 @@ def scan(ln, char_maps, tokenize=True):
     for (token, value) in char_maps.PETCAT_TOKENS:
         if ln.startswith(token):
             return (value, ln[len(token):])
+    # check if each line passed in starts with shifted or commodore special
+    # character.  if so, return value of token, line with token string removed
+    for (token, value) in char_maps.SHIFT_CMDRE_TOKENS:
+        if ln.startswith(token):
+            return (value, ln[len(token):])
     # if tokenize flag is True (i.e. line beginning is not inside quotes or
     # after a REM statement), check if line starts with a BASIC keyword
     # if so, return value of token and line with BASIC keyword removed

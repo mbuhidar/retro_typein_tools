@@ -151,6 +151,8 @@ def test_scan_manager(ln, bytestr):
         ('rem start mower', True, 143, ' start mower'),
         (' start mower', False, 32, 'start mower'),
         ('{wht}"tab(32)', True, 5, '"tab(32)'),
+        ('{c=-g} test commodore-g', True, 165, ' test commodore-g'),
+        ('{shift-pound}start mower', True, 169, 'start mower'),
     ],
 )
 # char_maps is defined in a fixture in conftest.py
