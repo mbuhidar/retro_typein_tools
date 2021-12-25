@@ -21,8 +21,8 @@ use with an emulator or original hardware.
 After installation, use `debug_tokenize` directly from the command line - 
 consult the help for the latest usage: 
 
-**Note:** Currently only options for C64 load address, Basic v2.0, and Ahoy
-debugger from April 1984 through April 1987 issues are available (defaults).
+**Note:** Currently the only implemented options are for C64 load address,
+Basic v2.0, and the first two of the three Ahoy debugger versions.
 More options to come in future releases.
 
 ```
@@ -58,9 +58,9 @@ optional arguments:
                         - 7 - Basic v7.0  C128
 
   -s source_format, --source source_format
-                        Specifies the source BASIC file format:
-                        pet - use standard pet control character mnemonics
-                        ahoy - use Ahoy! magazine control character mnemonics (default)
+                        Specifies the magazine source for conversion and checksum:
+                        ahoy1 - for type-in programs from Ahoy magazine (Apr-May 1984)
+                        ahoy2 - for type-in programs from Ahoy magazine (Jun 1984-Apr 1987) (default)
 ```
 
 

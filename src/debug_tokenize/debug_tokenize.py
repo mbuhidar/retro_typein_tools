@@ -47,20 +47,20 @@ def parse_args(argv):
     )
 
     parser.add_argument(
-        "-s", "--source", choices=["pet", "ahoy"], type=str, nargs=1,
-        required=False, metavar="source_format", default=["ahoy"],
-        help="Specifies the source BASIC file format:\n"
-             "pet - use standard pet control character mnemonics\n"
-             "ahoy - use Ahoy! magazine control character mnemonics "
-             "(default)\n"
+        "-s", "--source", choices=["ahoy1", "ahoy2"], type=str, nargs=1,
+        required=False, metavar="source_format", default=["ahoy2"],
+        help="Specifies the magazine source for conversion and checksum:\n"
+             "ahoy1 - for type-in programs from Ahoy magazine (Apr-May 1984)\n"
+             "ahoy2 - for type-in programs from Ahoy magazine (Jun 1984-Apr "
+             "1987 (default)\n"
     )
 
     parser.add_argument(
         "file_in", type=str, metavar="input_file",
         help="Specify the input file name including path\n"
              "Note:  Output files will use input file basename\n"
-             "with extensions '.pet' for petcat-ready file and\n"
-             "'.prg' for Commordore run fule format."
+             "with extensions '.bas' for petcat-ready file and\n"
+             "'.prg' for Commordore run file format."
     )
 
     return parser.parse_args(argv)
@@ -247,10 +247,40 @@ def check_overwrite(filename):
         sys.exit(1)
 
 
-def ahoy_checksum(byte_list):
+def ahoy1_checksum(byte_list):
     '''
     Function to create Ahoy checksums from passed in byte list to match the
     codes printed in the magazine to check each line for typed in accuracy.
+    Covers Ahoy Bug Repellent version for Mar-Apr 1984 issues.
+    '''
+
+    next_value = 0
+
+    for char_val in byte_list:
+        # Detect spaces that are outside of quotes and ignore them, else
+        # execute primary checksum generation algorithm
+        if char_val == 32:
+            continue
+        else:
+            next_value = char_val + next_value
+            next_value = next_value << 1
+
+    xor_value = next_value
+    # get high nibble of xor_value
+    high_nib = (xor_value & 0xf0) >> 4
+    high_char_val = high_nib + 65  # 0x41
+    # get low nibble of xor_value
+    low_nib = xor_value & 0x0f
+    low_char_val = low_nib + 65  # 0x41
+    checksum = chr(high_char_val) + chr(low_char_val)
+    return checksum
+
+
+def ahoy2_checksum(byte_list):
+    '''
+    Function to create Ahoy checksums from passed in byte list to match the
+    codes printed in the magazine to check each line for typed in accuracy.
+    Covers Ahoy Bug Repellent version for May 1984-Apr 1987 issues.
     '''
 
     xor_value = 0
@@ -332,8 +362,7 @@ def main(argv=None):
         sys.exit(1)
 
     # convert to petcat format and write petcat-ready file
-    # TODO: Add COMPUTE and other magazine format
-    if args.source[0] == 'ahoy':
+    if args.source[0][:3] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list, char_maps)
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
@@ -376,8 +405,14 @@ def main(argv=None):
         token_ln.append(byte_list)
         token_ln = [byte for sublist in token_ln for byte in sublist]
 
-        # call checksum generator function to built list of tuples
-        ahoy_checksums.append((line_num, ahoy_checksum(byte_list)))
+        # call checksum generator function to build list of tuples
+        if args.source[0] == 'ahoy1':
+            ahoy_checksums.append((line_num, ahoy1_checksum(byte_list)))
+        elif args.source[0] == 'ahoy2':
+            ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
+        else:
+            print("Magazine format not yet supported.")
+            sys.exit(1)
 
         out_list.append(token_ln)
 
