@@ -11,7 +11,8 @@ import re
 import sys
 import math
 
-from debug_tokenize import char_maps
+# from debug_tokenize import char_maps
+import char_maps
 
 
 def parse_args(argv):
@@ -20,7 +21,7 @@ def parse_args(argv):
     """
     parser = argparse.ArgumentParser(description=
         "A tokenizer for Commodore BASIC typein programs. So far, supports \n"
-        "Ahoy magazine and Commodore BASIC 2.0 (C64 and VIC20).",
+        "Ahoy magazine programs for C64.)",
         formatter_class=RawTextHelpFormatter)
 
     parser.add_argument(
@@ -52,7 +53,7 @@ def parse_args(argv):
         help="Specifies the magazine source for conversion and checksum:\n"
              "ahoy1 - for type-in programs from Ahoy magazine (Apr-May 1984)\n"
              "ahoy2 - for type-in programs from Ahoy magazine (Jun 1984-Apr "
-             "1987 (default)\n"
+             "1987) (default)\n"
     )
 
     parser.add_argument(
@@ -113,23 +114,26 @@ def ahoy_lines_list(lines_list, char_maps):
 
     for line in lines_list:
         # split each line on ahoy special characters
-        str_split = re.split(r"\{\w{2}\}", line)
+        str_split = re.split(r"\{.*?\}", line)
 
         # check for loose braces in each substring, return error indication
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
-            # TODO: Improve loose brace error handling, works but inconsistent
+            # TODO: Improve loose brace error handling, inconsistent return
             if loose_brace is not None:
                 return (None, line)
 
         # create list of ahoy special character code strings
-        code_split = re.findall(r"\{\w{2}\}", line)
+        code_split = re.findall(r"\{.*?\}", line)
 
         new_codes = []
 
         # for each ahoy special character, append the petcat equivalent
         for item in code_split:
-            new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+            if item.upper() in char_maps.AHOY_TO_PETCAT:
+                new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+            else:
+                new_codes.append(item)
 
         # add blank item to list of special characters to aide enumerate
         if new_codes:
@@ -362,7 +366,7 @@ def main(argv=None):
         sys.exit(1)
 
     # convert to petcat format and write petcat-ready file
-    if args.source[0][:3] == 'ahoy':
+    if args.source[0][:4] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list, char_maps)
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
@@ -395,8 +399,9 @@ def main(argv=None):
         # add load address at start of first line only
         if addr == int(load_addr, 16):
             token_ln.append(addr.to_bytes(2, 'little'))
-
+        print(line)
         byte_list = scan_manager(line_txt)
+        print(byte_list)
 
         addr = addr + len(byte_list) + 4
 

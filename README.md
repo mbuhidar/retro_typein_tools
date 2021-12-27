@@ -33,11 +33,10 @@ debug_tokenize [-l load_address] [-v basic_version] [-s source_format] input_fil
 positional arguments:
   input_file            Specify the input file name including path
                         Note:  Output files will use input file basename
-                        with extensions '.pet' for petcat-ready file and
-                        '.prg' for Commodore executable file format.
+                        with extensions '.bas' for petcat-ready file and
+                        '.prg' for Commordore run file format.
 
 optional arguments:
-
   -h, --help            show this help message and exit
 
   -l load_address, --loadaddr load_address
@@ -61,8 +60,8 @@ optional arguments:
                         Specifies the magazine source for conversion and checksum:
                         ahoy1 - for type-in programs from Ahoy magazine (Apr-May 1984)
                         ahoy2 - for type-in programs from Ahoy magazine (Jun 1984-Apr 1987) (default)
-```
 
+```
 
 As an example for an Ahoy! magazine file:
 
