@@ -11,8 +11,10 @@ import re
 import sys
 import math
 
-# from debug_tokenize import char_maps
-import char_maps
+try:
+    from debug_tokenize import char_maps
+except ImportError:
+    import char_maps
 
 
 def parse_args(argv):
@@ -352,6 +354,7 @@ def print_checksums(ahoy_checksums, terminal_width):
 
 
 def main(argv=None):
+
     # call function to parse command line input arguments
     args = parse_args(argv)
 
@@ -399,9 +402,7 @@ def main(argv=None):
         # add load address at start of first line only
         if addr == int(load_addr, 16):
             token_ln.append(addr.to_bytes(2, 'little'))
-        print(line)
         byte_list = scan_manager(line_txt)
-        print(byte_list)
 
         addr = addr + len(byte_list) + 4
 
