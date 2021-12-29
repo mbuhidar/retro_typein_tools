@@ -58,8 +58,8 @@ optional arguments:
 
   -s source_format, --source source_format
                         Specifies the magazine source for conversion and checksum:
-                        ahoy1 - for type-in programs from Ahoy magazine (Apr-May 1984)
-                        ahoy2 - for type-in programs from Ahoy magazine (Jun 1984-Apr 1987) (default)
+                        ahoy1 - Ahoy magazine (Apr-May 1984)
+                        ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)
 
 ```
 
@@ -74,6 +74,34 @@ characters converted to VICE petcat special character codes)
 Output2:  basename.prg (tokenized file that can be run on a Commodore 
 computer or on an emulator like VICE)
 ```
+
+### Notes for entering programs from Ahoy magazine:
+
+In addition to the special character codes contained in braces 
+in the magazine, Ahoy also used a shorthand convention for 
+specifying a key entry preceeded by either the Shift key or the 
+Commodore key as follows:
+
+    Underlined characters - preceed entry with Shift key
+    Overlined characters - preceed entry with Commodore key
+
+Standard keyboard letters should be typed as follows for these two cases.
+
+    {SHIFT-A}, {SHIFT-B}, {SHIFT-*} etc.
+    {C=-A}, {C=-B}, {C=-*}, etc.
+
+There are a few instances where the old hardware has keys not
+available on a modern keyboard or are otherwise ambiguous.
+Those should be entered as follows:
+
+    {pound} - British Pound symbol
+    {up_arrow} - up arrow symbol
+    {left_arrow} - left arrow symbol
+    {pi} - Pi symbol
+    {shift-return} - shifted return
+    {shift-space} - shifted space
+    {c=-pound} - Commodore-Bristish Pound symbol
+    {shift-up_arrow} - shifted up arrow symbol
 
 ### Using the output files
 

@@ -23,8 +23,32 @@ def parse_args(argv):
     """
     parser = argparse.ArgumentParser(description=
         "A tokenizer for Commodore BASIC typein programs. So far, supports \n"
-        "Ahoy magazine programs for C64.)",
-        formatter_class=RawTextHelpFormatter)
+        "Ahoy magazine programs for C64, but more formats to come.",
+        formatter_class=RawTextHelpFormatter,
+        epilog=
+        "Notes for entering programs from Ahoy magazine:\n\n"
+        "In addition to the special character codes contained in braces \n"
+        "in the magazine, Ahoy also used a shorthand convention for \n"
+        "specifying a key entry preceeded by either the Shift key or the \n"
+        "Commodore key as follows:\n\n"
+        "    - Underlined characters - preceed entry with Shift key\n"
+        "    - Overlined characters - preceed entry with Commodore key\n\n"
+        "Standard keyboard letters should be typed as follows for these " 
+        "two cases.\n"
+        "    -{SHIFT-A}, {SHIFT-B}, {SHIFT-*} etc.\n"
+        "    -{C=-A}, {C=-B}, {C=-*}, etc.\n\n"
+        "There are a few instances where the old hardware has keys not\n"
+        "available on a modern keyboard or are otherwise ambiguous.\n"
+        "Those should be entered as follows:\n"
+        "    {pound} - British Pound symbol\n"
+        "    {up_arrow} - up arrow symbol\n"
+        "    {left_arrow} - left arrow symbol\n"
+        "    {pi} - Pi symbol\n"
+        "    {shift-return} - shifted return\n"
+        "    {shift-space} - shifted space\n"
+        "    {c=-pound} - Commodore-Bristish Pound symbol\n"
+        "    {shift-up_arrow} - shifted up arrow symbol\n\n"
+    )
 
     parser.add_argument(
         "-l", "--loadaddr", type=str, nargs=1, required=False,
@@ -41,7 +65,7 @@ def parse_args(argv):
     parser.add_argument(
         "-v", "--version", choices=['1', '2', '3', '4', '7'], type=str,
         nargs=1, required=False, metavar="basic_version", default=['2'],
-        help="Specifies the BASIC version for use in tokenizing file.\n"
+        help="Specifies the BASIC version for use in tokenizing file:\n"
              "- 1 - Basic v1.0  PET\n"
              "- 2 - Basic v2.0  C64/VIC20/PET (default)\n"
              "- 3 - Basic v3.5  C16/C116/Plus/4\n"
@@ -53,9 +77,8 @@ def parse_args(argv):
         "-s", "--source", choices=["ahoy1", "ahoy2"], type=str, nargs=1,
         required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
-             "ahoy1 - for type-in programs from Ahoy magazine (Apr-May 1984)\n"
-             "ahoy2 - for type-in programs from Ahoy magazine (Jun 1984-Apr "
-             "1987) (default)\n"
+             "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
+             "ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)\n"
     )
 
     parser.add_argument(
@@ -63,7 +86,7 @@ def parse_args(argv):
         help="Specify the input file name including path\n"
              "Note:  Output files will use input file basename\n"
              "with extensions '.bas' for petcat-ready file and\n"
-             "'.prg' for Commordore run file format."
+             "'.prg' for Commodore run file format."
     )
 
     return parser.parse_args(argv)
