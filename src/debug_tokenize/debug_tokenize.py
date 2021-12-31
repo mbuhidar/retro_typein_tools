@@ -11,7 +11,10 @@ import re
 import sys
 import math
 
-from debug_tokenize import char_maps
+try:
+    from debug_tokenize import char_maps
+except ImportError:
+    import char_maps
 
 
 def parse_args(argv):
@@ -20,8 +23,32 @@ def parse_args(argv):
     """
     parser = argparse.ArgumentParser(description=
         "A tokenizer for Commodore BASIC typein programs. So far, supports \n"
-        "Ahoy magazine and Commodore BASIC 2.0 (C64 and VIC20).",
-        formatter_class=RawTextHelpFormatter)
+        "Ahoy magazine programs for C64, but more formats to come.",
+        formatter_class=RawTextHelpFormatter,
+        epilog=
+        "Notes for entering programs from Ahoy magazine:\n\n"
+        "In addition to the special character codes contained in braces \n"
+        "in the magazine, Ahoy also used a shorthand convention for \n"
+        "specifying a key entry preceeded by either the Shift key or the \n"
+        "Commodore key as follows:\n\n"
+        "    - Underlined characters - preceed entry with Shift key\n"
+        "    - Overlined characters - preceed entry with Commodore key\n\n"
+        "Standard keyboard letters should be typed as follows for these " 
+        "two cases.\n"
+        "    -{SHIFT-A}, {SHIFT-B}, {SHIFT-*} etc.\n"
+        "    -{C=-A}, {C=-B}, {C=-*}, etc.\n\n"
+        "There are a few instances where the old hardware has keys not\n"
+        "available on a modern keyboard or are otherwise ambiguous.\n"
+        "Those should be entered as follows:\n"
+        "    {pound} - British Pound symbol\n"
+        "    {up_arrow} - up arrow symbol\n"
+        "    {left_arrow} - left arrow symbol\n"
+        "    {pi} - Pi symbol\n"
+        "    {shift-return} - shifted return\n"
+        "    {shift-space} - shifted space\n"
+        "    {c=-pound} - Commodore-Bristish Pound symbol\n"
+        "    {shift-up_arrow} - shifted up arrow symbol\n\n"
+    )
 
     parser.add_argument(
         "-l", "--loadaddr", type=str, nargs=1, required=False,
@@ -38,7 +65,7 @@ def parse_args(argv):
     parser.add_argument(
         "-v", "--version", choices=['1', '2', '3', '4', '7'], type=str,
         nargs=1, required=False, metavar="basic_version", default=['2'],
-        help="Specifies the BASIC version for use in tokenizing file.\n"
+        help="Specifies the BASIC version for use in tokenizing file:\n"
              "- 1 - Basic v1.0  PET\n"
              "- 2 - Basic v2.0  C64/VIC20/PET (default)\n"
              "- 3 - Basic v3.5  C16/C116/Plus/4\n"
@@ -47,20 +74,19 @@ def parse_args(argv):
     )
 
     parser.add_argument(
-        "-s", "--source", choices=["pet", "ahoy"], type=str, nargs=1,
-        required=False, metavar="source_format", default=["ahoy"],
-        help="Specifies the source BASIC file format:\n"
-             "pet - use standard pet control character mnemonics\n"
-             "ahoy - use Ahoy! magazine control character mnemonics "
-             "(default)\n"
+        "-s", "--source", choices=["ahoy1", "ahoy2"], type=str, nargs=1,
+        required=False, metavar="source_format", default=["ahoy2"],
+        help="Specifies the magazine source for conversion and checksum:\n"
+             "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
+             "ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)\n"
     )
 
     parser.add_argument(
         "file_in", type=str, metavar="input_file",
         help="Specify the input file name including path\n"
              "Note:  Output files will use input file basename\n"
-             "with extensions '.pet' for petcat-ready file and\n"
-             "'.prg' for Commordore run fule format."
+             "with extensions '.bas' for petcat-ready file and\n"
+             "'.prg' for Commodore run file format."
     )
 
     return parser.parse_args(argv)
@@ -113,23 +139,26 @@ def ahoy_lines_list(lines_list, char_maps):
 
     for line in lines_list:
         # split each line on ahoy special characters
-        str_split = re.split(r"\{\w{2}\}", line)
+        str_split = re.split(r"\{.*?\}", line)
 
         # check for loose braces in each substring, return error indication
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
-            # TODO: Improve loose brace error handling, works but inconsistent
+            # TODO: Improve loose brace error handling, inconsistent return
             if loose_brace is not None:
                 return (None, line)
 
         # create list of ahoy special character code strings
-        code_split = re.findall(r"\{\w{2}\}", line)
+        code_split = re.findall(r"\{.*?\}", line)
 
         new_codes = []
 
         # for each ahoy special character, append the petcat equivalent
         for item in code_split:
-            new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+            if item.upper() in char_maps.AHOY_TO_PETCAT:
+                new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+            else:
+                new_codes.append(item)
 
         # add blank item to list of special characters to aide enumerate
         if new_codes:
@@ -247,10 +276,40 @@ def check_overwrite(filename):
         sys.exit(1)
 
 
-def ahoy_checksum(byte_list):
+def ahoy1_checksum(byte_list):
     '''
     Function to create Ahoy checksums from passed in byte list to match the
     codes printed in the magazine to check each line for typed in accuracy.
+    Covers Ahoy Bug Repellent version for Mar-Apr 1984 issues.
+    '''
+
+    next_value = 0
+
+    for char_val in byte_list:
+        # Detect spaces that are outside of quotes and ignore them, else
+        # execute primary checksum generation algorithm
+        if char_val == 32:
+            continue
+        else:
+            next_value = char_val + next_value
+            next_value = next_value << 1
+
+    xor_value = next_value
+    # get high nibble of xor_value
+    high_nib = (xor_value & 0xf0) >> 4
+    high_char_val = high_nib + 65  # 0x41
+    # get low nibble of xor_value
+    low_nib = xor_value & 0x0f
+    low_char_val = low_nib + 65  # 0x41
+    checksum = chr(high_char_val) + chr(low_char_val)
+    return checksum
+
+
+def ahoy2_checksum(byte_list):
+    '''
+    Function to create Ahoy checksums from passed in byte list to match the
+    codes printed in the magazine to check each line for typed in accuracy.
+    Covers Ahoy Bug Repellent version for May 1984-Apr 1987 issues.
     '''
 
     xor_value = 0
@@ -318,6 +377,7 @@ def print_checksums(ahoy_checksums, terminal_width):
 
 
 def main(argv=None):
+
     # call function to parse command line input arguments
     args = parse_args(argv)
 
@@ -332,8 +392,7 @@ def main(argv=None):
         sys.exit(1)
 
     # convert to petcat format and write petcat-ready file
-    # TODO: Add COMPUTE and other magazine format
-    if args.source[0] == 'ahoy':
+    if args.source[0][:4] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list, char_maps)
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
@@ -366,7 +425,6 @@ def main(argv=None):
         # add load address at start of first line only
         if addr == int(load_addr, 16):
             token_ln.append(addr.to_bytes(2, 'little'))
-
         byte_list = scan_manager(line_txt)
 
         addr = addr + len(byte_list) + 4
@@ -376,8 +434,14 @@ def main(argv=None):
         token_ln.append(byte_list)
         token_ln = [byte for sublist in token_ln for byte in sublist]
 
-        # call checksum generator function to built list of tuples
-        ahoy_checksums.append((line_num, ahoy_checksum(byte_list)))
+        # call checksum generator function to build list of tuples
+        if args.source[0] == 'ahoy1':
+            ahoy_checksums.append((line_num, ahoy1_checksum(byte_list)))
+        elif args.source[0] == 'ahoy2':
+            ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
+        else:
+            print("Magazine format not yet supported.")
+            sys.exit(1)
 
         out_list.append(token_ln)
 

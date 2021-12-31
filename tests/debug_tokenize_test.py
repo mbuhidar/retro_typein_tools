@@ -8,7 +8,8 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           scan, \
                                           scan_manager, \
                                           write_binary, \
-                                          ahoy_checksum, \
+                                          ahoy1_checksum, \
+                                          ahoy2_checksum, \
                                           print_checksums
 
 
@@ -16,15 +17,15 @@ from debug_tokenize.debug_tokenize import parse_args, \
     "argv, arg_valid",
     [
         (['infile.bas'],
-         ['0x0801', '2', 'ahoy', 'infile.bas']),
-        (['infile.bas', '-s', 'pet'],
-         ['0x0801', '2', 'pet', 'infile.bas']),
+         ['0x0801', '2', 'ahoy2', 'infile.bas']),
+        (['infile.bas', '-s', 'ahoy1'],
+         ['0x0801', '2', 'ahoy1', 'infile.bas']),
         (['infile.bas', '-v', '7'],
-         ['0x0801', '7', 'ahoy', 'infile.bas']),
+         ['0x0801', '7', 'ahoy2', 'infile.bas']),
         (['infile.bas', '-l', '0x1001'],
-         ['0x1001', '2', 'ahoy', 'infile.bas']),
-        (['-v', '4', 'infile.bas', '-s', 'ahoy', '-l', '0x1001'],
-         ['0x1001', '4', 'ahoy', 'infile.bas']),
+         ['0x1001', '2', 'ahoy2', 'infile.bas']),
+        (['-v', '4', 'infile.bas', '-s', 'ahoy2', '-l', '0x1001'],
+         ['0x1001', '4', 'ahoy2', 'infile.bas']),
     ],
 )
 def test_parse_args(argv, arg_valid):
@@ -172,6 +173,37 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
     "byte_list, checksum",
     [
         # '10 GZ'
+        ([71, 90, 0], 'KA'),
+        # '30 G Z'
+        ([71, 32, 90, 0], 'KA'),
+        # '40 PRINT"HELLO WORLD"
+        ([153, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0], 'OI'),
+        # '50 PRINT "HELLO WORLD"
+        ([153, 32, 34, 72, 69, 76, 76, 79, 32, 87, 79, 82, 76, 68, 34, 0],
+         'OI'),
+        # '60 AA1'
+        ([65, 65, 49, 0], 'NM'),
+        # '70 AA2'
+        ([65, 65, 50, 0], 'OA'),
+        # '80 "G"
+        ([34, 71, 34, 0], 'OA'),
+        # '10 PRINT"HI W"
+        ([153, 34, 72, 73, 32, 87, 34, 0], 'NA'),
+    ],
+)
+def test_ahoy1_checksum(byte_list, checksum):
+    """
+    Unit test to check that function ahoy1_checksum() is properly calculating
+    and returning the proper ahoy checksum code.
+    """
+
+    assert ahoy1_checksum(byte_list) == checksum
+
+
+@pytest.mark.parametrize(
+    "byte_list, checksum",
+    [
+        # '10 GZ'
         ([71, 90, 0], 'KF'),
         # '30 G Z'
         ([71, 32, 90, 0], 'KF'),
@@ -182,7 +214,7 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
          'PE'),
         # '60 AA1'
         ([65, 65, 49, 0], 'LO'),
-        # '70 AA1'
+        # '70 AA2'
         ([65, 65, 50, 0], 'LN'),
         # '80 "G"
         ([34, 71, 34, 0], 'IM'),
@@ -194,13 +226,13 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
         # add AA is IE; BB is IE; CC is II; DD is II
     ],
 )
-def test_ahoy_checksum(byte_list, checksum):
+def test_ahoy2_checksum(byte_list, checksum):
     """
-    Unit test to check that function ahoy_checksum() is properly calculating
+    Unit test to check that function ahoy2_checksum() is properly calculating
     and returning the proper ahoy checksum code.
     """
 
-    assert ahoy_checksum(byte_list) == checksum
+    assert ahoy2_checksum(byte_list) == checksum
 
 
 @pytest.mark.parametrize(
@@ -226,3 +258,4 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
     print_checksums(ahoy_checksums, term_width)
     captured = capsys.readouterr()
     assert captured.out == term_capture
+
