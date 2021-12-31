@@ -132,6 +132,25 @@ def write_binary(filename, int_list):
             file.write(byte.to_bytes(1, byteorder='big'))
 
 
+def check_for_line_numbers(lines_list):
+    line_no_buffer = []
+    for line in lines_list:
+        try:
+            (line_no, line_str) = split_line_num(line)
+            line_no_buffer.append(line_no)
+            if len(line_no_buffer) < 3:
+                continue
+            if line_no_buffer[1] <= line_no_buffer[0] or\
+               line_no_buffer[1] >= line_no_buffer[2]:
+                print(f"Entry error after line {line_no_buffer[1]} - lines "
+                      "shoud be in sequential order. Exiting.")
+                sys.exit(1)
+            line_no_buffer.pop(0)
+        except ValueError:
+            print(f"Entry error after line {line_no} - each line should start "
+                  "with a line number. Exiting.")
+            sys.exit(1)
+
 # convert ahoy special characters to petcat special characters
 def ahoy_lines_list(lines_list, char_maps):
 
@@ -390,6 +409,9 @@ def main(argv=None):
     except IOError:
         print("File read failed - please check source file name and path.")
         sys.exit(1)
+
+    # check each line to insure each starts with a line number
+    check_for_line_numbers(lines_list)
 
     # convert to petcat format and write petcat-ready file
     if args.source[0][:4] == 'ahoy':
