@@ -3,6 +3,7 @@ import pytest
 
 from debug_tokenize.debug_tokenize import parse_args, \
                                           read_file, \
+                                          check_line_number_seq, \
                                           ahoy_lines_list, \
                                           split_line_num, \
                                           scan, \
@@ -55,6 +56,29 @@ def test_read_file(infile_data):
     a file source.
     """
     assert infile_data == ['10 print"hello!"', '20 goto10']
+
+
+@pytest.mark.parametrize(
+    "lines_list, term_capture, err_capture",
+    [
+        (["10 OK", "20 OK", "5 OFF", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in sequential order.  Exiting.\n",
+         "SystemExit"),
+        (["10 OK", "200 OFF", "30 OK", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in sequential order.  Exiting.\n",
+         "SystemExit"),
+    ],
+)
+def test_check_line_number_seq(capsys, lines_list, term_capture, err_capture):
+    """
+    Unit test to check that function check_line_number_seq() is propery
+    identifying cases where lines either don't start with an integer line
+    number or have line numbers out of sequence.
+    """
+    with pytest.raises(SystemExit):
+        check_line_number_seq(lines_list)
+    out, err = capsys.readouterr()
+    assert out == term_capture
 
 
 @pytest.mark.parametrize(
