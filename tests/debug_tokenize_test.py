@@ -318,4 +318,3 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
     print_checksums(ahoy_checksums, term_width)
     captured = capsys.readouterr()
     assert captured.out == term_capture
-
