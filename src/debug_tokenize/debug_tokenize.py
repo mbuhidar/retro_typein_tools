@@ -143,7 +143,8 @@ def check_line_number_seq(lines_list):
         None: implicit return
     """
 
-    ln_num_buffer = [0]
+    line_no = 0;  # handles case where first line does not have a line number
+    ln_num_buffer = [0];  # first popped after three line numbers are appended
     for line in lines_list:
         try:
             (line_no, line_str) = split_line_num(line)

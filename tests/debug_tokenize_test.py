@@ -69,12 +69,11 @@ def test_read_file(infile_data):
 def test_check_line_number_seq_a(capsys, lines_list, term_capture):
     """
     Unit test to check that function check_line_number_seq() is propery
-    identifying cases where lines either don't start with an integer line
-    number or have line numbers out of sequence.
+    identifying cases where lines have the correct line number sequencing.
     """
     check_line_number_seq(lines_list)
-    out, err = capsys.readouterr()
-    assert out == term_capture
+    capture = capsys.readouterr()
+    assert capture.out == term_capture
 
 
 @pytest.mark.parametrize(
@@ -92,8 +91,16 @@ def test_check_line_number_seq_a(capsys, lines_list, term_capture):
          "Entry error one or two lines after line 10 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
+        (["100 OFF", "20 OK", "30 OK", "40 OK"],
+         "Entry error one or two lines after line 100 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
         (["10 OK", "OFF", "30 OK", "40 OK"],
          "Entry error after line 10 - each line should start with a line "
+         "number.  Exiting.\n"
+         ),
+        (["OFF", "20OK", "30 ON", "40 OK"],
+         "Entry error after line 0 - each line should start with a line "
          "number.  Exiting.\n"
          ),
     ],
@@ -101,12 +108,13 @@ def test_check_line_number_seq_a(capsys, lines_list, term_capture):
 def test_check_line_number_seq_b(capsys, lines_list, term_capture):
     """
     Unit test to check that function check_line_number_seq() is propery
-    identifying cases where lines have the correct line number sequencing.
+    identifying cases where lines either don't start with an integer line
+    number or have line numbers out of sequence.
     """
     with pytest.raises(SystemExit):
         check_line_number_seq(lines_list)
-    out, err = capsys.readouterr()
-    assert out == term_capture
+    capture = capsys.readouterr()
+    assert capture.out == term_capture
 
 
 @pytest.mark.parametrize(
