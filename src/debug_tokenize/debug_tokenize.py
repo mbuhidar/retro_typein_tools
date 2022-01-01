@@ -33,7 +33,7 @@ def parse_args(argv):
         "Commodore key as follows:\n\n"
         "    - Underlined characters - preceed entry with Shift key\n"
         "    - Overlined characters - preceed entry with Commodore key\n\n"
-        "Standard keyboard letters should be typed as follows for these " 
+        "Standard keyboard letters should be typed as follows for these "
         "two cases.\n"
         "    -{SHIFT-A}, {SHIFT-B}, {SHIFT-*} etc.\n"
         "    -{C=-A}, {C=-B}, {C=-*}, etc.\n\n"
@@ -132,8 +132,52 @@ def write_binary(filename, int_list):
             file.write(byte.to_bytes(1, byteorder='big'))
 
 
-# convert ahoy special characters to petcat special characters
+def check_line_number_seq(lines_list):
+    """Check each line in the program that either does not start with a line
+       number or starts with an out of sequence line number.
+
+    Args:
+        lines_list (list): List of lines (str) in program.
+
+    Returns:
+        None: implicit return
+    """
+
+    line_no = 0  # handles case where first line does not have a line number
+    ln_num_buffer = [0]  # first popped after three line numbers are appended
+    for line in lines_list:
+        try:
+            line_no = split_line_num(line)[0]
+            ln_num_buffer.append(line_no)
+            if len(ln_num_buffer) < 4:
+                continue
+            ln_num_buffer.pop(0)
+
+            if not ln_num_buffer[0] <= ln_num_buffer[1] <= ln_num_buffer[2]:
+                print("Entry error one or two lines after line "
+                      f"{ln_num_buffer[0]} - lines should be in sequential "
+                      "order.  Exiting.")
+                sys.exit(1)
+
+        except ValueError:
+            print(f"Entry error after line {line_no} - each line should start "
+                  "with a line number.  Exiting.")
+            sys.exit(1)
+
+
 def ahoy_lines_list(lines_list, char_maps):
+    """For each line in the program, convert Ahoy special characters to Petcat
+       special characters.
+
+    Args:
+        lines_list (list): List of lines (str) in program.
+        char_maps (module): Module containing conversion maps between various
+                            Commodore and magazine formats.
+
+    Returns:
+        new_lines (list): List of new lines (str) after special characters are
+                            converted from Ahoy to petcat format.
+    """
 
     new_lines = []
 
@@ -167,7 +211,7 @@ def ahoy_lines_list(lines_list, char_maps):
             new_line = []
 
             # piece the string segments and petcat codes back together
-            for count, segment in enumerate(new_codes):
+            for count in range(len(new_codes)):
                 new_line.append(str_split[count])
                 new_line.append(new_codes[count])
         # handle case where line contained no special characters
@@ -225,6 +269,8 @@ def scan(ln, char_maps, tokenize=True):
 
     Args:
         ln (str): Text of each line segment to parse and convert
+        char_maps (module): Module containing conversion maps between various
+                            Commodore and magazine formats.
         tokenize (bool): Flag to indicate if start of line segment should be
             tokenized (False if line segment start is within quotes or after
             a REM statement)
@@ -271,9 +317,8 @@ def check_overwrite(filename):
                           'Overwrite? (Y = yes) ')
     if overwrite.lower() == 'y':
         return True
-    else:
-        print('File not overwritten - exiting.')
-        sys.exit(1)
+    print('File not overwritten - exiting.')
+    sys.exit(1)
 
 
 def ahoy1_checksum(byte_list):
@@ -390,6 +435,9 @@ def main(argv=None):
     except IOError:
         print("File read failed - please check source file name and path.")
         sys.exit(1)
+
+    # check each line to insure each starts with a line number
+    check_line_number_seq(lines_list)
 
     # convert to petcat format and write petcat-ready file
     if args.source[0][:4] == 'ahoy':

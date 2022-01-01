@@ -3,6 +3,7 @@ import pytest
 
 from debug_tokenize.debug_tokenize import parse_args, \
                                           read_file, \
+                                          check_line_number_seq, \
                                           ahoy_lines_list, \
                                           split_line_num, \
                                           scan, \
@@ -55,6 +56,65 @@ def test_read_file(infile_data):
     a file source.
     """
     assert infile_data == ['10 print"hello!"', '20 goto10']
+
+
+@pytest.mark.parametrize(
+    "lines_list, term_capture",
+    [
+        (["10 OK", "20 OK", "30 OK", "40 OK"],
+         ""
+         ),
+    ],
+)
+def test_check_line_number_seq_a(capsys, lines_list, term_capture):
+    """
+    Unit test to check that function check_line_number_seq() is propery
+    identifying cases where lines have the correct line number sequencing.
+    """
+    check_line_number_seq(lines_list)
+    capture = capsys.readouterr()
+    assert capture.out == term_capture
+
+
+@pytest.mark.parametrize(
+    "lines_list, term_capture",
+    [
+        (["10 OK", "20 OK", "5 OFF", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
+        (["10 OK", "200 OFF", "30 OK", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
+        (["10 OK", "200 OFF", "3 OFF", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
+        (["100 OFF", "20 OK", "30 OK", "40 OK"],
+         "Entry error one or two lines after line 100 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
+        (["10 OK", "OFF", "30 OK", "40 OK"],
+         "Entry error after line 10 - each line should start with a line "
+         "number.  Exiting.\n"
+         ),
+        (["OFF", "20OK", "30 ON", "40 OK"],
+         "Entry error after line 0 - each line should start with a line "
+         "number.  Exiting.\n"
+         ),
+    ],
+)
+def test_check_line_number_seq_b(capsys, lines_list, term_capture):
+    """
+    Unit test to check that function check_line_number_seq() is propery
+    identifying cases where lines either don't start with an integer line
+    number or have line numbers out of sequence.
+    """
+    with pytest.raises(SystemExit):
+        check_line_number_seq(lines_list)
+    capture = capsys.readouterr()
+    assert capture.out == term_capture
 
 
 @pytest.mark.parametrize(
@@ -258,4 +318,3 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
     print_checksums(ahoy_checksums, term_width)
     captured = capsys.readouterr()
     assert captured.out == term_capture
-
