@@ -160,7 +160,7 @@ def check_line_number_seq(lines_list):
 
         except ValueError:
             print(f"Entry error after line {line_no} - each line should start "
-                  "with a line number. Exiting.")
+                  "with a line number.  Exiting.")
             sys.exit(1)
 
 

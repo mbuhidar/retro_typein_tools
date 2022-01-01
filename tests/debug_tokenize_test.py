@@ -59,21 +59,49 @@ def test_read_file(infile_data):
 
 
 @pytest.mark.parametrize(
-    "lines_list, term_capture, err_capture",
+    "lines_list, term_capture",
     [
-        (["10 OK", "20 OK", "5 OFF", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in sequential order.  Exiting.\n",
-         "SystemExit"),
-        (["10 OK", "200 OFF", "30 OK", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in sequential order.  Exiting.\n",
-         "SystemExit"),
+        (["10 OK", "20 OK", "30 OK", "40 OK"],
+         ""
+         ),
     ],
 )
-def test_check_line_number_seq(capsys, lines_list, term_capture, err_capture):
+def test_check_line_number_seq_a(capsys, lines_list, term_capture):
     """
     Unit test to check that function check_line_number_seq() is propery
     identifying cases where lines either don't start with an integer line
     number or have line numbers out of sequence.
+    """
+    check_line_number_seq(lines_list)
+    out, err = capsys.readouterr()
+    assert out == term_capture
+
+
+@pytest.mark.parametrize(
+    "lines_list, term_capture",
+    [
+        (["10 OK", "20 OK", "5 OFF", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
+        (["10 OK", "200 OFF", "30 OK", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
+        (["10 OK", "200 OFF", "3 OFF", "40 OK"],
+         "Entry error one or two lines after line 10 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
+        (["10 OK", "OFF", "30 OK", "40 OK"],
+         "Entry error after line 10 - each line should start with a line "
+         "number.  Exiting.\n"
+         ),
+    ],
+)
+def test_check_line_number_seq_b(capsys, lines_list, term_capture):
+    """
+    Unit test to check that function check_line_number_seq() is propery
+    identifying cases where lines have the correct line number sequencing.
     """
     with pytest.raises(SystemExit):
         check_line_number_seq(lines_list)
