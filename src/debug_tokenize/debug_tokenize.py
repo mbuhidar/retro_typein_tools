@@ -400,6 +400,58 @@ def ahoy2_checksum(byte_list):
     return checksum
 
 
+def ahoy3_checksum(byte_list):
+    '''
+    Function to create Ahoy checksums from passed in byte list to match the
+    codes printed in the magazine to check each line for typed in accuracy.
+    Covers Ahoy Bug Repellent version for May 1984-Apr 1987 issues.
+    '''
+
+    xor_value = 0
+    char_position = 1
+    carry_flag = 1
+    in_quotes = False
+
+    for char_val in byte_list:
+
+        # set carry flag to zero for char values less than ascii value for
+        # quote character since assembly code for repellent sets carry flag
+        # based on cmp 0x22 (decimal 34)
+        if char_val < 34:
+            carry_flag = 0
+        else:
+            carry_flag = 1
+
+        # Detect quote symbol in line and toggle in-quotes flag
+        if char_val == 34:
+            in_quotes = not in_quotes
+
+        # Detect spaces that are outside of quotes and ignore them, else
+        # execute primary checksum generation algorithm
+        if char_val == 32 and in_quotes is False:
+            continue
+        else:
+            next_value = char_val + xor_value + carry_flag
+
+            xor_value = next_value ^ char_position
+
+            # limit next value to fit in one byte
+            next_value = next_value & 255
+
+            char_position = char_position + 1
+
+    # get high nibble of xor_value
+    high_nib = (xor_value & 0xf0) >> 4
+    high_char_val = high_nib + 65  # 0x41
+    # high_char_val = high_char_val & 0x0f
+    # get low nibble of xor_value
+    low_nib = xor_value & 0x0f
+    low_char_val = low_nib + 65  # 0x41
+    # low_char_val = low_char_val & 0x0f
+    checksum = chr(high_char_val) + chr(low_char_val)
+    return checksum
+
+
 def print_checksums(ahoy_checksums, terminal_width):
 
     # Determine number of columns to print based on terminal window width
