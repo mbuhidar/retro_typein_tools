@@ -408,19 +408,10 @@ def ahoy3_checksum(byte_list):
     '''
 
     xor_value = 0
-    char_position = 1
-    carry_flag = 1
+    char_position = 0
     in_quotes = False
 
     for char_val in byte_list:
-
-        # set carry flag to zero for char values less than ascii value for
-        # quote character since assembly code for repellent sets carry flag
-        # based on cmp 0x22 (decimal 34)
-        if char_val < 34:
-            carry_flag = 0
-        else:
-            carry_flag = 1
 
         # Detect quote symbol in line and toggle in-quotes flag
         if char_val == 34:
@@ -431,7 +422,7 @@ def ahoy3_checksum(byte_list):
         if char_val == 32 and in_quotes is False:
             continue
         else:
-            next_value = char_val + xor_value + carry_flag
+            next_value = char_val + xor_value 
 
             xor_value = next_value ^ char_position
 

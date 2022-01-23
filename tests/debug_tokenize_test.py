@@ -300,9 +300,9 @@ def test_ahoy2_checksum(byte_list, checksum):
     "byte_list, checksum",
     [
         # '25 GOSUB325'
-        ([25, 0, 141, 51, 50, 53], 'EH'),
+        ([25, 0, 141, 51, 50, 53, 0], 'EH'),
         # '30 GOSUB425'
-        ([30, 0, 141, 52, 50, 53], 'EP'),
+        ([30, 0, 141, 52, 50, 53, 0], 'EP'),
     ],
 )
 def test_ahoy3_checksum(byte_list, checksum):
