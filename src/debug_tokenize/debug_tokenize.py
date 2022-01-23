@@ -400,16 +400,22 @@ def ahoy2_checksum(byte_list):
     return checksum
 
 
-def ahoy3_checksum(byte_list):
+def ahoy3_checksum(line_num, byte_list):
     '''
-    Function to create Ahoy checksums from passed in byte list to match the
-    codes printed in the magazine to check each line for typed in accuracy.
-    Covers Ahoy Bug Repellent version for May 1984-Apr 1987 issues.
+    Function to create Ahoy checksums from passed in line number and byte list
+    to match the codes printed in the magazine to check each line for typed in
+    accuracy. Covers the last Ahoy Bug Repellent verion introduced in Apr 1987.
     '''
 
     xor_value = 0
     char_position = 0
     in_quotes = False
+
+    line_low = line_num % 256
+    line_hi = int(line_num / 256)
+
+    byte_list.insert(0, line_hi)
+    byte_list.insert(0, line_low)
 
     for char_val in byte_list:
 
@@ -530,6 +536,8 @@ def main(argv=None):
             ahoy_checksums.append((line_num, ahoy1_checksum(byte_list)))
         elif args.source[0] == 'ahoy2':
             ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
+        elif args.source[0] == 'ahoy3':
+            ahoy_checksums.append((line_num, ahoy3_checksum(line_num, byte_list)))
         else:
             print("Magazine format not yet supported.")
             sys.exit(1)

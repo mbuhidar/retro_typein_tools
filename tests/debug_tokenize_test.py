@@ -297,21 +297,25 @@ def test_ahoy2_checksum(byte_list, checksum):
 
 
 @pytest.mark.parametrize(
-    "byte_list, checksum",
+    "line_num, byte_list, checksum",
     [
         # '25 GOSUB325'
-        ([25, 0, 141, 51, 50, 53, 0], 'EH'),
+        (25, [141, 51, 50, 53, 0], 'EH'),
+        # '256 GOSUB325'
+        (256, [141, 51, 50, 53, 0], 'CP'),
+        # '23456 GOSUB325'
+        (23456, [141, 51, 50, 53, 0], 'BN'),
         # '30 GOSUB425'
-        ([30, 0, 141, 52, 50, 53, 0], 'EP'),
+        (30, [141, 52, 50, 53, 0], 'EP'),
     ],
 )
-def test_ahoy3_checksum(byte_list, checksum):
+def test_ahoy3_checksum(line_num, byte_list, checksum):
     """
     Unit test to check that function ahoy2_checksum() is properly calculating
     and returning the proper ahoy checksum code.
     """
 
-    assert ahoy3_checksum(byte_list) == checksum
+    assert ahoy3_checksum(line_num, byte_list) == checksum
 
 
 @pytest.mark.parametrize(
