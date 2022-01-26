@@ -74,11 +74,13 @@ def parse_args(argv):
     )
 
     parser.add_argument(
-        "-s", "--source", choices=["ahoy1", "ahoy2"], type=str, nargs=1,
+        "-s", "--source", choices=["ahoy1", "ahoy2", "ahoy4"], type=str, nargs=1,
         required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
              "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
-             "ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)\n"
+             "ahoy2 - Ahoy magazine (Jun 1984-Oct 1984) (default)\n"
+             "ahoy3 - Ahoy magazine (Nov 1984-Apr 1987)) - not implemented\n"
+             "ahoy4 - Ahoy magazine (May 1987-))\n"
     )
 
     parser.add_argument(
@@ -400,6 +402,57 @@ def ahoy2_checksum(byte_list):
     return checksum
 
 
+def ahoy4_checksum(line_num, byte_list):
+    '''
+    Function to create Ahoy checksums from passed in line number and byte list
+    to match the codes printed in the magazine to check each line for typed in
+    accuracy. Covers the last Ahoy Bug Repellent verion introduced in Apr 1987.
+    '''
+
+    xor_value = 0
+    char_position = 0
+    in_quotes = False
+
+    line_low = line_num % 256
+    line_hi = int(line_num / 256)
+
+    byte_list = [line_low] + [line_hi] + byte_list
+
+    # byte_list.insert(0, line_hi)
+    # byte_list.insert(0, line_low)
+
+    for char_val in byte_list:
+
+        # Detect quote symbol in line and toggle in-quotes flag
+        if char_val == 34:
+            in_quotes = not in_quotes
+
+        # Detect spaces that are outside of quotes and ignore them, else
+        # execute primary checksum generation algorithm
+        if char_val == 32 and in_quotes is False:
+            continue
+        else:
+            next_value = char_val + xor_value 
+
+            xor_value = next_value ^ char_position
+
+            # limit next value to fit in one byte
+            next_value = next_value & 255
+
+            char_position = char_position + 1
+
+    # get high nibble of xor_value
+    high_nib = (xor_value & 0xf0) >> 4
+    high_char_val = high_nib + 65  # 0x41
+    # high_char_val = high_char_val & 0x0f
+    # get low nibble of xor_value
+    low_nib = xor_value & 0x0f
+    low_char_val = low_nib + 65  # 0x41
+    # low_char_val = low_char_val & 0x0f
+    checksum = chr(high_char_val) + chr(low_char_val)
+    return checksum
+
+
 def print_checksums(ahoy_checksums, terminal_width):
 
     # Determine number of columns to print based on terminal window width
@@ -487,6 +540,8 @@ def main(argv=None):
             ahoy_checksums.append((line_num, ahoy1_checksum(byte_list)))
         elif args.source[0] == 'ahoy2':
             ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
+        elif args.source[0] == 'ahoy4':
+            ahoy_checksums.append((line_num, ahoy4_checksum(line_num, byte_list)))
         else:
             print("Magazine format not yet supported.")
             sys.exit(1)
