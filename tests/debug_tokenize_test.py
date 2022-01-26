@@ -11,7 +11,7 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           write_binary, \
                                           ahoy1_checksum, \
                                           ahoy2_checksum, \
-                                          ahoy3_checksum, \
+                                          ahoy4_checksum, \
                                           print_checksums
 
 
@@ -307,15 +307,17 @@ def test_ahoy2_checksum(byte_list, checksum):
         (23456, [141, 51, 50, 53, 0], 'BN'),
         # '30 GOSUB425'
         (30, [141, 52, 50, 53, 0], 'EP'),
+        # '485 RETURN'
+        (485, [142, 0], 'HE'),
     ],
 )
-def test_ahoy3_checksum(line_num, byte_list, checksum):
+def test_ahoy4_checksum(line_num, byte_list, checksum):
     """
-    Unit test to check that function ahoy2_checksum() is properly calculating
+    Unit test to check that function ahoy4_checksum() is properly calculating
     and returning the proper ahoy checksum code.
     """
 
-    assert ahoy3_checksum(line_num, byte_list) == checksum
+    assert ahoy4_checksum(line_num, byte_list) == checksum
 
 
 @pytest.mark.parametrize(
