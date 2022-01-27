@@ -34,7 +34,7 @@ positional arguments:
   input_file            Specify the input file name including path
                         Note:  Output files will use input file basename
                         with extensions '.bas' for petcat-ready file and
-                        '.prg' for Commordore run file format.
+                        '.prg' for Commodore run file format.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -76,7 +76,7 @@ Output2:  basename.prg (tokenized file that can be run on a Commodore
 computer or on an emulator like VICE)
 ```
 
-### Notes for entering programs from Ahoy magazine:
+### Notes for entering programs from Ahoy issues prior to November 1984:
 
 In addition to the special character codes contained in braces 
 in the magazine, Ahoy also used a shorthand convention for 
@@ -88,21 +88,25 @@ Commodore key as follows:
 
 Standard keyboard letters should be typed as follows for these two cases.
 
-    {SHIFT-A}, {SHIFT-B}, {SHIFT-*} etc.
-    {C=-A}, {C=-B}, {C=-*}, etc.
+    {s A}, {s B}, {s *} etc.
+    {c A}, {c B}, {c *}, etc.
 
 There are a few instances where the old hardware has keys not
 available on a modern keyboard or are otherwise ambiguous.
 Those should be entered as follows:
 
-    {pound} - British Pound symbol
-    {up_arrow} - up arrow symbol
-    {left_arrow} - left arrow symbol
-    {pi} - Pi symbol
-    {shift-return} - shifted return
-    {shift-space} - shifted space
-    {c=-pound} - Commodore-Bristish Pound symbol
-    {shift-up_arrow} - shifted up arrow symbol
+    {EP} - British Pound symbol
+    {UP_ARROW} - up arrow symbol
+    {LEFT_ARROW} - left arrow symbol
+    {PI} - Pi symbol
+    {s RETURN} - shifted return
+    {s SPACE} - shifted space
+    {c EP} - Commodore-Bristish Pound symbol
+    {s UP_ARROW} - shifted up arrow symbol
+
+After the October 1984 issue, the over/under score representation was 
+discontinued.  These special characters should be typed as listed in the 
+magazines after that issue.
 
 ### Using the output files
 
