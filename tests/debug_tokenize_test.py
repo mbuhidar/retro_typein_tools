@@ -18,16 +18,14 @@ from debug_tokenize.debug_tokenize import parse_args, \
 @pytest.mark.parametrize(
     "argv, arg_valid",
     [
-        (['infile.bas'],
-         ['0x0801', '2', 'ahoy2', 'infile.bas']),
-        (['infile.bas', '-s', 'ahoy1'],
-         ['0x0801', '2', 'ahoy1', 'infile.bas']),
-        (['infile.bas', '-v', '7'],
-         ['0x0801', '7', 'ahoy2', 'infile.bas']),
-        (['infile.bas', '-l', '0x1001'],
-         ['0x1001', '2', 'ahoy2', 'infile.bas']),
-        (['-v', '4', 'infile.bas', '-s', 'ahoy2', '-l', '0x1001'],
-         ['0x1001', '4', 'ahoy2', 'infile.bas']),
+        (['infile.ahoy'],
+         ['0x0801', 'ahoy2', 'infile.ahoy']),
+        (['infile.ahoy', '-s', 'ahoy1'],
+         ['0x0801', 'ahoy1', 'infile.ahoy']),
+        (['infile.ahoy', '-l', '0x1001'],
+         ['0x1001', 'ahoy2', 'infile.ahoy']),
+        (['-s', 'ahoy4', 'infile.ahoy', '-l', '0x1001'],
+         ['0x1001', 'ahoy4', 'infile.ahoy']),
     ],
 )
 def test_parse_args(argv, arg_valid):
@@ -37,8 +35,7 @@ def test_parse_args(argv, arg_valid):
     """
 
     args = parse_args(argv)
-    arg_list = [args.loadaddr[0], args.version[0],
-                args.source[0], args.file_in]
+    arg_list = [args.loadaddr[0], args.source[0], args.file_in]
     assert arg_list == arg_valid
 
 

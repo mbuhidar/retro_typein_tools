@@ -22,11 +22,12 @@ def parse_args(argv):
     documentation.
     """
     parser = argparse.ArgumentParser(description=
-        "A tokenizer for Commodore BASIC typein programs. So far, supports \n"
-        "Ahoy magazine programs for C64, but more formats to come.",
+        "A tokenizer for Commodore BASIC typein programs. Supports Ahoy "
+        "magazine\nprograms for C64.",
         formatter_class=RawTextHelpFormatter,
         epilog=
-        "Notes for entering programs from Ahoy magazine:\n\n"
+        "Notes for entering programs from Ahoy issues prior to November "
+        "1984:\n\n"
         "In addition to the special character codes contained in braces \n"
         "in the magazine, Ahoy also used a shorthand convention for \n"
         "specifying a key entry preceeded by either the Shift key or the \n"
@@ -35,19 +36,22 @@ def parse_args(argv):
         "    - Overlined characters - preceed entry with Commodore key\n\n"
         "Standard keyboard letters should be typed as follows for these "
         "two cases.\n"
-        "    -{SHIFT-A}, {SHIFT-B}, {SHIFT-*} etc.\n"
-        "    -{C=-A}, {C=-B}, {C=-*}, etc.\n\n"
+        "    -{s A}, {s B}, {s *} etc.\n"
+        "    -{c A}, {c B}, {c *}, etc.\n\n"
         "There are a few instances where the old hardware has keys not\n"
         "available on a modern keyboard or are otherwise ambiguous.\n"
         "Those should be entered as follows:\n"
-        "    {pound} - British Pound symbol\n"
-        "    {up_arrow} - up arrow symbol\n"
-        "    {left_arrow} - left arrow symbol\n"
-        "    {pi} - Pi symbol\n"
-        "    {shift-return} - shifted return\n"
-        "    {shift-space} - shifted space\n"
-        "    {c=-pound} - Commodore-Bristish Pound symbol\n"
-        "    {shift-up_arrow} - shifted up arrow symbol\n\n"
+        "    {EP} - British Pound symbol\n"
+        "    {UP_ARROW} - up arrow symbol\n"
+        "    {LEFT_ARROW} - left arrow symbol\n"
+        "    {PI} - Pi symbol\n"
+        "    {s RETURN} - shifted return\n"
+        "    {s SPACE} - shifted space\n"
+        "    {c EP} - Commodore-Bristish Pound symbol\n"
+        "    {s UP_ARROW} - shifted up arrow symbol\n\n"
+        "After the October 1984 issue, the over/under score representation\n"
+        "was discontinued.  These special characters should be typed as\n"
+        "listed in the magazines after that issue.\n\n"
     )
 
     parser.add_argument(
@@ -63,17 +67,6 @@ def parse_args(argv):
     )
 
     parser.add_argument(
-        "-v", "--version", choices=['1', '2', '3', '4', '7'], type=str,
-        nargs=1, required=False, metavar="basic_version", default=['2'],
-        help="Specifies the BASIC version for use in tokenizing file:\n"
-             "- 1 - Basic v1.0  PET\n"
-             "- 2 - Basic v2.0  C64/VIC20/PET (default)\n"
-             "- 3 - Basic v3.5  C16/C116/Plus/4\n"
-             "- 4 - Basic v4.0  PET/CBM2\n"
-             "- 7 - Basic v7.0  C128\n"
-    )
-
-    parser.add_argument(
         "-s", "--source", choices=["ahoy1", "ahoy2", "ahoy4"], type=str, nargs=1,
         required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
@@ -85,10 +78,9 @@ def parse_args(argv):
 
     parser.add_argument(
         "file_in", type=str, metavar="input_file",
-        help="Specify the input file name including path\n"
-             "Note:  Output files will use input file basename\n"
-             "with extensions '.bas' for petcat-ready file and\n"
-             "'.prg' for Commodore run file format."
+        help="Specify the input file name including path.\n"
+             "Note:  Output file will use input file basename with\n"
+             "extension '.prg' for Commodore file format."
     )
 
     return parser.parse_args(argv)
@@ -492,7 +484,8 @@ def main(argv=None):
     # check each line to insure each starts with a line number
     check_line_number_seq(lines_list)
 
-    # convert to petcat format and write petcat-ready file
+    # Create lines list while checking for loose brackets/braces and converting
+    # to common special character codes in braces
     if args.source[0][:4] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list, char_maps)
         # handle loose brace error returned from ahoy_lines_list()
@@ -501,17 +494,6 @@ def main(argv=None):
                   "Special characters should be enclosed in two braces.\n"
                   "Please check for unmatched single braces in above line.")
             sys.exit(1)
-
-    # Write petcat-ready file with extension .bas
-    outfile = args.file_in.split('.')[0] + '.bas'
-
-    print('Writing petcat-ready file "' + outfile + '.\n')
-
-    if check_overwrite(outfile):
-        with open(outfile, "w") as file:
-            for line in lines_list:
-                file.write(line + '\n')
-        print('\nFile "' + outfile + '" written successfully.\n')
 
     addr = int(load_addr, 16)
 
