@@ -40,6 +40,44 @@ AHOY_TO_PETCAT = {
     "{F8}": "{f8}",
 }
 
+# Dictionary for special character conversion from ahoyb to petcat
+AHOYB_TO_PETCAT = {
+    "[CLEAR]": "{clr}",
+    "[HOME]": "{home}",
+    "[UP]": "{up}",
+    "[DOWN]": "{down}",
+    "[LEFT]": "{left}",
+    "[RIGHT]": "{rght}",
+    "[SS]": "{shift space}",
+    "[INSERT]": "{inst}",
+    "[RVSON]": "{rvon}",
+    "[RVSOFF]": "{rvof}",
+    "[BLACK]": "{blk}",
+    "[WHITE]": "{wht}",
+    "[RED]": "{red}",
+    "[CYAN]": "{cyn}",
+    "[PURPLE]": "{pur}",
+    "[GREEN]": "{grn}",
+    "[BLUE]": "{blu}",
+    "[YELLOW]": "{yel}",
+    "[ORANGE]": "{orng}",
+    "[BROWN]": "{brn}",
+    "[LTRED]": "{lred}",
+    "[GRAY1]": "{gry1}",
+    "[GRAY2]": "{gry2}",
+    "[LTGREEN]": "{lgrn}",
+    "[LTBLUE]": "{lblu}",
+    "[GRAY3]": "{gry3}",
+    "[F1]": "{f1}",
+    "[F2]": "{f2}",
+    "[F3]": "{f3}",
+    "[F4]": "{f4}",
+    "[F5]": "{f5}",
+    "[F6]": "{f6}",
+    "[F7]": "{f7}",
+    "[F8]": "{f8}",
+}
+
 # Core Commodore BASIC tokens
 CORE_TOKENS = (
     ('end',     128),
