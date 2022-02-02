@@ -129,7 +129,11 @@ def test_check_line_number_seq_b(capsys, lines_list, term_capture):
         (['{SC}{IN}{BR}{LR}{G1}{G2}{LG}{LB}{G3}'],
          ['{clr}{inst}{brn}{lred}{gry1}{gry2}{lgrn}{lblu}{gry3}']),
         (['{PU}{CL}{YL}{CY}{SS}'],
-         ['{pur}{left}{yel}{cyn}{$a0}']),
+         ['{pur}{left}{yel}{cyn}{sspc}']),
+        (['[CLEAR][INSERT][BROWN][LTRED][GRAY1][GRAY2][LTGREEN][LTBLUE]'],
+         ['{clr}{inst}{brn}{lred}{gry1}{gry2}{lgrn}{lblu}']),
+        (['[PURPLE][LEFT][YELLOW][CYAN][SS]'],
+         ['{pur}{left}{yel}{cyn}{sspc}']),
     ],
 )
 # char_maps is defined in a fixture in conftest.py

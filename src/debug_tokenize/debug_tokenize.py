@@ -176,6 +176,8 @@ def ahoy_lines_list(lines_list, char_maps):
     new_lines = []
 
     for line in lines_list:
+        line = line.replace('[', '{')
+        line = line.replace(']', '}')
         # split each line on ahoy special characters
         str_split = re.split(r"\{.*?\}", line)
 
@@ -193,8 +195,10 @@ def ahoy_lines_list(lines_list, char_maps):
 
         # for each ahoy special character, append the petcat equivalent
         for item in code_split:
-            if item.upper() in char_maps.AHOY_TO_PETCAT:
-                new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+            if item.upper() in char_maps.AHOYA_TO_PETCAT:
+                new_codes.append(char_maps.AHOYA_TO_PETCAT[item.upper()])
+            elif item.upper() in char_maps.AHOYB_TO_PETCAT:
+                new_codes.append(char_maps.AHOYB_TO_PETCAT[item.upper()])
             else:
                 new_codes.append(item)
 
