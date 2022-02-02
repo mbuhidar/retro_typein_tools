@@ -84,75 +84,6 @@ CORE_TOKENS = (
 
 TOKENS_V2 = CORE_TOKENS  # Case for Commodore BASIC v2.0 TODO: Add versions
 
-# Ahoy special character entry codes through Oct 1984 issue
-AHOY_A = (
-    ('sc', 147),
-    ('hm',  19),
-    ('cu', 145),
-    ('cd',  17),
-    ('cl', 157),
-    ('cr',  29),
-    ('ss', 160),
-    ('in', 148),
-    ('rv',  18),
-    ('ro', 146),
-    ('bk', 144),
-    ('wh',   5),
-    ('rd',  28),
-    ('cy', 159),
-    ('pu', 156),
-    ('gn',  30),
-    ('bl',  31),
-    ('yl', 158),
-    ('or', 129),
-    ('br', 149),
-    ('lr', 150),
-    ('g1', 151),
-    ('g2', 152),
-    ('lg', 153),
-    ('lb', 154),
-    ('g3', 155),
-    ('f1', 133),
-    ('f2', 137),
-    ('f3', 134),
-    ('f4', 138),
-    ('f5', 135),
-    ('f6', 139),
-    ('f7', 136),
-    ('f8', 140),
-)
-
-# Ahoy special character entry codes from November 1984 issue to end
-AHOY_B = (
-    ('clear',   147),
-    ('home',     19),
-    ('up',      145),
-    ('down',     17),
-    ('left',    157),
-    ('rght',     29),
-    ('insert',  148),
-    ('rvson',    18),
-    ('rvsoff',  146),
-    ('black',   144),
-    ('white',     5),
-    ('red',      28),
-    ('cyan',    159),
-    ('purple',  156),
-    ('green',    30),
-    ('blue',     31),
-    ('yellow',  158),
-    ('orange',  129),
-    ('brown',   149),
-    ('ltred',   150),
-    ('gray1',   151),
-    ('gray2',   152),
-    ('ltgreen', 153),
-    ('ltblue',  154),
-    ('gray3',   155),
-)
- 
-AHOY_CHARS = AHOY_A + AHOY_B
-
 # Tokens for special character designations used by Ahoy
 SHFT_CMDRE_TKNS = (
     ('ep',          92),
@@ -236,18 +167,15 @@ SHFT_CMDRE_TKNS = (
     ('c *',        223),
 )
 
-
-
-
-
-AHOY_TO_PETCAT = {
+# Ahoy special character entry codes through Oct 1984 issue
+AHOYA_TO_PETCAT = {
     "{SC}": "{clr}",
     "{HM}": "{home}",
     "{CU}": "{up}",
     "{CD}": "{down}",
     "{CL}": "{left}",
     "{CR}": "{rght}",
-    "{SS}": "{$a0}",
+    "{SS}": "{sspc}",
     "{IN}": "{inst}",
     "{RV}": "{rvon}",
     "{RO}": "{rvof}",
@@ -277,42 +205,33 @@ AHOY_TO_PETCAT = {
     "{F8}": "{f8}",
 }
 
-# Dictionary for special character conversion from ahoyb to petcat
+# Ahoy special character entry codes from November 1984 issue to end
 AHOYB_TO_PETCAT = {
-    "[CLEAR]": "{clr}",
-    "[HOME]": "{home}",
-    "[UP]": "{up}",
-    "[DOWN]": "{down}",
-    "[LEFT]": "{left}",
-    "[RIGHT]": "{rght}",
-    "[SS]": "{shift space}",
-    "[INSERT]": "{inst}",
-    "[RVSON]": "{rvon}",
-    "[RVSOFF]": "{rvof}",
-    "[BLACK]": "{blk}",
-    "[WHITE]": "{wht}",
-    "[RED]": "{red}",
-    "[CYAN]": "{cyn}",
-    "[PURPLE]": "{pur}",
-    "[GREEN]": "{grn}",
-    "[BLUE]": "{blu}",
-    "[YELLOW]": "{yel}",
-    "[ORANGE]": "{orng}",
-    "[BROWN]": "{brn}",
-    "[LTRED]": "{lred}",
-    "[GRAY1]": "{gry1}",
-    "[GRAY2]": "{gry2}",
-    "[LTGREEN]": "{lgrn}",
-    "[LTBLUE]": "{lblu}",
-    "[GRAY3]": "{gry3}",
-    "[F1]": "{f1}",
-    "[F2]": "{f2}",
-    "[F3]": "{f3}",
-    "[F4]": "{f4}",
-    "[F5]": "{f5}",
-    "[F6]": "{f6}",
-    "[F7]": "{f7}",
-    "[F8]": "{f8}",
+    "{CLEAR}": "{clr}",
+    "{HOME}": "{home}",
+    "{UP}": "{up}",
+    "{DOWN}": "{down}",
+    "{LEFT}": "{left}",
+    "{RIGHT}": "{rght}",
+    "{INSERT}": "{inst}",
+    "{RVSON}": "{rvon}",
+    "{RVSOFF}": "{rvof}",
+    "{BLACK}": "{blk}",
+    "{WHITE}": "{wht}",
+    "{RED}": "{red}",
+    "{CYAN}": "{cyn}",
+    "{PURPLE}": "{pur}",
+    "{GREEN}": "{grn}",
+    "{BLUE}": "{blu}",
+    "{YELLOW}": "{yel}",
+    "{ORANGE}": "{orng}",
+    "{BROWN}": "{brn}",
+    "{LTRED}": "{lred}",
+    "{GRAY1}": "{gry1}",
+    "{GRAY2}": "{gry2}",
+    "{LTGREEN}": "{lgrn}",
+    "{LTBLUE}": "{lblu}",
+    "{GRAY3}": "{gry3}",
 }
 
 # Tokens for special character designations used by petcat
@@ -323,7 +242,7 @@ PETCAT_TOKENS = (
     ('{down}',  17),
     ('{left}', 157),
     ('{rght}',  29),
-    ('{$a0}',  160),
+    ('{sspc}',  160),
     ('{inst}', 148),
     ('{rvon}',  18),
     ('{rvof}', 146),
