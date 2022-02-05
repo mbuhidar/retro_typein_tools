@@ -167,8 +167,8 @@ SHFT_CMDRE_TKNS = (
     ('c *',        223),
 )
 
-# Ahoy special character entry codes through Oct 1984 issue
-AHOYA_TO_PETCAT = {
+AHOY_TO_PETCAT = {
+    # Ahoy special character entry codes through Oct 1984 issue
     "{SC}": "{clr}",
     "{HM}": "{home}",
     "{CU}": "{up}",
@@ -203,10 +203,7 @@ AHOYA_TO_PETCAT = {
     "{F6}": "{f6}",
     "{F7}": "{f7}",
     "{F8}": "{f8}",
-}
-
-# Ahoy special character entry codes from November 1984 issue to end
-AHOYB_TO_PETCAT = {
+    # Ahoy special character entry codes from November 1984 issue to end
     "{CLEAR}": "{clr}",
     "{HOME}": "{home}",
     "{UP}": "{up}",

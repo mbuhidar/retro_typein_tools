@@ -179,7 +179,8 @@ def ahoy_lines_list(lines_list, char_maps):
         line = line.replace('[', '{')
         line = line.replace(']', '}')
         # split each line on ahoy special characters
-        str_split = re.split(r"\{.*?\}", line)
+        # str_split = re.split(r"\{.*?\}", line)
+        str_split = re.split(r"{\d+\s\".+?\"}|{.+?}", line)
 
         # check for loose braces in each substring, return error indication
         for sub_str in str_split:
@@ -189,23 +190,42 @@ def ahoy_lines_list(lines_list, char_maps):
                 return (None, line)
 
         # create list of ahoy special character code strings
-        code_split = re.findall(r"\{.*?\}", line)
+        code_split = re.findall(r"{\d+\s\".+?\"}|{.+?}", line)
+
+        print(str_split, code_split)
 
         new_codes = []
 
         # for each ahoy special character, append the petcat equivalent
-        for item in code_split:
-            if item.upper() in char_maps.AHOYA_TO_PETCAT:
-                new_codes.append(char_maps.AHOYA_TO_PETCAT[item.upper()])
-            elif item.upper() in char_maps.AHOYB_TO_PETCAT:
-                new_codes.append(char_maps.AHOYB_TO_PETCAT[item.upper()])
+        for num, item in enumerate(code_split):
+            if item.upper() in char_maps.AHOY_TO_PETCAT:
+                new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+            elif re.match(r"{\d+\s\".+?\"}", item):
+                char_ct = int(re.search(r"\d+\b", item).group())
+                print(char_ct)
+                char_code = re.search(r"\".+?\"", item).group()
+                char_code = char_code[1:-1]
+                if char_code.upper() in char_maps.AHOY_TO_PETCAT:
+                    new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
+                    while char_ct > 1:
+                        new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
+                        str_split.insert(num + 1, '')
+                        print(char_ct)
+                        char_ct = char_ct - 1
+                else:
+                    new_codes.append(char_code)
+                    while char_ct > 1:
+                        new_codes.append(char_code)
+                        str_split.insert(num + 1, '')
+                        char_ct = char_ct - 1
             else:
                 new_codes.append(item)
 
         # add blank item to list of special characters to aide enumerate
         if new_codes:
             new_codes.append('')
-
+            print(new_codes)
+            
             new_line = []
 
             # piece the string segments and petcat codes back together
@@ -216,6 +236,7 @@ def ahoy_lines_list(lines_list, char_maps):
         else:
             new_line = str_split
         new_lines.append(''.join(new_line))
+        print(new_lines)
     return new_lines
 
 
