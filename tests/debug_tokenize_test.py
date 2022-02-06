@@ -11,7 +11,7 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           write_binary, \
                                           ahoy1_checksum, \
                                           ahoy2_checksum, \
-                                          ahoy4_checksum, \
+                                          ahoy3_checksum, \
                                           print_checksums
 
 
@@ -24,8 +24,8 @@ from debug_tokenize.debug_tokenize import parse_args, \
          ['0x0801', 'ahoy1', 'infile.ahoy']),
         (['infile.ahoy', '-l', '0x1001'],
          ['0x1001', 'ahoy2', 'infile.ahoy']),
-        (['-s', 'ahoy4', 'infile.ahoy', '-l', '0x1001'],
-         ['0x1001', 'ahoy4', 'infile.ahoy']),
+        (['-s', 'ahoy3', 'infile.ahoy', '-l', '0x1001'],
+         ['0x1001', 'ahoy3', 'infile.ahoy']),
     ],
 )
 def test_parse_args(argv, arg_valid):
@@ -326,13 +326,13 @@ def test_ahoy2_checksum(byte_list, checksum):
         (485, [142, 0], 'HE'),
     ],
 )
-def test_ahoy4_checksum(line_num, byte_list, checksum):
+def test_ahoy3_checksum(line_num, byte_list, checksum):
     """
-    Unit test to check that function ahoy4_checksum() is properly calculating
+    Unit test to check that function ahoy3_checksum() is properly calculating
     and returning the proper ahoy checksum code.
     """
 
-    assert ahoy4_checksum(line_num, byte_list) == checksum
+    assert ahoy3_checksum(line_num, byte_list) == checksum
 
 
 @pytest.mark.parametrize(

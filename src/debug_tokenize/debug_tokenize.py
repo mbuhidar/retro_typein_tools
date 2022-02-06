@@ -67,13 +67,12 @@ def parse_args(argv):
     )
 
     parser.add_argument(
-        "-s", "--source", choices=["ahoy1", "ahoy2", "ahoy4"], type=str, nargs=1,
+        "-s", "--source", choices=["ahoy1", "ahoy2", "ahoy3"], type=str, nargs=1,
         required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
              "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
              "ahoy2 - Ahoy magazine (Jun 1984-Oct 1984) (default)\n"
-             "ahoy3 - Ahoy magazine (Nov 1984-Apr 1987) - not implemented\n"
-             "ahoy4 - Ahoy magazine (May 1987-)\n"
+             "ahoy3 - Ahoy magazine (Nov 1984-)\n"
     )
 
     parser.add_argument(
@@ -414,7 +413,7 @@ def ahoy2_checksum(byte_list):
     return checksum
 
 
-def ahoy4_checksum(line_num, byte_list):
+def ahoy3_checksum(line_num, byte_list):
     '''
     Function to create Ahoy checksums from passed in line number and byte list
     to match the codes printed in the magazine to check each line for typed in
@@ -544,8 +543,8 @@ def main(argv=None):
             ahoy_checksums.append((line_num, ahoy1_checksum(byte_list)))
         elif args.source[0] == 'ahoy2':
             ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
-        elif args.source[0] == 'ahoy4':
-            ahoy_checksums.append((line_num, ahoy4_checksum(line_num, byte_list)))
+        elif args.source[0] == 'ahoy3':
+            ahoy_checksums.append((line_num, ahoy3_checksum(line_num, byte_list)))
         else:
             print("Magazine format not yet supported.")
             sys.exit(1)

@@ -50,8 +50,7 @@ optional arguments:
                         Specifies the magazine source for conversion and checksum:
                         ahoy1 - Ahoy magazine (Apr-May 1984)
                         ahoy2 - Ahoy magazine (Jun 1984-Oct 1984) (default)
-                        ahoy3 - Ahoy magazine (Nov 1984-Apr 1987) - not implemented
-                        ahoy4 - Ahoy magazine (May 1987-)
+                        ahoy3 - Ahoy magazine (Nov 1984-)
 ```
 
 As an example for an Ahoy! magazine file:
