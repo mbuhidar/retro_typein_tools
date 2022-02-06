@@ -192,8 +192,6 @@ def ahoy_lines_list(lines_list, char_maps):
         # create list of ahoy special character code strings
         code_split = re.findall(r"{\d+\s\".+?\"}|{.+?}", line)
 
-        print(str_split, code_split)
-
         new_codes = []
 
         # for each ahoy special character, append the petcat equivalent
@@ -202,7 +200,6 @@ def ahoy_lines_list(lines_list, char_maps):
                 new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
             elif re.match(r"{\d+\s\".+?\"}", item):
                 char_ct = int(re.search(r"\d+\b", item).group())
-                print(char_ct)
                 char_code = re.search(r"\".+?\"", item).group()
                 char_code = char_code[1:-1]
                 if char_code.upper() in char_maps.AHOY_TO_PETCAT:
@@ -210,7 +207,6 @@ def ahoy_lines_list(lines_list, char_maps):
                     while char_ct > 1:
                         new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
                         str_split.insert(num + 1, '')
-                        print(char_ct)
                         char_ct = char_ct - 1
                 else:
                     new_codes.append(char_code)
@@ -224,7 +220,6 @@ def ahoy_lines_list(lines_list, char_maps):
         # add blank item to list of special characters to aide enumerate
         if new_codes:
             new_codes.append('')
-            print(new_codes)
             
             new_line = []
 
@@ -236,7 +231,6 @@ def ahoy_lines_list(lines_list, char_maps):
         else:
             new_line = str_split
         new_lines.append(''.join(new_line))
-        print(new_lines)
     return new_lines
 
 
