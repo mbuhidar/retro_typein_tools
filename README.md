@@ -91,8 +91,10 @@ Those should be entered as follows:
     {s UP_ARROW} - shifted up arrow symbol
 
 After the October 1984 issue, the over/under score representation was 
-discontinued.  These special characters should be typed as listed in the 
-magazines after that issue.
+discontinued as was the use of braces as delineators.  After October 1984, the
+braces were replaced by brackets, however, either can be used while typing in
+the programs for any issue.  The special characters can be typed as listed
+in the magazines after that issue.
 
 ### Using the output files
 
