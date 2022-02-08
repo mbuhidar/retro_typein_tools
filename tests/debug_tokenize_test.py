@@ -11,22 +11,21 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           write_binary, \
                                           ahoy1_checksum, \
                                           ahoy2_checksum, \
+                                          ahoy3_checksum, \
                                           print_checksums
 
 
 @pytest.mark.parametrize(
     "argv, arg_valid",
     [
-        (['infile.bas'],
-         ['0x0801', '2', 'ahoy2', 'infile.bas']),
-        (['infile.bas', '-s', 'ahoy1'],
-         ['0x0801', '2', 'ahoy1', 'infile.bas']),
-        (['infile.bas', '-v', '7'],
-         ['0x0801', '7', 'ahoy2', 'infile.bas']),
-        (['infile.bas', '-l', '0x1001'],
-         ['0x1001', '2', 'ahoy2', 'infile.bas']),
-        (['-v', '4', 'infile.bas', '-s', 'ahoy2', '-l', '0x1001'],
-         ['0x1001', '4', 'ahoy2', 'infile.bas']),
+        (['infile.ahoy'],
+         ['0x0801', 'ahoy2', 'infile.ahoy']),
+        (['infile.ahoy', '-s', 'ahoy1'],
+         ['0x0801', 'ahoy1', 'infile.ahoy']),
+        (['infile.ahoy', '-l', '0x1001'],
+         ['0x1001', 'ahoy2', 'infile.ahoy']),
+        (['-s', 'ahoy3', 'infile.ahoy', '-l', '0x1001'],
+         ['0x1001', 'ahoy3', 'infile.ahoy']),
     ],
 )
 def test_parse_args(argv, arg_valid):
@@ -36,8 +35,7 @@ def test_parse_args(argv, arg_valid):
     """
 
     args = parse_args(argv)
-    arg_list = [args.loadaddr[0], args.version[0],
-                args.source[0], args.file_in]
+    arg_list = [args.loadaddr[0], args.source[0], args.file_in]
     assert arg_list == arg_valid
 
 
@@ -131,7 +129,25 @@ def test_check_line_number_seq_b(capsys, lines_list, term_capture):
         (['{SC}{IN}{BR}{LR}{G1}{G2}{LG}{LB}{G3}'],
          ['{clr}{inst}{brn}{lred}{gry1}{gry2}{lgrn}{lblu}{gry3}']),
         (['{PU}{CL}{YL}{CY}{SS}'],
-         ['{pur}{left}{yel}{cyn}{$a0}']),
+         ['{pur}{left}{yel}{cyn}{sspc}']),
+        (['[CLEAR][INSERT][BROWN][LTRED][GRAY1][GRAY2][LTGREEN][LTBLUE]'],
+         ['{clr}{inst}{brn}{lred}{gry1}{gry2}{lgrn}{lblu}']),
+        (['[PURPLE][LEFT][YELLOW][CYAN][SS]'],
+         ['{pur}{left}{yel}{cyn}{sspc}']),
+        (['[2 "[PURPLE]"][LEFT][YELLOW][CYAN][SS]'],
+         ['{pur}{pur}{left}{yel}{cyn}{sspc}']),
+        (['print"{4"{cd}"}{cy}";:printtab(8)"press trigger"'],
+         ['print"{down}{down}{down}{down}{cyn}";:printtab(8)"press trigger"']),
+        (['print"[4"[cd]"][cy]";:printtab(8)"press trigger"'],
+         ['print"{down}{down}{down}{down}{cyn}";:printtab(8)"press trigger"']),
+        (['print"[4" "][cy]";:printtab(8)"press trigger"'],
+         ['print"    {cyn}";:printtab(8)"press trigger"']),
+        (['print"[4"*"][5"4"][BR]"'],
+         ['print"****44444{brn}"']),
+        (['print"[4 " "][cy]";:printtab(8)"press trigger"'],
+         ['print"    {cyn}";:printtab(8)"press trigger"']),
+        (['print"[4 "*"][5 "4"][BR]"'],
+         ['print"****44444{brn}"']),
     ],
 )
 # char_maps is defined in a fixture in conftest.py
@@ -212,8 +228,8 @@ def test_scan_manager(ln, bytestr):
         ('rem start mower', True, 143, ' start mower'),
         (' start mower', False, 32, 'start mower'),
         ('{wht}"tab(32)', True, 5, '"tab(32)'),
-        ('{c=-g} test commodore-g', True, 165, ' test commodore-g'),
-        ('{shift-pound}start mower', True, 169, 'start mower'),
+        ('{c g} test commodore-g', True, 165, ' test commodore-g'),
+        ('{s ep}start mower', True, 169, 'start mower'),
     ],
 )
 # char_maps is defined in a fixture in conftest.py
@@ -293,6 +309,30 @@ def test_ahoy2_checksum(byte_list, checksum):
     """
 
     assert ahoy2_checksum(byte_list) == checksum
+
+
+@pytest.mark.parametrize(
+    "line_num, byte_list, checksum",
+    [
+        # '25 GOSUB325'
+        (25, [141, 51, 50, 53, 0], 'EH'),
+        # '256 GOSUB325'
+        (256, [141, 51, 50, 53, 0], 'CP'),
+        # '23456 GOSUB325'
+        (23456, [141, 51, 50, 53, 0], 'BN'),
+        # '30 GOSUB425'
+        (30, [141, 52, 50, 53, 0], 'EP'),
+        # '485 RETURN'
+        (485, [142, 0], 'HE'),
+    ],
+)
+def test_ahoy3_checksum(line_num, byte_list, checksum):
+    """
+    Unit test to check that function ahoy3_checksum() is properly calculating
+    and returning the proper ahoy checksum code.
+    """
+
+    assert ahoy3_checksum(line_num, byte_list) == checksum
 
 
 @pytest.mark.parametrize(

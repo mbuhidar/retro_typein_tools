@@ -22,11 +22,12 @@ def parse_args(argv):
     documentation.
     """
     parser = argparse.ArgumentParser(description=
-        "A tokenizer for Commodore BASIC typein programs. So far, supports \n"
-        "Ahoy magazine programs for C64, but more formats to come.",
+        "A tokenizer for Commodore BASIC typein programs. Supports Ahoy "
+        "magazine\nprograms for C64.",
         formatter_class=RawTextHelpFormatter,
         epilog=
-        "Notes for entering programs from Ahoy magazine:\n\n"
+        "Notes for entering programs from Ahoy issues prior to November "
+        "1984:\n\n"
         "In addition to the special character codes contained in braces \n"
         "in the magazine, Ahoy also used a shorthand convention for \n"
         "specifying a key entry preceeded by either the Shift key or the \n"
@@ -35,19 +36,22 @@ def parse_args(argv):
         "    - Overlined characters - preceed entry with Commodore key\n\n"
         "Standard keyboard letters should be typed as follows for these "
         "two cases.\n"
-        "    -{SHIFT-A}, {SHIFT-B}, {SHIFT-*} etc.\n"
-        "    -{C=-A}, {C=-B}, {C=-*}, etc.\n\n"
+        "    -{s A}, {s B}, {s *} etc.\n"
+        "    -{c A}, {c B}, {c *}, etc.\n\n"
         "There are a few instances where the old hardware has keys not\n"
         "available on a modern keyboard or are otherwise ambiguous.\n"
         "Those should be entered as follows:\n"
-        "    {pound} - British Pound symbol\n"
-        "    {up_arrow} - up arrow symbol\n"
-        "    {left_arrow} - left arrow symbol\n"
-        "    {pi} - Pi symbol\n"
-        "    {shift-return} - shifted return\n"
-        "    {shift-space} - shifted space\n"
-        "    {c=-pound} - Commodore-Bristish Pound symbol\n"
-        "    {shift-up_arrow} - shifted up arrow symbol\n\n"
+        "    {EP} - British Pound symbol\n"
+        "    {UP_ARROW} - up arrow symbol\n"
+        "    {LEFT_ARROW} - left arrow symbol\n"
+        "    {PI} - Pi symbol\n"
+        "    {s RETURN} - shifted return\n"
+        "    {s SPACE} - shifted space\n"
+        "    {c EP} - Commodore-Bristish Pound symbol\n"
+        "    {s UP_ARROW} - shifted up arrow symbol\n\n"
+        "After the October 1984 issue, the over/under score representation\n"
+        "was discontinued.  These special characters should be typed as\n"
+        "listed in the magazines after that issue.\n\n"
     )
 
     parser.add_argument(
@@ -63,30 +67,19 @@ def parse_args(argv):
     )
 
     parser.add_argument(
-        "-v", "--version", choices=['1', '2', '3', '4', '7'], type=str,
-        nargs=1, required=False, metavar="basic_version", default=['2'],
-        help="Specifies the BASIC version for use in tokenizing file:\n"
-             "- 1 - Basic v1.0  PET\n"
-             "- 2 - Basic v2.0  C64/VIC20/PET (default)\n"
-             "- 3 - Basic v3.5  C16/C116/Plus/4\n"
-             "- 4 - Basic v4.0  PET/CBM2\n"
-             "- 7 - Basic v7.0  C128\n"
-    )
-
-    parser.add_argument(
-        "-s", "--source", choices=["ahoy1", "ahoy2"], type=str, nargs=1,
+        "-s", "--source", choices=["ahoy1", "ahoy2", "ahoy3"], type=str, nargs=1,
         required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
              "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
-             "ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)\n"
+             "ahoy2 - Ahoy magazine (Jun 1984-Oct 1984) (default)\n"
+             "ahoy3 - Ahoy magazine (Nov 1984-)\n"
     )
 
     parser.add_argument(
         "file_in", type=str, metavar="input_file",
-        help="Specify the input file name including path\n"
-             "Note:  Output files will use input file basename\n"
-             "with extensions '.bas' for petcat-ready file and\n"
-             "'.prg' for Commodore run file format."
+        help="Specify the input file name including path.\n"
+             "Note:  Output file will use input file basename with\n"
+             "extension '.prg' for Commodore file format."
     )
 
     return parser.parse_args(argv)
@@ -182,8 +175,12 @@ def ahoy_lines_list(lines_list, char_maps):
     new_lines = []
 
     for line in lines_list:
+        # replace braces with brackets since Ahoy used both over time
+        line = line.replace('[', '{')
+        line = line.replace(']', '}')
+
         # split each line on ahoy special characters
-        str_split = re.split(r"\{.*?\}", line)
+        str_split = re.split(r"{\d+\s?\".+?\"}|{.+?}", line)
 
         # check for loose braces in each substring, return error indication
         for sub_str in str_split:
@@ -193,21 +190,37 @@ def ahoy_lines_list(lines_list, char_maps):
                 return (None, line)
 
         # create list of ahoy special character code strings
-        code_split = re.findall(r"\{.*?\}", line)
+        code_split = re.findall(r"{\d+\s?\".+?\"}|{.+?}", line)
 
         new_codes = []
 
         # for each ahoy special character, append the petcat equivalent
-        for item in code_split:
+        for num, item in enumerate(code_split):
             if item.upper() in char_maps.AHOY_TO_PETCAT:
                 new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+            elif re.match(r"{\d+\s?\".+?\"}", item):
+                char_ct = int(re.search(r"\d+\b", item).group())
+                char_code = re.search(r"\".+?\"", item).group()
+                char_code = char_code[1:-1]
+                if char_code.upper() in char_maps.AHOY_TO_PETCAT:
+                    new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
+                    while char_ct > 1:
+                        new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
+                        str_split.insert(num + 1, '')
+                        char_ct = char_ct - 1
+                else:
+                    new_codes.append(char_code)
+                    while char_ct > 1:
+                        new_codes.append(char_code)
+                        str_split.insert(num + 1, '')
+                        char_ct = char_ct - 1
             else:
                 new_codes.append(item)
 
-        # add blank item to list of special characters to aide enumerate
+        # add blank item to list of special characters prior to blending strs
         if new_codes:
             new_codes.append('')
-
+            
             new_line = []
 
             # piece the string segments and petcat codes back together
@@ -400,6 +413,57 @@ def ahoy2_checksum(byte_list):
     return checksum
 
 
+def ahoy3_checksum(line_num, byte_list):
+    '''
+    Function to create Ahoy checksums from passed in line number and byte list
+    to match the codes printed in the magazine to check each line for typed in
+    accuracy. Covers the last Ahoy Bug Repellent verion introduced in Apr 1987.
+    '''
+
+    xor_value = 0
+    char_position = 0
+    in_quotes = False
+
+    line_low = line_num % 256
+    line_hi = int(line_num / 256)
+
+    byte_list = [line_low] + [line_hi] + byte_list
+
+    # byte_list.insert(0, line_hi)
+    # byte_list.insert(0, line_low)
+
+    for char_val in byte_list:
+
+        # Detect quote symbol in line and toggle in-quotes flag
+        if char_val == 34:
+            in_quotes = not in_quotes
+
+        # Detect spaces that are outside of quotes and ignore them, else
+        # execute primary checksum generation algorithm
+        if char_val == 32 and in_quotes is False:
+            continue
+        else:
+            next_value = char_val + xor_value 
+
+            xor_value = next_value ^ char_position
+
+            # limit next value to fit in one byte
+            next_value = next_value & 255
+
+            char_position = char_position + 1
+
+    # get high nibble of xor_value
+    high_nib = (xor_value & 0xf0) >> 4
+    high_char_val = high_nib + 65  # 0x41
+    # high_char_val = high_char_val & 0x0f
+    # get low nibble of xor_value
+    low_nib = xor_value & 0x0f
+    low_char_val = low_nib + 65  # 0x41
+    # low_char_val = low_char_val & 0x0f
+    checksum = chr(high_char_val) + chr(low_char_val)
+    return checksum
+
+
 def print_checksums(ahoy_checksums, terminal_width):
 
     # Determine number of columns to print based on terminal window width
@@ -439,26 +503,18 @@ def main(argv=None):
     # check each line to insure each starts with a line number
     check_line_number_seq(lines_list)
 
-    # convert to petcat format and write petcat-ready file
+    # Create lines list while checking for loose brackets/braces and converting
+    # to common special character codes in braces
     if args.source[0][:4] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list, char_maps)
+        line_no = split_line_num(lines_list[1])[0]
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
-            print(f"Loose brace error in line:\n {lines_list[1]}\n"
-                  "Special characters should be enclosed in two braces.\n"
-                  "Please check for unmatched single braces in above line.")
+            print(f"Loose brace/bracket error in line: {line_no}\n"
+                  "Special characters should be enclosed in braces/brackets.\n"
+                  "Please check for unmatched single brace/bracket in above "
+                  "line.")
             sys.exit(1)
-
-    # Write petcat-ready file with extension .bas
-    outfile = args.file_in.split('.')[0] + '.bas'
-
-    print('Writing petcat-ready file "' + outfile + '.\n')
-
-    if check_overwrite(outfile):
-        with open(outfile, "w") as file:
-            for line in lines_list:
-                file.write(line + '\n')
-        print('\nFile "' + outfile + '" written successfully.\n')
 
     addr = int(load_addr, 16)
 
@@ -487,6 +543,8 @@ def main(argv=None):
             ahoy_checksums.append((line_num, ahoy1_checksum(byte_list)))
         elif args.source[0] == 'ahoy2':
             ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
+        elif args.source[0] == 'ahoy3':
+            ahoy_checksums.append((line_num, ahoy3_checksum(line_num, byte_list)))
         else:
             print("Magazine format not yet supported.")
             sys.exit(1)
