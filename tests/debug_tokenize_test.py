@@ -324,6 +324,10 @@ def test_ahoy2_checksum(byte_list, checksum):
         (30, [141, 52, 50, 53, 0], 'EP'),
         # '485 RETURN'
         (485, [142, 0], 'HE'),
+        # '20 PRINT"[8"[DOWN]"]"TAB(7)"PLEASE WAIT[4"."]READING DATA"'
+        (20, [153, 34, 17, 17, 17, 17, 17, 17, 17, 17, 34, 163, 55, 41, 34, 80,
+              76, 69, 65, 83, 69, 32, 87, 65, 73, 84, 46, 46, 46, 46, 82, 69,
+              65, 68, 73, 78, 71, 32, 68, 65, 84, 65, 34, 0], 'LE'),
     ],
 )
 def test_ahoy3_checksum(line_num, byte_list, checksum):

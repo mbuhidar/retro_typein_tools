@@ -185,7 +185,7 @@ def ahoy_lines_list(lines_list, char_maps):
         # check for loose braces in each substring, return error indication
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
-            # TODO: Improve loose brace error handling, inconsistent return
+            # Improve loose brace error handling, inconsistent return
             if loose_brace is not None:
                 return (None, line)
 
@@ -195,42 +195,57 @@ def ahoy_lines_list(lines_list, char_maps):
         new_codes = []
 
         # for each ahoy special character, append the petcat equivalent
-        for num, item in enumerate(code_split):
+        num = 0
+
+        for item in code_split:
+
             if item.upper() in char_maps.AHOY_TO_PETCAT:
                 new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+
             elif re.match(r"{\d+\s?\".+?\"}", item):
-                char_ct = int(re.search(r"\d+\b", item).group())
-                char_code = re.search(r"\".+?\"", item).group()
-                char_code = char_code[1:-1]
+                # Extract number of times to repeat special character
+                char_count = int(re.search(r"\d+\b", item).group())
+                # Get the string inside the brackets and strip quotes on ends
+                char_code = re.search(r"\".+?\"", item).group()[1:-1]
+
                 if char_code.upper() in char_maps.AHOY_TO_PETCAT:
-                    new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
-                    while char_ct > 1:
-                        new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
+                    new_codes.append(char_maps.AHOY_TO_PETCAT
+                                     [char_code.upper()])
+
+                    while char_count > 1:
+                        new_codes.append(char_maps.AHOY_TO_PETCAT
+                                         [char_code.upper()])
                         str_split.insert(num + 1, '')
-                        char_ct = char_ct - 1
+                        num += 1
+                        char_count -= 1
+
                 else:
                     new_codes.append(char_code)
-                    while char_ct > 1:
+                    while char_count > 1:
                         new_codes.append(char_code)
                         str_split.insert(num + 1, '')
-                        char_ct = char_ct - 1
+                        num += 1
+                        char_count -= 1
+
             else:
                 new_codes.append(item)
+            num += 1
 
         # add blank item to list of special characters prior to blending strs
         if new_codes:
             new_codes.append('')
-            
+         
             new_line = []
 
             # piece the string segments and petcat codes back together
             for count in range(len(new_codes)):
-                new_line.append(str_split[count])
-                new_line.append(new_codes[count])
+                new_line.extend((str_split[count], new_codes[count]))
+
         # handle case where line contained no special characters
         else:
             new_line = str_split
         new_lines.append(''.join(new_line))
+
     return new_lines
 
 
@@ -252,6 +267,7 @@ def split_line_num(line):
     while line and line[0].isdigit():
         acc.append(line[0])
         line = line[1:]
+    
     return (int(''.join(acc)), line.lstrip())
 
 
@@ -419,7 +435,7 @@ def ahoy3_checksum(line_num, byte_list):
     to match the codes printed in the magazine to check each line for typed in
     accuracy. Covers the last Ahoy Bug Repellent verion introduced in Apr 1987.
     '''
-
+    
     xor_value = 0
     char_position = 0
     in_quotes = False
