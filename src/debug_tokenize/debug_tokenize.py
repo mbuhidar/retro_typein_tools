@@ -142,15 +142,13 @@ def check_line_number_seq(lines_list):
         try:
             line_no = split_line_num(line)[0]
             ln_num_buffer.append(line_no)
-            if len(ln_num_buffer) < 4:
-                continue
-            ln_num_buffer.pop(0)
 
-            if not ln_num_buffer[0] <= ln_num_buffer[1] <= ln_num_buffer[2]:
-                print("Entry error one or two lines after line "
+            if not ln_num_buffer[0] < ln_num_buffer[1]:
+                print("Entry error after line "
                       f"{ln_num_buffer[0]} - lines should be in sequential "
                       "order.  Exiting.")
                 sys.exit(1)
+            ln_num_buffer.pop(0)
 
         except ValueError:
             print(f"Entry error after line {line_no} - each line should start "

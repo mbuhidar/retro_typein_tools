@@ -62,6 +62,12 @@ def test_read_file(infile_data):
         (["10 OK", "20 OK", "30 OK", "40 OK"],
          ""
          ),
+        (["10 OK", "20 OK"],
+         ""
+         ),
+        (["10 OK"],
+         ""
+         ),
     ],
 )
 def test_check_line_number_seq_a(capsys, lines_list, term_capture):
@@ -78,19 +84,19 @@ def test_check_line_number_seq_a(capsys, lines_list, term_capture):
     "lines_list, term_capture",
     [
         (["10 OK", "20 OK", "5 OFF", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in "
+         "Entry error after line 20 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["10 OK", "200 OFF", "30 OK", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in "
+         "Entry error after line 200 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["10 OK", "200 OFF", "3 OFF", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in "
+         "Entry error after line 200 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["100 OFF", "20 OK", "30 OK", "40 OK"],
-         "Entry error one or two lines after line 100 - lines should be in "
+         "Entry error after line 100 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["10 OK", "OFF", "30 OK", "40 OK"],
@@ -100,6 +106,14 @@ def test_check_line_number_seq_a(capsys, lines_list, term_capture):
         (["OFF", "20OK", "30 ON", "40 OK"],
          "Entry error after line 0 - each line should start with a line "
          "number.  Exiting.\n"
+         ),
+        (["20OK", "ON"],
+         "Entry error after line 20 - each line should start with a line "
+         "number.  Exiting.\n"
+         ),
+        (["20 OK", "10 ON"],
+         "Entry error after line 20 - lines should be in "
+         "sequential order.  Exiting.\n"
          ),
     ],
 )
