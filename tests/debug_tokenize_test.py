@@ -1,5 +1,5 @@
 import pytest
-# from src.debug_tokenize import debug_tokenize
+from io import StringIO
 
 from debug_tokenize.debug_tokenize import parse_args, \
                                           read_file, \
@@ -12,7 +12,8 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           ahoy1_checksum, \
                                           ahoy2_checksum, \
                                           ahoy3_checksum, \
-                                          print_checksums
+                                          print_checksums, \
+                                          confirm_overwrite 
 
 
 @pytest.mark.parametrize(
@@ -62,9 +63,15 @@ def test_read_file(infile_data):
         (["10 OK", "20 OK", "30 OK", "40 OK"],
          ""
          ),
+        (["10 OK", "20 OK"],
+         ""
+         ),
+        (["10 OK"],
+         ""
+         ),
     ],
 )
-def test_check_line_number_seq_a(capsys, lines_list, term_capture):
+def test_check_line_number_seq_ok(capsys, lines_list, term_capture):
     """
     Unit test to check that function check_line_number_seq() is propery
     identifying cases where lines have the correct line number sequencing.
@@ -78,19 +85,19 @@ def test_check_line_number_seq_a(capsys, lines_list, term_capture):
     "lines_list, term_capture",
     [
         (["10 OK", "20 OK", "5 OFF", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in "
+         "Entry error after line 20 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["10 OK", "200 OFF", "30 OK", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in "
+         "Entry error after line 200 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["10 OK", "200 OFF", "3 OFF", "40 OK"],
-         "Entry error one or two lines after line 10 - lines should be in "
+         "Entry error after line 200 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["100 OFF", "20 OK", "30 OK", "40 OK"],
-         "Entry error one or two lines after line 100 - lines should be in "
+         "Entry error after line 100 - lines should be in "
          "sequential order.  Exiting.\n"
          ),
         (["10 OK", "OFF", "30 OK", "40 OK"],
@@ -101,9 +108,17 @@ def test_check_line_number_seq_a(capsys, lines_list, term_capture):
          "Entry error after line 0 - each line should start with a line "
          "number.  Exiting.\n"
          ),
+        (["20OK", "ON"],
+         "Entry error after line 20 - each line should start with a line "
+         "number.  Exiting.\n"
+         ),
+        (["20 OK", "10 ON"],
+         "Entry error after line 20 - lines should be in "
+         "sequential order.  Exiting.\n"
+         ),
     ],
 )
-def test_check_line_number_seq_b(capsys, lines_list, term_capture):
+def test_check_line_number_seq_bad(capsys, lines_list, term_capture):
     """
     Unit test to check that function check_line_number_seq() is propery
     identifying cases where lines either don't start with an integer line
@@ -194,8 +209,34 @@ def test_write_binary(tmpdir):
                         24, 8, 20, 0, 137, 49, 48, 0, 0, 0])
     with open(file, 'rb') as f:
         contents = f.read()
+    
     assert contents == b'\x01\x08\x10\x08\n\x00\x99("HELLO")\
 \x00\x18\x08\x14\x00\x8910\x00\x00\x00'
+
+
+@pytest.mark.parametrize(
+    "user_entry, return_value",
+    [
+        ('y\n', True),
+        ('Y\n', True),
+        ('n\n', False),
+        ('nope\n', False),
+        ('\n', False),
+    ],
+)
+def test_confirm_overwrite(capsys, monkeypatch, user_entry, return_value):
+    """
+    Unit test to check that function confirm_overwrite() is properly handling
+    user input properly.
+    """
+
+    monkeypatch.setattr('sys.stdin', StringIO(user_entry))
+    overwrite = confirm_overwrite('test_file.ahoy')
+    out, err = capsys.readouterr()
+    assert overwrite == return_value
+    assert out == 'Output file "test_file.ahoy" already exists. ' \
+                  'Overwrite? (Y = yes) '
+    assert err == ''
 
 
 @pytest.mark.parametrize(
@@ -241,8 +282,6 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
     """
 
     assert scan(ln, char_maps, tokenize) == (byte, remaining_line)
-
-# TODO: Write test for check_overwrite()
 
 
 @pytest.mark.parametrize(
@@ -324,6 +363,10 @@ def test_ahoy2_checksum(byte_list, checksum):
         (30, [141, 52, 50, 53, 0], 'EP'),
         # '485 RETURN'
         (485, [142, 0], 'HE'),
+        # '20 PRINT"[8"[DOWN]"]"TAB(7)"PLEASE WAIT[4"."]READING DATA"'
+        (20, [153, 34, 17, 17, 17, 17, 17, 17, 17, 17, 34, 163, 55, 41, 34, 80,
+              76, 69, 65, 83, 69, 32, 87, 65, 73, 84, 46, 46, 46, 46, 82, 69,
+              65, 68, 73, 78, 71, 32, 68, 65, 84, 65, 34, 0], 'LE'),
     ],
 )
 def test_ahoy3_checksum(line_num, byte_list, checksum):

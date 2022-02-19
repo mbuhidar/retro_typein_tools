@@ -6,7 +6,7 @@ emulator or on original hardware.
 
 import argparse
 from argparse import RawTextHelpFormatter
-from os import path, get_terminal_size
+from os import remove, get_terminal_size
 import re
 import sys
 import math
@@ -117,12 +117,33 @@ def write_binary(filename, int_list):
             output write to file
 
     Returns:
-        None: implicit return
+        None: Implicit return
     """
 
-    with open(filename, "wb") as file:
-        for byte in int_list:
-            file.write(byte.to_bytes(1, byteorder='big'))
+    print(f'Writing binary output file "{filename}"...\n')
+
+    try:
+        with open(filename, "xb") as file:
+            for byte in int_list:
+                file.write(byte.to_bytes(1, byteorder='big'))
+            print(f'File "{filename}" written successfully.\n')
+
+    except FileExistsError:
+        if confirm_overwrite(filename):
+            remove(filename)
+            write_binary(filename, int_list)
+        else:
+            print(f'File "{filename}" not overwritten.\n')
+       
+
+def confirm_overwrite(filename):
+
+    overwrite = input(f'Output file "{filename}" already exists. '
+                      'Overwrite? (Y = yes) ')
+
+    if overwrite.lower() == 'y':
+        return True
+    return False
 
 
 def check_line_number_seq(lines_list):
@@ -142,15 +163,13 @@ def check_line_number_seq(lines_list):
         try:
             line_no = split_line_num(line)[0]
             ln_num_buffer.append(line_no)
-            if len(ln_num_buffer) < 4:
-                continue
-            ln_num_buffer.pop(0)
 
-            if not ln_num_buffer[0] <= ln_num_buffer[1] <= ln_num_buffer[2]:
-                print("Entry error one or two lines after line "
+            if not ln_num_buffer[0] < ln_num_buffer[1]:
+                print("Entry error after line "
                       f"{ln_num_buffer[0]} - lines should be in sequential "
                       "order.  Exiting.")
                 sys.exit(1)
+            ln_num_buffer.pop(0)
 
         except ValueError:
             print(f"Entry error after line {line_no} - each line should start "
@@ -185,7 +204,7 @@ def ahoy_lines_list(lines_list, char_maps):
         # check for loose braces in each substring, return error indication
         for sub_str in str_split:
             loose_brace = re.search(r"\}|{", sub_str)
-            # TODO: Improve loose brace error handling, inconsistent return
+            # Improve loose brace error handling, inconsistent return
             if loose_brace is not None:
                 return (None, line)
 
@@ -195,42 +214,57 @@ def ahoy_lines_list(lines_list, char_maps):
         new_codes = []
 
         # for each ahoy special character, append the petcat equivalent
-        for num, item in enumerate(code_split):
+        num = 0
+
+        for item in code_split:
+
             if item.upper() in char_maps.AHOY_TO_PETCAT:
                 new_codes.append(char_maps.AHOY_TO_PETCAT[item.upper()])
+
             elif re.match(r"{\d+\s?\".+?\"}", item):
-                char_ct = int(re.search(r"\d+\b", item).group())
-                char_code = re.search(r"\".+?\"", item).group()
-                char_code = char_code[1:-1]
+                # Extract number of times to repeat special character
+                char_count = int(re.search(r"\d+\b", item).group())
+                # Get the string inside the brackets and strip quotes on ends
+                char_code = re.search(r"\".+?\"", item).group()[1:-1]
+
                 if char_code.upper() in char_maps.AHOY_TO_PETCAT:
-                    new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
-                    while char_ct > 1:
-                        new_codes.append(char_maps.AHOY_TO_PETCAT[char_code.upper()]) 
+                    new_codes.append(char_maps.AHOY_TO_PETCAT
+                                     [char_code.upper()])
+
+                    while char_count > 1:
+                        new_codes.append(char_maps.AHOY_TO_PETCAT
+                                         [char_code.upper()])
                         str_split.insert(num + 1, '')
-                        char_ct = char_ct - 1
+                        num += 1
+                        char_count -= 1
+
                 else:
                     new_codes.append(char_code)
-                    while char_ct > 1:
+                    while char_count > 1:
                         new_codes.append(char_code)
                         str_split.insert(num + 1, '')
-                        char_ct = char_ct - 1
+                        num += 1
+                        char_count -= 1
+
             else:
                 new_codes.append(item)
+            num += 1
 
         # add blank item to list of special characters prior to blending strs
         if new_codes:
             new_codes.append('')
-            
+         
             new_line = []
 
             # piece the string segments and petcat codes back together
             for count in range(len(new_codes)):
-                new_line.append(str_split[count])
-                new_line.append(new_codes[count])
+                new_line.extend((str_split[count], new_codes[count]))
+
         # handle case where line contained no special characters
         else:
             new_line = str_split
         new_lines.append(''.join(new_line))
+
     return new_lines
 
 
@@ -252,6 +286,7 @@ def split_line_num(line):
     while line and line[0].isdigit():
         acc.append(line[0])
         line = line[1:]
+    
     return (int(''.join(acc)), line.lstrip())
 
 
@@ -321,17 +356,6 @@ def scan(ln, char_maps, tokenize=True):
     if char_val >= 97 and char_val <= 122:
         char_val -= 32
     return (char_val, ln[1:])
-
-
-def check_overwrite(filename):
-    overwrite = 'y'
-    if path.isfile(filename):
-        overwrite = input(f'Output file "{filename}" already exists. '
-                          'Overwrite? (Y = yes) ')
-    if overwrite.lower() == 'y':
-        return True
-    print('File not overwritten - exiting.')
-    sys.exit(1)
 
 
 def ahoy1_checksum(byte_list):
@@ -419,7 +443,7 @@ def ahoy3_checksum(line_num, byte_list):
     to match the codes printed in the magazine to check each line for typed in
     accuracy. Covers the last Ahoy Bug Repellent verion introduced in Apr 1987.
     '''
-
+    
     xor_value = 0
     char_position = 0
     in_quotes = False
@@ -555,17 +579,12 @@ def main(argv=None):
 
     dec_list = [byte for sublist in out_list for byte in sublist]
 
-    # Write binary file compatible with Commodore computers or emulators
-
     bin_file = args.file_in.split('.')[0] + '.prg'
 
-    print('Writing binary output file "' + bin_file + '.\n')
+    # Write binary file compatible with Commodore computers or emulators
+    write_binary(bin_file, dec_list)
 
-    if check_overwrite(bin_file):
-        write_binary(bin_file, dec_list)
-
-        print('\nFile "' + bin_file + '" written successfully.\n')
-
+    print('Line Checksums:\n')
     print_checksums(ahoy_checksums, get_terminal_size()[0])
 
 
