@@ -6,7 +6,7 @@ emulator or on original hardware.
 
 import argparse
 from argparse import RawTextHelpFormatter
-from os import path, get_terminal_size
+from os import remove, get_terminal_size
 import re
 import sys
 import math
@@ -117,12 +117,33 @@ def write_binary(filename, int_list):
             output write to file
 
     Returns:
-        None: implicit return
+        None: Implicit return
     """
 
-    with open(filename, "wb") as file:
-        for byte in int_list:
-            file.write(byte.to_bytes(1, byteorder='big'))
+    print(f'Writing binary output file "{filename}"...\n')
+
+    try:
+        with open(filename, "xb") as file:
+            for byte in int_list:
+                file.write(byte.to_bytes(1, byteorder='big'))
+            print(f'File "{filename}" written successfully.\n')
+
+    except FileExistsError:
+        if confirm_overwrite(filename):
+            remove(filename)
+            write_binary(filename, int_list)
+        else:
+            print(f'File "{filename}" not overwritten.\n')
+       
+
+def confirm_overwrite(filename):
+
+    overwrite = input(f'Output file "{filename}" already exists. '
+                      'Overwrite? (Y = yes) ')
+
+    if overwrite.lower() == 'y':
+        return True
+    return False
 
 
 def check_line_number_seq(lines_list):
@@ -335,17 +356,6 @@ def scan(ln, char_maps, tokenize=True):
     if char_val >= 97 and char_val <= 122:
         char_val -= 32
     return (char_val, ln[1:])
-
-
-def check_overwrite(filename):
-    overwrite = 'y'
-    if path.isfile(filename):
-        overwrite = input(f'Output file "{filename}" already exists. '
-                          'Overwrite? (Y = yes) ')
-    if overwrite.lower() == 'y':
-        return True
-    print('File not overwritten - exiting.')
-    sys.exit(1)
 
 
 def ahoy1_checksum(byte_list):
@@ -569,17 +579,12 @@ def main(argv=None):
 
     dec_list = [byte for sublist in out_list for byte in sublist]
 
-    # Write binary file compatible with Commodore computers or emulators
-
     bin_file = args.file_in.split('.')[0] + '.prg'
 
-    print('Writing binary output file "' + bin_file + '.\n')
+    # Write binary file compatible with Commodore computers or emulators
+    write_binary(bin_file, dec_list)
 
-    if check_overwrite(bin_file):
-        write_binary(bin_file, dec_list)
-
-        print('\nFile "' + bin_file + '" written successfully.\n')
-
+    print('Line Checksums:\n')
     print_checksums(ahoy_checksums, get_terminal_size()[0])
 
 
