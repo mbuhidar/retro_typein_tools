@@ -13,8 +13,7 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           ahoy2_checksum, \
                                           ahoy3_checksum, \
                                           print_checksums, \
-                                          Get_Response, \
-                                          check_overwrite
+                                          confirm_overwrite 
 
 
 @pytest.mark.parametrize(
@@ -72,7 +71,7 @@ def test_read_file(infile_data):
          ),
     ],
 )
-def test_check_line_number_seq_a(capsys, lines_list, term_capture):
+def test_check_line_number_seq_ok(capsys, lines_list, term_capture):
     """
     Unit test to check that function check_line_number_seq() is propery
     identifying cases where lines have the correct line number sequencing.
@@ -119,7 +118,7 @@ def test_check_line_number_seq_a(capsys, lines_list, term_capture):
          ),
     ],
 )
-def test_check_line_number_seq_b(capsys, lines_list, term_capture):
+def test_check_line_number_seq_bad(capsys, lines_list, term_capture):
     """
     Unit test to check that function check_line_number_seq() is propery
     identifying cases where lines either don't start with an integer line
@@ -262,47 +261,23 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
 @pytest.mark.parametrize(
     "user_entry, return_value",
     [
-        ('y',
-         'y'
-        ),
+        ('y', True),
     ],
 )
-def test_get_response(user_entry, return_value):
+def test_confirm_overwrite(capsys, user_entry, return_value):
 
-    mock = Mock()
+    assert "test_confirm_overwrite" == "test not yet written"
 
-    with mock.patch.object(__builtins__, 'input', lambda: user_entry):
-
-        Get_Response.get_response()
-        capture = capsys.readouterr()
-
-    assert capture.out == return_value 
-    assert capture.err == ''
-
-
-'''
-@pytest.mark.parametrize(
-    "filename, term_capture",
-    [
-        ('yes_file.ahoy',
-         'Output file "yes_file.ahoy" already exists. Overwrite? (Y = yes) '
-        ),
-    ],
-)
-def test_check_overwrite(capsys, tmpdir, filename, term_capture):
-
-    dir_file = tmpdir.join('yes_file.ahoy')
-    dir_file.write('write to file to create it')
-    mock = Mock()
-
-    with mock.patch.object(__builtins__, 'input', lambda: 'y'):
-
-        check_overwrite(filename)
-        capture = capsys.readouterr()
-
-    assert capture.out == term_capture
-    assert capture.err == ''
-'''
+    # mock = Mock()
+    # 
+    # with mock.patch.object(__builtins__, 'input', lambda: user_entry):
+    #
+    #     overwrite = confirm_overwrite()
+    #     #capture = capsys.readouterr()
+    # 
+    # assert overwrite == return_value
+    # #assert capture.out == return_value 
+    # #assert capture.err == ''
 
 
 @pytest.mark.parametrize(
