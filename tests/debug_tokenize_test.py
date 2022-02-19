@@ -1,5 +1,5 @@
+from unittest.mock import Mock 
 import pytest
-# from src.debug_tokenize import debug_tokenize
 
 from debug_tokenize.debug_tokenize import parse_args, \
                                           read_file, \
@@ -12,7 +12,9 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           ahoy1_checksum, \
                                           ahoy2_checksum, \
                                           ahoy3_checksum, \
-                                          print_checksums
+                                          print_checksums, \
+                                          Get_Response, \
+                                          check_overwrite
 
 
 @pytest.mark.parametrize(
@@ -256,7 +258,51 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
 
     assert scan(ln, char_maps, tokenize) == (byte, remaining_line)
 
-# TODO: Write test for check_overwrite()
+
+@pytest.mark.parametrize(
+    "user_entry, return_value",
+    [
+        ('y',
+         'y'
+        ),
+    ],
+)
+def test_get_response(user_entry, return_value):
+
+    mock = Mock()
+
+    with mock.patch.object(__builtins__, 'input', lambda: user_entry):
+
+        Get_Response.get_response()
+        capture = capsys.readouterr()
+
+    assert capture.out == return_value 
+    assert capture.err == ''
+
+
+'''
+@pytest.mark.parametrize(
+    "filename, term_capture",
+    [
+        ('yes_file.ahoy',
+         'Output file "yes_file.ahoy" already exists. Overwrite? (Y = yes) '
+        ),
+    ],
+)
+def test_check_overwrite(capsys, tmpdir, filename, term_capture):
+
+    dir_file = tmpdir.join('yes_file.ahoy')
+    dir_file.write('write to file to create it')
+    mock = Mock()
+
+    with mock.patch.object(__builtins__, 'input', lambda: 'y'):
+
+        check_overwrite(filename)
+        capture = capsys.readouterr()
+
+    assert capture.out == term_capture
+    assert capture.err == ''
+'''
 
 
 @pytest.mark.parametrize(

@@ -336,12 +336,17 @@ def scan(ln, char_maps, tokenize=True):
         char_val -= 32
     return (char_val, ln[1:])
 
+class Get_Response():
+    def get_response(self):
+        return input()
 
 def check_overwrite(filename):
     overwrite = 'y'
     if path.isfile(filename):
-        overwrite = input(f'Output file "{filename}" already exists. '
+        print(f'Output file "{filename}" already exists. '
                           'Overwrite? (Y = yes) ')
+        overwrite = get_response()
+
     if overwrite.lower() == 'y':
         return True
     print('File not overwritten - exiting.')
