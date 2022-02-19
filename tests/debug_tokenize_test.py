@@ -1,5 +1,5 @@
-from unittest.mock import Mock 
 import pytest
+from io import StringIO
 
 from debug_tokenize.debug_tokenize import parse_args, \
                                           read_file, \
@@ -209,8 +209,34 @@ def test_write_binary(tmpdir):
                         24, 8, 20, 0, 137, 49, 48, 0, 0, 0])
     with open(file, 'rb') as f:
         contents = f.read()
+    
     assert contents == b'\x01\x08\x10\x08\n\x00\x99("HELLO")\
 \x00\x18\x08\x14\x00\x8910\x00\x00\x00'
+
+
+@pytest.mark.parametrize(
+    "user_entry, return_value",
+    [
+        ('y\n', True),
+        ('Y\n', True),
+        ('n\n', False),
+        ('nope\n', False),
+        ('\n', False),
+    ],
+)
+def test_confirm_overwrite(capsys, monkeypatch, user_entry, return_value):
+    """
+    Unit test to check that function confirm_overwrite() is properly handling
+    user input properly.
+    """
+
+    monkeypatch.setattr('sys.stdin', StringIO(user_entry))
+    overwrite = confirm_overwrite('test_file.ahoy')
+    out, err = capsys.readouterr()
+    assert overwrite == return_value
+    assert out == 'Output file "test_file.ahoy" already exists. ' \
+                  'Overwrite? (Y = yes) '
+    assert err == ''
 
 
 @pytest.mark.parametrize(
@@ -256,28 +282,6 @@ def test_scan(ln, tokenize, byte, remaining_line, char_maps):
     """
 
     assert scan(ln, char_maps, tokenize) == (byte, remaining_line)
-
-
-@pytest.mark.parametrize(
-    "user_entry, return_value",
-    [
-        ('y', True),
-    ],
-)
-def test_confirm_overwrite(capsys, user_entry, return_value):
-
-    assert "test_confirm_overwrite" == "test not yet written"
-
-    # mock = Mock()
-    # 
-    # with mock.patch.object(__builtins__, 'input', lambda: user_entry):
-    #
-    #     overwrite = confirm_overwrite()
-    #     #capture = capsys.readouterr()
-    # 
-    # assert overwrite == return_value
-    # #assert capture.out == return_value 
-    # #assert capture.err == ''
 
 
 @pytest.mark.parametrize(

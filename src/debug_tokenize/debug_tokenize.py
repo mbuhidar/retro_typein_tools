@@ -117,7 +117,7 @@ def write_binary(filename, int_list):
             output write to file
 
     Returns:
-        1: on user decision not to overwrite existing file
+        None: Implicit return
     """
 
     print(f'Writing binary output file "{filename}"...\n')
@@ -126,7 +126,7 @@ def write_binary(filename, int_list):
         with open(filename, "xb") as file:
             for byte in int_list:
                 file.write(byte.to_bytes(1, byteorder='big'))
-            print(f'\nFile "{filename}" written successfully.\n')
+            print(f'File "{filename}" written successfully.\n')
 
     except FileExistsError:
         if confirm_overwrite(filename):
