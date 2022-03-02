@@ -12,10 +12,9 @@ import sys
 import math
 
 try:
-    from debug_tokenize import char_maps
+    from src.debug_tokenize import char_maps
 except ImportError:
     import char_maps
-
 
 def parse_args(argv):
     """Parses command line inputs and generate command line interface and
@@ -585,7 +584,7 @@ def main(argv=None):
     write_binary(bin_file, dec_list)
 
     print('Line Checksums:\n')
-    print_checksums(ahoy_checksums, get_terminal_size()[0])
+    print_checksums(ahoy_checksums, 40) #, get_terminal_size()[0])
 
 
 if __name__ == '__main__':

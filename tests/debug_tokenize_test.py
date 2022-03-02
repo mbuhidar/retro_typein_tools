@@ -1,7 +1,7 @@
 import pytest
 from io import StringIO
 
-from debug_tokenize.debug_tokenize import parse_args, \
+from src.debug_tokenize.debug_tokenize import parse_args, \
                                           read_file, \
                                           check_line_number_seq, \
                                           ahoy_lines_list, \
@@ -13,7 +13,8 @@ from debug_tokenize.debug_tokenize import parse_args, \
                                           ahoy2_checksum, \
                                           ahoy3_checksum, \
                                           print_checksums, \
-                                          confirm_overwrite 
+                                          confirm_overwrite, \
+                                          main
 
 
 @pytest.mark.parametrize(
@@ -231,10 +232,10 @@ def test_confirm_overwrite(capsys, monkeypatch, user_entry, return_value):
     """
 
     monkeypatch.setattr('sys.stdin', StringIO(user_entry))
-    overwrite = confirm_overwrite('test_file.ahoy')
+    overwrite = confirm_overwrite('test_file.prg')
     out, err = capsys.readouterr()
     assert overwrite == return_value
-    assert out == 'Output file "test_file.ahoy" already exists. ' \
+    assert out == 'Output file "test_file.prg" already exists. ' \
                   'Overwrite? (Y = yes) '
     assert err == ''
 
@@ -399,5 +400,36 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
     lists for lines and codes to print in a matrix format.
     """
     print_checksums(ahoy_checksums, term_width)
+    captured = capsys.readouterr()
+    assert captured.out == term_capture
+
+
+@pytest.mark.parametrize(
+    "source, lines_list, term_capture",
+    [
+        (['ahoy1'], '10 PRINT"HELLO"\n20 GOTO10',
+        '/tmp/pytest-of-mbuhidar/pytest-20/test_main_source0_10_PRINT_HEL0/sub/example.ahoy\nWriting binary output file "/tmp/pytest-of-mbuhidar/pytest-20/test_main_source0_10_PRINT_HEL0/sub/example.prg"...\n\nFile "/tmp/pytest-of-mbuhidar/pytest-20/test_main_source0_10_PRINT_HEL0/sub/example.prg" written successfully.\n\nLine Checksums:\n\n    10 IA       20 NI   \n\nLines: 2\n'),
+        # (['ahoy2'], ['10 PRINT"HELLO"', '20 GOTO10'], ['EO', 'PH']),
+        # (['ahoy3'], ['10 PRINT"HELLO"', '20 GOTO10'], ['GC', 'PP']),
+    ],
+)
+
+
+def test_main(tmp_path, capsys, source, lines_list, term_capture):
+    """
+    End to end test to check that function main() is propery generating the 
+    correct output for a given command line input.
+    """
+
+    d = tmp_path / "sub"
+    d.mkdir()
+    p = d / "example.ahoy"
+    p.write_text(lines_list)
+    print(p)
+
+    argv = ['-s', 'ahoy1', str(p)]
+
+    main(argv)
+
     captured = capsys.readouterr()
     assert captured.out == term_capture
