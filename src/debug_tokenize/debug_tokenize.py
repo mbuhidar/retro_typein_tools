@@ -508,7 +508,7 @@ def print_checksums(ahoy_checksums, terminal_width):
     print(f'\nLines: {len(ahoy_checksums)}')
 
 
-def main(argv=None):
+def main(argv=None, width=None):
 
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -584,7 +584,9 @@ def main(argv=None):
     write_binary(bin_file, dec_list)
 
     print('Line Checksums:\n')
-    print_checksums(ahoy_checksums, 40) #, get_terminal_size()[0])
+    if not width:
+        width = get_terminal_size()[0]
+    print_checksums(ahoy_checksums, width) #, get_terminal_size()[0])
 
 
 if __name__ == '__main__':

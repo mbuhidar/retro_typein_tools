@@ -405,17 +405,27 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
 
 
 @pytest.mark.parametrize(
-    "source, lines_list, term_capture",
+    "source, lines_list, term",
     [
-        (['ahoy1'], '10 PRINT"HELLO"\n20 GOTO10',
-        '/tmp/pytest-of-mbuhidar/pytest-20/test_main_source0_10_PRINT_HEL0/sub/example.ahoy\nWriting binary output file "/tmp/pytest-of-mbuhidar/pytest-20/test_main_source0_10_PRINT_HEL0/sub/example.prg"...\n\nFile "/tmp/pytest-of-mbuhidar/pytest-20/test_main_source0_10_PRINT_HEL0/sub/example.prg" written successfully.\n\nLine Checksums:\n\n    10 IA       20 NI   \n\nLines: 2\n'),
-        # (['ahoy2'], ['10 PRINT"HELLO"', '20 GOTO10'], ['EO', 'PH']),
-        # (['ahoy3'], ['10 PRINT"HELLO"', '20 GOTO10'], ['GC', 'PP']),
+        ('ahoy1', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\nFile '
+         '"{d}/example.prg" written successfully.\n\nLine Checksums:\n\n    '
+         '10 IA       20 NI   \n\nLines: 2\n'),
+
+        ('ahoy2', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\nFile '
+         '"{d}/example.prg" written successfully.\n\nLine Checksums:\n\n    '
+         '10 EO       20 PH   \n\nLines: 2\n'),
+
+        ('ahoy3', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\nFile '
+         '"{d}/example.prg" written successfully.\n\nLine Checksums:\n\n    '
+         '10 GC       20 PP   \n\nLines: 2\n'),
     ],
 )
 
 
-def test_main(tmp_path, capsys, source, lines_list, term_capture):
+def test_main(tmp_path, capsys, source, lines_list, term):
     """
     End to end test to check that function main() is propery generating the 
     correct output for a given command line input.
@@ -425,11 +435,12 @@ def test_main(tmp_path, capsys, source, lines_list, term_capture):
     d.mkdir()
     p = d / "example.ahoy"
     p.write_text(lines_list)
-    print(p)
 
-    argv = ['-s', 'ahoy1', str(p)]
+    term_capture = term.format(d=d)
 
-    main(argv)
+    argv = ['-s', source, str(p)]
+
+    main(argv, 40)
 
     captured = capsys.readouterr()
     assert captured.out == term_capture
