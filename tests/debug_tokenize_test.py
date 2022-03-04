@@ -444,3 +444,72 @@ def test_main(tmp_path, capsys, source, lines_list, term):
 
     captured = capsys.readouterr()
     assert captured.out == term_capture
+
+@pytest.mark.parametrize(
+    "user_entry, source, lines_list, term",
+    [
+        ('Y\n', 'ahoy1', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'File "{d}/example.prg" written successfully.\n\nLine Checksums:\n\n'
+         '    10 IA       20 NI   \n\nLines: 2\n'
+        ),
+
+        ('y\n', 'ahoy2', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'File "{d}/example.prg" written successfully.\n\nLine Checksums:\n\n'
+         '    10 EO       20 PH   \n\nLines: 2\n'),
+
+        ('y\n', 'ahoy3', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'File "{d}/example.prg" written successfully.\n\nLine Checksums:\n\n'
+         '    10 GC       20 PP   \n\nLines: 2\n'),
+
+        ('N\n', 'ahoy1', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
+         'File "{d}/example.prg" not overwritten.\n\nLine Checksums:\n\n'
+         '    10 IA       20 NI   \n\nLines: 2\n'),
+
+        ('N\n', 'ahoy2', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
+         'File "{d}/example.prg" not overwritten.\n\nLine Checksums:\n\n'
+         '    10 EO       20 PH   \n\nLines: 2\n'),
+
+        ('no\n', 'ahoy3', '10 PRINT"HELLO"\n20 GOTO10',
+         'Writing binary output file "{d}/example.prg"...\n\n'
+         'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
+         'File "{d}/example.prg" not overwritten.\n\nLine Checksums:\n\n'
+         '    10 GC       20 PP   \n\nLines: 2\n'),
+
+    ],
+)
+
+
+def test_main(tmp_path, capsys, monkeypatch, user_entry, source, lines_list, term):
+    """
+    End to end test to check that function main() is propery generating the 
+    correct output for a given command line input.
+    """
+
+    d = tmp_path / "sub"
+    d.mkdir()
+    p = d / "example.ahoy"
+    p.write_text(lines_list)
+    o = d / "example.prg"
+    o.write_text("create the file")
+
+    term_capture = term.format(d=d)
+
+    argv = ['-s', source, str(p)]
+
+    monkeypatch.setattr('sys.stdin', StringIO(user_entry))
+    main(argv, 40)
+    captured = capsys.readouterr()
+    assert captured.out == term_capture
