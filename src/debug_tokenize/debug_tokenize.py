@@ -440,7 +440,7 @@ def ahoy3_checksum(line_num, byte_list):
     '''
     Function to create Ahoy checksums from passed in line number and byte list
     to match the codes printed in the magazine to check each line for typed in
-    accuracy. Covers the last Ahoy Bug Repellent verion introduced in Apr 1987.
+    accuracy. Covers the last Ahoy Bug Repellent version introduced in May 1987.
     '''
     
     xor_value = 0
