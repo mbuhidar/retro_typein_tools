@@ -11,11 +11,13 @@ import re
 import sys
 import math
 
+
+# import char_maps.py: Module containing Commodore to magazine conversion maps
 try:
     import char_maps
 except ImportError:
-    # case for pytest
-    pass
+    # case for executing pytest
+    from src.debug_tokenize import char_maps 
 
 
 def parse_args(argv):
@@ -178,14 +180,12 @@ def check_line_number_seq(lines_list):
             sys.exit(1)
 
 
-def ahoy_lines_list(lines_list, char_maps):
+def ahoy_lines_list(lines_list):
     """For each line in the program, convert Ahoy special characters to Petcat
        special characters.
 
     Args:
         lines_list (list): List of lines (str) in program.
-        char_maps (module): Module containing conversion maps between various
-                            Commodore and magazine formats.
 
     Returns:
         new_lines (list): List of new lines (str) after special characters are
@@ -292,13 +292,13 @@ def split_line_num(line):
 
 
 # manage the tokenization process for each line text string
-def scan_manager(ln, char_maps):
+def scan_manager(ln):
     in_quotes = False
     in_remark = False
     bytestr = []
 
     while ln:
-        (byte, ln) = scan(ln, char_maps, tokenize=not (in_quotes or in_remark))
+        (byte, ln) = scan(ln, tokenize=not (in_quotes or in_remark))
         # if byte is not None:
         bytestr.append(byte)
         if byte == ord('"'):
@@ -311,15 +311,13 @@ def scan_manager(ln, char_maps):
 
 # scan each line segement and convert to tokenized bytes.
 # returns byte and remaining line segment
-def scan(ln, char_maps, tokenize=True):
+def scan(ln, tokenize=True):
     """Scan beginning of each line for BASIC keywords, petcat special
        characters, or ascii characters, convert to tokenized bytes, and
        return remaining line segment after converted characters are removed
 
     Args:
         ln (str): Text of each line segment to parse and convert
-        char_maps (module): Module containing conversion maps between various
-                            Commodore and magazine formats.
         tokenize (bool): Flag to indicate if start of line segment should be
             tokenized (False if line segment start is within quotes or after
             a REM statement)
@@ -510,7 +508,7 @@ def print_checksums(ahoy_checksums, terminal_width):
     print(f'\nLines: {len(ahoy_checksums)}')
 
 
-def main(char_maps=char_maps, argv=None, width=None):
+def main(argv=None, width=None):
 
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -531,7 +529,7 @@ def main(char_maps=char_maps, argv=None, width=None):
     # Create lines list while checking for loose brackets/braces and converting
     # to common special character codes in braces
     if args.source[0][:4] == 'ahoy':
-        lines_list = ahoy_lines_list(lines_list, char_maps)
+        lines_list = ahoy_lines_list(lines_list)
         line_no = split_line_num(lines_list[1])[0]
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
@@ -554,7 +552,7 @@ def main(char_maps=char_maps, argv=None, width=None):
         # add load address at start of first line only
         if addr == int(load_addr, 16):
             token_ln.append(addr.to_bytes(2, 'little'))
-        byte_list = scan_manager(line_txt, char_maps)
+        byte_list = scan_manager(line_txt)
 
         addr = addr + len(byte_list) + 4
 
