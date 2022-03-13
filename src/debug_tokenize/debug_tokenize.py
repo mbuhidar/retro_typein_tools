@@ -17,7 +17,7 @@ try:
     import char_maps
 except ImportError:
     # case for executing pytest
-    from src.debug_tokenize import char_maps 
+    from debug_tokenize import char_maps 
 
 
 def parse_args(argv):

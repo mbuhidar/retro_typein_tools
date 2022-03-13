@@ -1,7 +1,7 @@
 from io import StringIO
 import pytest
 
-from src.debug_tokenize.debug_tokenize import (parse_args,
+from debug_tokenize.debug_tokenize import (parse_args,
                                                read_file,
                                                check_line_number_seq,
                                                ahoy_lines_list,
