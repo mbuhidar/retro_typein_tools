@@ -11,14 +11,11 @@ import re
 import sys
 import math
 
-from . import char_maps
-
-'''
 try:
-    from src.debug_tokenize import char_maps
-except ImportError:
     import char_maps
-'''
+except ImportError:
+    # case for pytest
+    pass
 
 
 def parse_args(argv):
@@ -295,7 +292,7 @@ def split_line_num(line):
 
 
 # manage the tokenization process for each line text string
-def scan_manager(ln):
+def scan_manager(ln, char_maps):
     in_quotes = False
     in_remark = False
     bytestr = []
@@ -513,7 +510,7 @@ def print_checksums(ahoy_checksums, terminal_width):
     print(f'\nLines: {len(ahoy_checksums)}')
 
 
-def main(argv=None, width=None):
+def main(char_maps, argv=None, width=None):
 
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -557,7 +554,7 @@ def main(argv=None, width=None):
         # add load address at start of first line only
         if addr == int(load_addr, 16):
             token_ln.append(addr.to_bytes(2, 'little'))
-        byte_list = scan_manager(line_txt)
+        byte_list = scan_manager(line_txt, char_maps)
 
         addr = addr + len(byte_list) + 4
 
@@ -595,4 +592,4 @@ def main(argv=None, width=None):
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(char_maps))

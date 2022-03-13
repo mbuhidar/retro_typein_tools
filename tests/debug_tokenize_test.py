@@ -252,13 +252,13 @@ def test_confirm_overwrite(capsys, monkeypatch, user_entry, return_value):
          [131, 49, 53, 44, 49, 48, 51, 44, 50, 53, 53, 44, 49, 54, 57, 0]),
     ],
 )
-def test_scan_manager(ln, bytestr):
+def test_scan_manager(ln, bytestr, char_maps):
     """
     Unit test to check that function scan_manager() is properly managing the
     conversion of a line of text to a list of tokenized bytes in decimal form.
     """
 
-    assert scan_manager(ln) == bytestr
+    assert scan_manager(ln, char_maps) == bytestr
 
 
 @pytest.mark.parametrize(
@@ -492,7 +492,7 @@ def test_main(tmp_path, capsys, source, lines_list, term):
 )
 
 
-def test_main(tmp_path, capsys, monkeypatch, user_entry, source, lines_list, term):
+def test_main(tmp_path, capsys, char_maps, monkeypatch, user_entry, source, lines_list, term):
     """
     End to end test to check that function main() is propery generating the 
     correct output for a given command line input.
@@ -510,6 +510,6 @@ def test_main(tmp_path, capsys, monkeypatch, user_entry, source, lines_list, ter
     argv = ['-s', source, str(p)]
 
     monkeypatch.setattr('sys.stdin', StringIO(user_entry))
-    main(argv, 40)
+    main(char_maps, argv, 40)
     captured = capsys.readouterr()
     assert captured.out == term_capture
