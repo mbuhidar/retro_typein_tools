@@ -12,10 +12,9 @@ import sys
 import math
 
 try:
-    from debug_tokenize import char_maps
+    from src.debug_tokenize import char_maps
 except ImportError:
     import char_maps
-
 
 def parse_args(argv):
     """Parses command line inputs and generate command line interface and
@@ -441,7 +440,7 @@ def ahoy3_checksum(line_num, byte_list):
     '''
     Function to create Ahoy checksums from passed in line number and byte list
     to match the codes printed in the magazine to check each line for typed in
-    accuracy. Covers the last Ahoy Bug Repellent verion introduced in Apr 1987.
+    accuracy. Covers the last Ahoy Bug Repellent version introduced in May 1987.
     '''
     
     xor_value = 0
@@ -509,7 +508,7 @@ def print_checksums(ahoy_checksums, terminal_width):
     print(f'\nLines: {len(ahoy_checksums)}')
 
 
-def main(argv=None):
+def main(argv=None, width=None):
 
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -585,7 +584,9 @@ def main(argv=None):
     write_binary(bin_file, dec_list)
 
     print('Line Checksums:\n')
-    print_checksums(ahoy_checksums, get_terminal_size()[0])
+    if not width:
+        width = get_terminal_size()[0]
+    print_checksums(ahoy_checksums, width) #, get_terminal_size()[0])
 
 
 if __name__ == '__main__':
