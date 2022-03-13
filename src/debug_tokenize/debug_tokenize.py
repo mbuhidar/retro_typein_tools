@@ -510,7 +510,7 @@ def print_checksums(ahoy_checksums, terminal_width):
     print(f'\nLines: {len(ahoy_checksums)}')
 
 
-def main(char_maps, argv=None, width=None):
+def main(char_maps=char_maps, argv=None, width=None):
 
     # call function to parse command line input arguments
     args = parse_args(argv)
@@ -592,4 +592,4 @@ def main(char_maps, argv=None, width=None):
 
 
 if __name__ == '__main__':
-    sys.exit(main(char_maps))
+    sys.exit(main())

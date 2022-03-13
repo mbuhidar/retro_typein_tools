@@ -425,7 +425,7 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
 )
 
 
-def test_main(tmp_path, capsys, source, lines_list, term):
+def test_main(tmp_path, capsys, char_maps, source, lines_list, term):
     """
     End to end test to check that function main() is propery generating the 
     correct output for a given command line input.
@@ -440,7 +440,7 @@ def test_main(tmp_path, capsys, source, lines_list, term):
 
     argv = ['-s', source, str(p)]
 
-    main(argv, 40)
+    main(char_maps, argv, 40)
 
     captured = capsys.readouterr()
     assert captured.out == term_capture
