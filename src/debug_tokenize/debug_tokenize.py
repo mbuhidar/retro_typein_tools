@@ -588,7 +588,7 @@ def main(char_maps, argv=None, width=None):
     print('Line Checksums:\n')
     if not width:
         width = get_terminal_size()[0]
-    print_checksums(ahoy_checksums, width) #, get_terminal_size()[0])
+    print_checksums(ahoy_checksums, width)
 
 
 if __name__ == '__main__':
