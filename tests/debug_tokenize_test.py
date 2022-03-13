@@ -1,20 +1,20 @@
 import pytest
 from io import StringIO
 
-from src.debug_tokenize.debug_tokenize import parse_args, \
-                                          read_file, \
-                                          check_line_number_seq, \
-                                          ahoy_lines_list, \
-                                          split_line_num, \
-                                          scan, \
-                                          scan_manager, \
-                                          write_binary, \
-                                          ahoy1_checksum, \
-                                          ahoy2_checksum, \
-                                          ahoy3_checksum, \
-                                          print_checksums, \
-                                          confirm_overwrite, \
-                                          main
+from src.debug_tokenize.debug_tokenize import (parse_args,
+                                               read_file,
+                                               check_line_number_seq,
+                                               ahoy_lines_list,
+                                               split_line_num,
+                                               scan,
+                                               scan_manager,
+                                               write_binary,
+                                               ahoy1_checksum,
+                                               ahoy2_checksum,
+                                               ahoy3_checksum,
+                                               print_checksums,
+                                               confirm_overwrite,
+                                               main)
 
 
 @pytest.mark.parametrize(

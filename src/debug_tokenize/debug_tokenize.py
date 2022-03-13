@@ -11,10 +11,15 @@ import re
 import sys
 import math
 
+from . import char_maps
+
+'''
 try:
     from src.debug_tokenize import char_maps
 except ImportError:
     import char_maps
+'''
+
 
 def parse_args(argv):
     """Parses command line inputs and generate command line interface and
