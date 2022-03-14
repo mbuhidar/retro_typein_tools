@@ -1,20 +1,20 @@
-import pytest
 from io import StringIO
+import pytest
 
-from src.debug_tokenize.debug_tokenize import parse_args, \
-                                          read_file, \
-                                          check_line_number_seq, \
-                                          ahoy_lines_list, \
-                                          split_line_num, \
-                                          scan, \
-                                          scan_manager, \
-                                          write_binary, \
-                                          ahoy1_checksum, \
-                                          ahoy2_checksum, \
-                                          ahoy3_checksum, \
-                                          print_checksums, \
-                                          confirm_overwrite, \
-                                          main
+from debug_tokenize.debug_tokenize import (parse_args,
+                                           read_file,
+                                           check_line_number_seq,
+                                           ahoy_lines_list,
+                                           split_line_num,
+                                           scan,
+                                           scan_manager,
+                                           write_binary,
+                                           ahoy1_checksum,
+                                           ahoy2_checksum,
+                                           ahoy3_checksum,
+                                           print_checksums,
+                                           confirm_overwrite,
+                                           main)
 
 
 @pytest.mark.parametrize(
@@ -166,15 +166,14 @@ def test_check_line_number_seq_bad(capsys, lines_list, term_capture):
          ['print"****44444{brn}"']),
     ],
 )
-# char_maps is defined in a fixture in conftest.py
-def test_ahoy_lines_list(lines_list, new_lines, char_maps):
+def test_ahoy_lines_list(lines_list, new_lines):
     """
     Unit test to check that function ahoy_lines_list() replaces ahoy special
     character codes with petcat special character codes in each line of the
     program.  Also checks for loose braces and prompt an error message and
     program exit.
     """
-    assert ahoy_lines_list(lines_list, char_maps) == new_lines
+    assert ahoy_lines_list(lines_list) == new_lines
 
 
 @pytest.mark.parametrize(
@@ -274,15 +273,14 @@ def test_scan_manager(ln, bytestr):
         ('{s ep}start mower', True, 169, 'start mower'),
     ],
 )
-# char_maps is defined in a fixture in conftest.py
-def test_scan(ln, tokenize, byte, remaining_line, char_maps):
+def test_scan(ln, tokenize, byte, remaining_line):
     """
     Unit test to check that function scan() is properly converting the start
     of each passed in line to a tokenized byte for BASIC keywords, petcat
     special characters, and alphanumeric characters.
     """
 
-    assert scan(ln, char_maps, tokenize) == (byte, remaining_line)
+    assert scan(ln, tokenize) == (byte, remaining_line)
 
 
 @pytest.mark.parametrize(
@@ -492,7 +490,8 @@ def test_main(tmp_path, capsys, source, lines_list, term):
 )
 
 
-def test_main(tmp_path, capsys, monkeypatch, user_entry, source, lines_list, term):
+def test_main(tmp_path, capsys, monkeypatch, user_entry, source,
+              lines_list, term):
     """
     End to end test to check that function main() is propery generating the 
     correct output for a given command line input.
