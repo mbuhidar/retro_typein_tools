@@ -11,10 +11,14 @@ import re
 import sys
 import math
 
+
+# import char_maps.py: Module containing Commodore to magazine conversion maps
 try:
-    from src.debug_tokenize import char_maps
-except ImportError:
     import char_maps
+except ImportError:
+    # case for executing pytest
+    from debug_tokenize import char_maps 
+
 
 def parse_args(argv):
     """Parses command line inputs and generate command line interface and
@@ -176,14 +180,12 @@ def check_line_number_seq(lines_list):
             sys.exit(1)
 
 
-def ahoy_lines_list(lines_list, char_maps):
+def ahoy_lines_list(lines_list):
     """For each line in the program, convert Ahoy special characters to Petcat
        special characters.
 
     Args:
         lines_list (list): List of lines (str) in program.
-        char_maps (module): Module containing conversion maps between various
-                            Commodore and magazine formats.
 
     Returns:
         new_lines (list): List of new lines (str) after special characters are
@@ -296,7 +298,7 @@ def scan_manager(ln):
     bytestr = []
 
     while ln:
-        (byte, ln) = scan(ln, char_maps, tokenize=not (in_quotes or in_remark))
+        (byte, ln) = scan(ln, tokenize=not (in_quotes or in_remark))
         # if byte is not None:
         bytestr.append(byte)
         if byte == ord('"'):
@@ -309,15 +311,13 @@ def scan_manager(ln):
 
 # scan each line segement and convert to tokenized bytes.
 # returns byte and remaining line segment
-def scan(ln, char_maps, tokenize=True):
+def scan(ln, tokenize=True):
     """Scan beginning of each line for BASIC keywords, petcat special
        characters, or ascii characters, convert to tokenized bytes, and
        return remaining line segment after converted characters are removed
 
     Args:
         ln (str): Text of each line segment to parse and convert
-        char_maps (module): Module containing conversion maps between various
-                            Commodore and magazine formats.
         tokenize (bool): Flag to indicate if start of line segment should be
             tokenized (False if line segment start is within quotes or after
             a REM statement)
@@ -529,7 +529,7 @@ def main(argv=None, width=None):
     # Create lines list while checking for loose brackets/braces and converting
     # to common special character codes in braces
     if args.source[0][:4] == 'ahoy':
-        lines_list = ahoy_lines_list(lines_list, char_maps)
+        lines_list = ahoy_lines_list(lines_list)
         line_no = split_line_num(lines_list[1])[0]
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
@@ -586,7 +586,7 @@ def main(argv=None, width=None):
     print('Line Checksums:\n')
     if not width:
         width = get_terminal_size()[0]
-    print_checksums(ahoy_checksums, width) #, get_terminal_size()[0])
+    print_checksums(ahoy_checksums, width)
 
 
 if __name__ == '__main__':
