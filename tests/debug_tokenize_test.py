@@ -382,14 +382,14 @@ def test_ahoy3_checksum(line_num, byte_list, checksum):
     [
         ([(11110, 'AP')],
          31,
-         ' 11110 AP   \n\nLines: 1\n'),
+         ' 11110 AP   \n\nLines: 1\n\n'),
         ([(10, 'HE'), (20, 'PH'), (30, 'IM'), (40, 'CD'), (50, 'OB'),
           (60, 'OF'), (70, 'OG'), (80, 'NI'), (90, 'DG'), (100, 'IC'),
           (64000, 'KK')],
          44,
          '    10 HE       50 OB       90 DG   \n    20 PH       60 OF      '
          '100 IC   \n    30 IM       70 OG    64000 KK   \n    40 CD       '
-         '80 NI   \n\nLines: 11\n')
+         '80 NI   \n\nLines: 11\n\n')
     ],
 )
 def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
@@ -408,17 +408,17 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
         ('ahoy1', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\nFile '
          '"{d}/example.prg" written successfully.\n\nLine Checksums:\n\n    '
-         '10 IA       20 NI   \n\nLines: 2\n'),
+         '10 IA       20 NI   \n\nLines: 2\n\n'),
 
         ('ahoy2', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\nFile '
          '"{d}/example.prg" written successfully.\n\nLine Checksums:\n\n    '
-         '10 EO       20 PH   \n\nLines: 2\n'),
+         '10 EO       20 PH   \n\nLines: 2\n\n'),
 
         ('ahoy3', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\nFile '
          '"{d}/example.prg" written successfully.\n\nLine Checksums:\n\n    '
-         '10 GC       20 PP   \n\nLines: 2\n'),
+         '10 GC       20 PP   \n\nLines: 2\n\n'),
     ],
 )
 
@@ -451,7 +451,7 @@ def test_main(tmp_path, capsys, source, lines_list, term):
          'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
          'Writing binary output file "{d}/example.prg"...\n\n'
          'File "{d}/example.prg" written successfully.\n\nLine Checksums:\n\n'
-         '    10 IA       20 NI   \n\nLines: 2\n'
+         '    10 IA       20 NI   \n\nLines: 2\n\n'
         ),
 
         ('y\n', 'ahoy2', '10 PRINT"HELLO"\n20 GOTO10',
@@ -459,32 +459,32 @@ def test_main(tmp_path, capsys, source, lines_list, term):
          'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
          'Writing binary output file "{d}/example.prg"...\n\n'
          'File "{d}/example.prg" written successfully.\n\nLine Checksums:\n\n'
-         '    10 EO       20 PH   \n\nLines: 2\n'),
+         '    10 EO       20 PH   \n\nLines: 2\n\n'),
 
         ('y\n', 'ahoy3', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\n'
          'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
          'Writing binary output file "{d}/example.prg"...\n\n'
          'File "{d}/example.prg" written successfully.\n\nLine Checksums:\n\n'
-         '    10 GC       20 PP   \n\nLines: 2\n'),
+         '    10 GC       20 PP   \n\nLines: 2\n\n'),
 
         ('N\n', 'ahoy1', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\n'
          'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
          'File "{d}/example.prg" not overwritten.\n\nLine Checksums:\n\n'
-         '    10 IA       20 NI   \n\nLines: 2\n'),
+         '    10 IA       20 NI   \n\nLines: 2\n\n'),
 
         ('N\n', 'ahoy2', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\n'
          'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
          'File "{d}/example.prg" not overwritten.\n\nLine Checksums:\n\n'
-         '    10 EO       20 PH   \n\nLines: 2\n'),
+         '    10 EO       20 PH   \n\nLines: 2\n\n'),
 
         ('no\n', 'ahoy3', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\n'
          'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
          'File "{d}/example.prg" not overwritten.\n\nLine Checksums:\n\n'
-         '    10 GC       20 PP   \n\nLines: 2\n'),
+         '    10 GC       20 PP   \n\nLines: 2\n\n'),
 
     ],
 )
