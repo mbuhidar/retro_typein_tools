@@ -14,6 +14,7 @@ from debug_tokenize.debug_tokenize import (parse_args,
                                            ahoy3_checksum,
                                            print_checksums,
                                            confirm_overwrite,
+                                           write_checksums,
                                            main)
 
 
@@ -35,7 +36,6 @@ def test_parse_args(argv, arg_valid):
     Unit test to check that function parse_args() yields the correct list of
     arguments for a range of different command line input combinations.
     """
-
     args = parse_args(argv)
     arg_list = [args.loadaddr[0], args.source[0], args.file_in]
     assert arg_list == arg_valid
@@ -190,7 +190,6 @@ def test_split_line_num(line, split_line):
     each line into tuples consisting of line number(int) and remaining line
     text(str).
     """
-
     assert split_line_num(line) == (split_line)
 
 
@@ -199,7 +198,6 @@ def test_write_binary(tmpdir):
     Unit test to check that function write_binary() is properly writing a list
     of decimals to a binary file.
     """
-
     file = tmpdir.join('output.prg')
     # For reference, the ahoy input for the byte list below is:
     # 10 print"hello"
@@ -209,7 +207,7 @@ def test_write_binary(tmpdir):
                         24, 8, 20, 0, 137, 49, 48, 0, 0, 0])
     with open(file, 'rb') as f:
         contents = f.read()
-    
+   
     assert contents == b'\x01\x08\x10\x08\n\x00\x99("HELLO")\
 \x00\x18\x08\x14\x00\x8910\x00\x00\x00'
 
@@ -229,7 +227,6 @@ def test_confirm_overwrite(capsys, monkeypatch, user_entry, return_value):
     Unit test to check that function confirm_overwrite() is properly handling
     user input properly.
     """
-
     monkeypatch.setattr('sys.stdin', StringIO(user_entry))
     overwrite = confirm_overwrite('test_file.prg')
     out, err = capsys.readouterr()
@@ -256,7 +253,6 @@ def test_scan_manager(ln, bytestr):
     Unit test to check that function scan_manager() is properly managing the
     conversion of a line of text to a list of tokenized bytes in decimal form.
     """
-
     assert scan_manager(ln) == bytestr
 
 
@@ -279,7 +275,6 @@ def test_scan(ln, tokenize, byte, remaining_line):
     of each passed in line to a tokenized byte for BASIC keywords, petcat
     special characters, and alphanumeric characters.
     """
-
     assert scan(ln, tokenize) == (byte, remaining_line)
 
 
@@ -310,7 +305,6 @@ def test_ahoy1_checksum(byte_list, checksum):
     Unit test to check that function ahoy1_checksum() is properly calculating
     and returning the proper ahoy checksum code.
     """
-
     assert ahoy1_checksum(byte_list) == checksum
 
 
@@ -345,7 +339,6 @@ def test_ahoy2_checksum(byte_list, checksum):
     Unit test to check that function ahoy2_checksum() is properly calculating
     and returning the proper ahoy checksum code.
     """
-
     assert ahoy2_checksum(byte_list) == checksum
 
 
@@ -373,7 +366,6 @@ def test_ahoy3_checksum(line_num, byte_list, checksum):
     Unit test to check that function ahoy3_checksum() is properly calculating
     and returning the proper ahoy checksum code.
     """
-
     assert ahoy3_checksum(line_num, byte_list) == checksum
 
 
@@ -403,6 +395,32 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
 
 
 @pytest.mark.parametrize(
+    "ahoy_checksums, file_contents",
+    [
+        ([(11110, 'AP')],
+         '11110 AP\n\nLines: 1\n'),
+        ([(10, 'HE'), (20, 'PH'), (30, 'IM'), (40, 'CD'), (50, 'OB'),
+          (60, 'OF'), (70, 'OG'), (80, 'NI'), (90, 'DG'), (100, 'IC'),
+          (64000, 'KK')],
+         '10 HE\n20 PH\n30 IM\n40 CD\n50 OB\n60 OF\n70 OG\n80 NI\n90 DG\n'
+         '100 IC\n64000 KK\n\nLines: 11\n')
+    ],
+)
+def test_write_checksums(tmpdir, ahoy_checksums, file_contents):
+    """
+    Unit test to check that function write_checksums() is properly writing a
+    lines and checksums to a file.
+    """
+    file = tmpdir.join('output.chk')
+
+    write_checksums(file, ahoy_checksums)
+    with open(file, 'r') as f:
+        contents = f.read()
+
+    assert contents == file_contents
+
+
+@pytest.mark.parametrize(
     "source, lines_list, term",
     [
         ('ahoy1', '10 PRINT"HELLO"\n20 GOTO10',
@@ -421,14 +439,11 @@ def test_print_checksums(capsys, ahoy_checksums, term_width, term_capture):
          '10 GC       20 PP   \n\nLines: 2\n\n'),
     ],
 )
-
-
 def test_main(tmp_path, capsys, source, lines_list, term):
     """
     End to end test to check that function main() is propery generating the 
     correct output for a given command line input.
     """
-
     d = tmp_path / "sub"
     d.mkdir()
     p = d / "example.ahoy"
@@ -443,6 +458,7 @@ def test_main(tmp_path, capsys, source, lines_list, term):
     captured = capsys.readouterr()
     assert captured.out == term_capture
 
+
 @pytest.mark.parametrize(
     "user_entry, source, lines_list, term",
     [
@@ -451,8 +467,7 @@ def test_main(tmp_path, capsys, source, lines_list, term):
          'Output file "{d}/example.prg" already exists. Overwrite? (Y = yes) '
          'Writing binary output file "{d}/example.prg"...\n\n'
          'File "{d}/example.prg" written successfully.\n\nLine Checksums:\n\n'
-         '    10 IA       20 NI   \n\nLines: 2\n\n'
-        ),
+         '    10 IA       20 NI   \n\nLines: 2\n\n'),
 
         ('y\n', 'ahoy2', '10 PRINT"HELLO"\n20 GOTO10',
          'Writing binary output file "{d}/example.prg"...\n\n'
@@ -488,15 +503,12 @@ def test_main(tmp_path, capsys, source, lines_list, term):
 
     ],
 )
-
-
 def test_main(tmp_path, capsys, monkeypatch, user_entry, source,
               lines_list, term):
     """
     End to end test to check that function main() is propery generating the 
     correct output for a given command line input.
     """
-
     d = tmp_path / "sub"
     d.mkdir()
     p = d / "example.ahoy"
