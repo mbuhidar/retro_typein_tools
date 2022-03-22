@@ -60,10 +60,11 @@ As an example for an Ahoy! magazine file:
 ```
 Input:   basename.ahoy
 
-Outputs:  basename.prg (tokenized file that can be run on a Commodore 
-computer or on an emulator like VICE)
+Outputs:  basename.prg (tokenized file that can be run on a Commodore computer
+                        or on an emulator like VICE)
           basename.chk (list of line numbers and checksums, along with the
-          number of lines, for comparision to checksums printed in the magazine)
+                        number of lines, for comparision to checksums printed
+                        in the magazine)
 ```
 
 ### Notes for entering programs from Ahoy issues prior to November 1984:
