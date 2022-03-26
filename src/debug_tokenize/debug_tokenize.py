@@ -194,7 +194,7 @@ def ahoy_lines_list(lines_list):
     new_lines = []
 
     for line in lines_list:
-        # replace braces with brackets since Ahoy used both over time
+        # replace brackets with braces since Ahoy used both over time
         line = line.replace('[', '{')
         line = line.replace(']', '}')
 
@@ -297,7 +297,7 @@ def scan_manager(ln):
     bytestr = []
 
     while ln:
-        (byte, ln) = scan(ln, tokenize=not (in_quotes or in_remark))
+        (byte, ln) = _scan(ln, tokenize=not (in_quotes or in_remark))
         # if byte is not None:
         bytestr.append(byte)
         if byte == ord('"'):
@@ -310,7 +310,7 @@ def scan_manager(ln):
 
 # scan each line segement and convert to tokenized bytes.
 # returns byte and remaining line segment
-def scan(ln, tokenize=True):
+def _scan(ln, tokenize=True):
     """Scan beginning of each line for BASIC keywords, petcat special
        characters, or ascii characters, convert to tokenized bytes, and
        return remaining line segment after converted characters are removed
@@ -521,15 +521,12 @@ def write_checksums(filename, ahoy_checksums):
     with open(filename, 'w') as f:
         for line in output:
             f.write(line)
-  
 
-def main(argv=None, width=None):
+
+def command_line_runner(argv=None, width=None):
 
     # call function to parse command line input arguments
     args = parse_args(argv)
-
-    # define load address from input argument
-    load_addr = args.loadaddr[0]
 
     # call function to read input file lines
     try:
@@ -554,7 +551,7 @@ def main(argv=None, width=None):
                   "line.")
             sys.exit(1)
 
-    addr = int(load_addr, 16)
+    addr = int(args.loadaddr[0], 16)
 
     out_list = []
     ahoy_checksums = []
@@ -565,7 +562,7 @@ def main(argv=None, width=None):
 
         token_ln = []
         # add load address at start of first line only
-        if addr == int(load_addr, 16):
+        if addr == int(args.loadaddr[0], 16):
             token_ln.append(addr.to_bytes(2, 'little'))
         byte_list = scan_manager(line_txt)
 
@@ -611,4 +608,4 @@ def main(argv=None, width=None):
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(command_line_runner())
