@@ -74,8 +74,8 @@ def parse_args(argv):
         required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
              "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
-             "ahoy2 - Ahoy magazine (Jun 1984-Oct 1984) (default)\n"
-             "ahoy3 - Ahoy magazine (Nov 1984-)\n"
+             "ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)\n"
+             "ahoy3 - Ahoy magazine (May 1987-)\n"
     )
 
     parser.add_argument(
@@ -122,7 +122,6 @@ def write_binary(filename, int_list):
     Returns:
         None: Implicit return
     """
-
     print(f'Writing binary output file "{filename}"...\n')
 
     try:
@@ -505,8 +504,24 @@ def print_checksums(ahoy_checksums, terminal_width):
                 print(" "*left_space, prt_line, prt_code, " "*2, end='')
         print(end='\n')
 
-    print(f'\nLines: {len(ahoy_checksums)}')
+    print(f'\nLines: {len(ahoy_checksums)}\n')
 
+
+def write_checksums(filename, ahoy_checksums):
+
+    output = []
+    # Print each line number, code combination in matrix format
+    for checksum in ahoy_checksums:
+        prt_line = str(checksum[0])
+        prt_code = str(checksum[1])
+        output.append(f'{prt_line} {prt_code}\n')
+
+    output.append(f'\nLines: {len(ahoy_checksums)}\n')
+    
+    with open(filename, 'w') as f:
+        for line in output:
+            f.write(line)
+  
 
 def main(argv=None, width=None):
 
@@ -578,15 +593,21 @@ def main(argv=None, width=None):
 
     dec_list = [byte for sublist in out_list for byte in sublist]
 
-    bin_file = args.file_in.split('.')[0] + '.prg'
+    file_stem = args.file_in.split('.')[0]
+    bin_file = f'{file_stem}.prg'
 
     # Write binary file compatible with Commodore computers or emulators
     write_binary(bin_file, dec_list)
 
+    # Print line checksums to terminal, formatted based on screen width
     print('Line Checksums:\n')
     if not width:
         width = get_terminal_size()[0]
     print_checksums(ahoy_checksums, width)
+
+    # Write text file containing line numbers, checksums, and line count
+    chk_file = f'{file_stem}.chk'
+    write_checksums(chk_file, ahoy_checksums)
 
 
 if __name__ == '__main__':
