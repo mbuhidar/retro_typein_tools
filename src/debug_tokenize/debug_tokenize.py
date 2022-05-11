@@ -74,8 +74,8 @@ def parse_args(argv):
         required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
              "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
-             "ahoy2 - Ahoy magazine (Jun 1984-Oct 1984) (default)\n"
-             "ahoy3 - Ahoy magazine (Nov 1984-)\n"
+             "ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)\n"
+             "ahoy3 - Ahoy magazine (May 1987-)\n"
     )
 
     parser.add_argument(
