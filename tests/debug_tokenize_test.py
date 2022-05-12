@@ -6,7 +6,7 @@ from debug_tokenize.debug_tokenize import (parse_args,
                                            check_line_number_seq,
                                            ahoy_lines_list,
                                            split_line_num,
-                                           scan,
+                                           _scan,
                                            scan_manager,
                                            write_binary,
                                            ahoy1_checksum,
@@ -15,7 +15,7 @@ from debug_tokenize.debug_tokenize import (parse_args,
                                            print_checksums,
                                            confirm_overwrite,
                                            write_checksums,
-                                           main)
+                                           command_line_runner)
 
 
 @pytest.mark.parametrize(
@@ -269,13 +269,13 @@ def test_scan_manager(ln, bytestr):
         ('{s ep}start mower', True, 169, 'start mower'),
     ],
 )
-def test_scan(ln, tokenize, byte, remaining_line):
+def test__scan(ln, tokenize, byte, remaining_line):
     """
-    Unit test to check that function scan() is properly converting the start
+    Unit test to check that function _scan() is properly converting the start
     of each passed in line to a tokenized byte for BASIC keywords, petcat
     special characters, and alphanumeric characters.
     """
-    assert scan(ln, tokenize) == (byte, remaining_line)
+    assert _scan(ln, tokenize) == (byte, remaining_line)
 
 
 @pytest.mark.parametrize(
@@ -439,10 +439,10 @@ def test_write_checksums(tmpdir, ahoy_checksums, file_contents):
          '10 GC       20 PP   \n\nLines: 2\n\n'),
     ],
 )
-def test_main(tmp_path, capsys, source, lines_list, term):
+def test_command_line_runner(tmp_path, capsys, source, lines_list, term):
     """
-    End to end test to check that function main() is propery generating the 
-    correct output for a given command line input.
+    End to end test to check that function command_line_runner() is properly
+    generating the correct output for a given command line input.
     """
     d = tmp_path / "sub"
     d.mkdir()
@@ -453,7 +453,7 @@ def test_main(tmp_path, capsys, source, lines_list, term):
 
     argv = ['-s', source, str(p)]
 
-    main(argv, 40)
+    command_line_runner(argv, 40)
 
     captured = capsys.readouterr()
     assert captured.out == term_capture
@@ -503,11 +503,11 @@ def test_main(tmp_path, capsys, source, lines_list, term):
 
     ],
 )
-def test_main(tmp_path, capsys, monkeypatch, user_entry, source,
-              lines_list, term):
+def test_command_line_runner(tmp_path, capsys, monkeypatch, user_entry, source,
+                             lines_list, term):
     """
-    End to end test to check that function main() is propery generating the 
-    correct output for a given command line input.
+    End to end test to check that function command_line_runner() is properly
+    generating the correct output for a given command line input.
     """
     d = tmp_path / "sub"
     d.mkdir()
@@ -521,6 +521,6 @@ def test_main(tmp_path, capsys, monkeypatch, user_entry, source,
     argv = ['-s', source, str(p)]
 
     monkeypatch.setattr('sys.stdin', StringIO(user_entry))
-    main(argv, 40)
+    command_line_runner(argv, 40)
     captured = capsys.readouterr()
     assert captured.out == term_capture
