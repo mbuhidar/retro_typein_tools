@@ -199,7 +199,7 @@ def ahoy_lines_list(lines_list):
         line = line.replace(']', '}')
 
         # split each line on ahoy special characters
-        str_split = re.split(r"{\d+\s?\".+?\"}|{.+?}", line)
+        str_split = re.split(r"{\d+\s?\".[^{]*?\"}|{.[^{]*?}", line)
 
         # check for loose braces in each substring, return error indication
         for sub_str in str_split:
@@ -542,9 +542,9 @@ def command_line_runner(argv=None, width=None):
     # to common special character codes in braces
     if args.source[0][:4] == 'ahoy':
         lines_list = ahoy_lines_list(lines_list)
-        line_no = split_line_num(lines_list[1])[0]
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
+            line_no = split_line_num(lines_list[1])[0]
             print(f"Loose brace/bracket error in line: {line_no}\n"
                   "Special characters should be enclosed in braces/brackets.\n"
                   "Please check for unmatched single brace/bracket in above "
