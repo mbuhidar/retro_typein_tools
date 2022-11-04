@@ -212,7 +212,7 @@ def test_write_binary(tmpdir):
                         24, 8, 20, 0, 137, 49, 48, 0, 0, 0])
     with open(file, 'rb') as f:
         contents = f.read()
-   
+
     assert contents == b'\x01\x08\x10\x08\n\x00\x99("HELLO")\
 \x00\x18\x08\x14\x00\x8910\x00\x00\x00'
 
@@ -508,8 +508,8 @@ def test_command_line_runner(tmp_path, capsys, source, lines_list, term):
 
     ],
 )
-def test_command_line_runner(tmp_path, capsys, monkeypatch, user_entry, source,
-                             lines_list, term):
+def test_command_line_runner_interactive(tmp_path, capsys, monkeypatch,
+                                         user_entry, source, lines_list, term):
     """
     End to end test to check that function command_line_runner() is properly
     generating the correct output for a given command line input.

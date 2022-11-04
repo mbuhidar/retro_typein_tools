@@ -17,7 +17,7 @@ try:
     import char_maps
 except ImportError:
     # case for executing pytest
-    from debug_tokenize import char_maps 
+    from debug_tokenize import char_maps
 
 
 def parse_args(argv):
@@ -70,8 +70,8 @@ def parse_args(argv):
     )
 
     parser.add_argument(
-        "-s", "--source", choices=["ahoy1", "ahoy2", "ahoy3"], type=str, nargs=1,
-        required=False, metavar="source_format", default=["ahoy2"],
+        "-s", "--source", choices=["ahoy1", "ahoy2", "ahoy3"], type=str,
+        nargs=1, required=False, metavar="source_format", default=["ahoy2"],
         help="Specifies the magazine source for conversion and checksum:\n"
              "ahoy1 - Ahoy magazine (Apr-May 1984)\n"
              "ahoy2 - Ahoy magazine (Jun 1984-Apr 1987) (default)\n"
@@ -104,7 +104,6 @@ def read_file(filename):
         lines = file.readlines()
         lower_lines = []
         for line in lines:
-            # remove any lines with no characters
             if not line.strip():
                 continue
             lower_lines.append(line.rstrip().lower())
@@ -136,16 +135,13 @@ def write_binary(filename, int_list):
             write_binary(filename, int_list)
         else:
             print(f'File "{filename}" not overwritten.\n')
-       
+
 
 def confirm_overwrite(filename):
 
     overwrite = input(f'Output file "{filename}" already exists. '
                       'Overwrite? (Y = yes) ')
-
-    if overwrite.lower() == 'y':
-        return True
-    return False
+    return overwrite.lower() == 'y'
 
 
 def check_line_number_seq(lines_list):
@@ -253,7 +249,7 @@ def ahoy_lines_list(lines_list):
         # add blank item to list of special characters prior to blending strs
         if new_codes:
             new_codes.append('')
-         
+
             new_line = []
 
             # piece the string segments and petcat codes back together
@@ -286,7 +282,7 @@ def split_line_num(line):
     while line and line[0].isdigit():
         acc.append(line[0])
         line = line[1:]
-    
+
     return (int(''.join(acc)), line.lstrip())
 
 
@@ -370,9 +366,8 @@ def ahoy1_checksum(byte_list):
         # execute primary checksum generation algorithm
         if char_val == 32:
             continue
-        else:
-            next_value = char_val + next_value
-            next_value = next_value << 1
+        next_value = char_val + next_value
+        next_value = next_value << 1
 
     xor_value = next_value
     # get high nibble of xor_value
@@ -402,10 +397,8 @@ def ahoy2_checksum(byte_list):
         # set carry flag to zero for char values less than ascii value for
         # quote character since assembly code for repellent sets carry flag
         # based on cmp 0x22 (decimal 34)
-        if char_val < 34:
-            carry_flag = 0
-        else:
-            carry_flag = 1
+
+        carry_flag = 0 if char_val < 34 else 1
 
         # Detect quote symbol in line and toggle in-quotes flag
         if char_val == 34:
@@ -415,15 +408,14 @@ def ahoy2_checksum(byte_list):
         # execute primary checksum generation algorithm
         if char_val == 32 and in_quotes is False:
             continue
-        else:
-            next_value = char_val + xor_value + carry_flag
 
-            xor_value = next_value ^ char_position
+        next_value = char_val + xor_value + carry_flag
+        xor_value = next_value ^ char_position
 
-            # limit next value to fit in one byte
-            next_value = next_value & 255
+        # limit next value to fit in one byte
+        next_value = next_value & 255
 
-            char_position = char_position + 1
+        char_position = char_position + 1
 
     # get high nibble of xor_value
     high_nib = (xor_value & 0xf0) >> 4
@@ -436,12 +428,13 @@ def ahoy2_checksum(byte_list):
 
 
 def ahoy3_checksum(line_num, byte_list):
-    '''
-    Function to create Ahoy checksums from passed in line number and byte list
-    to match the codes printed in the magazine to check each line for typed in
-    accuracy. Covers the last Ahoy Bug Repellent version introduced in May 1987.
-    '''
-    
+    """
+    Function to create Ahoy checksums from passed in line number and
+    byte list to match the codes printed in the magazine to check each
+    line for typed in accuracy. Covers the last Ahoy Bug Repellent
+    version introduced in May 1987.
+    """
+
     xor_value = 0
     char_position = 0
     in_quotes = False
@@ -464,15 +457,15 @@ def ahoy3_checksum(line_num, byte_list):
         # execute primary checksum generation algorithm
         if char_val == 32 and in_quotes is False:
             continue
-        else:
-            next_value = char_val + xor_value 
 
-            xor_value = next_value ^ char_position
+        next_value = char_val + xor_value
 
-            # limit next value to fit in one byte
-            next_value = next_value & 255
+        xor_value = next_value ^ char_position
 
-            char_position = char_position + 1
+        # limit next value to fit in one byte
+        next_value = next_value & 255
+
+        char_position = char_position + 1
 
     # get high nibble of xor_value
     high_nib = (xor_value & 0xf0) >> 4
@@ -517,7 +510,7 @@ def write_checksums(filename, ahoy_checksums):
         output.append(f'{prt_line} {prt_code}\n')
 
     output.append(f'\nLines: {len(ahoy_checksums)}\n')
-    
+
     with open(filename, 'w') as f:
         for line in output:
             f.write(line)
@@ -568,9 +561,9 @@ def command_line_runner(argv=None, width=None):
 
         addr = addr + len(byte_list) + 4
 
-        token_ln.append(addr.to_bytes(2, 'little'))
-        token_ln.append(line_num.to_bytes(2, 'little'))
-        token_ln.append(byte_list)
+        token_ln.extend((addr.to_bytes(2, 'little'),
+                         line_num.to_bytes(2, 'little'), byte_list))
+
         token_ln = [byte for sublist in token_ln for byte in sublist]
 
         # call checksum generator function to build list of tuples
@@ -579,7 +572,8 @@ def command_line_runner(argv=None, width=None):
         elif args.source[0] == 'ahoy2':
             ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
         elif args.source[0] == 'ahoy3':
-            ahoy_checksums.append((line_num, ahoy3_checksum(line_num, byte_list)))
+            ahoy_checksums.append((line_num,
+                                   ahoy3_checksum(line_num, byte_list)))
         else:
             print("Magazine format not yet supported.")
             sys.exit(1)
