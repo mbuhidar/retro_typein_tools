@@ -137,6 +137,7 @@ def test_check_line_number_seq_bad(capsys, lines_list, term_capture):
         (['10 print"hi"', '20 goto10'], ['10 print"hi"', '20 goto10']),
         (['10 print"hello"', '20 {goto10'], (None, '20 {goto10')),
         (['{WH}CY}', '10 print"hello"'], (None, '{WH}CY}')),
+        (['{WH{CY}', '10 print"hello"'], (None, '{WH{CY}')),
         (['{WH}{CY}', '{RV}'], ['{wht}{cyn}', '{rvon}']),
         (['{WH}{CD}{RV}{HM}{RD}{CR}{GN}{BL}{OR}{F1}{F2}'],
          ['{wht}{down}{rvon}{home}{red}{rght}{grn}{blu}{orng}{f1}{f2}']),
@@ -160,6 +161,10 @@ def test_check_line_number_seq_bad(capsys, lines_list, term_capture):
          ['print"    {cyn}";:printtab(8)"press trigger"']),
         (['print"[4"*"][5"4"][BR]"'],
          ['print"****44444{brn}"']),
+        (['print"4"*"][5"4"][BR]"'],
+         (None, 'print"4"*"}{5"4"}{BR}"')),
+        (['print"[4"*"[5"4"][BR]"'],
+         (None, 'print"{4"*"{5"4"}{BR}"')),
         (['print"[4 " "][cy]";:printtab(8)"press trigger"'],
          ['print"    {cyn}";:printtab(8)"press trigger"']),
         (['print"[4 "*"][5 "4"][BR]"'],
@@ -207,7 +212,7 @@ def test_write_binary(tmpdir):
                         24, 8, 20, 0, 137, 49, 48, 0, 0, 0])
     with open(file, 'rb') as f:
         contents = f.read()
-   
+
     assert contents == b'\x01\x08\x10\x08\n\x00\x99("HELLO")\
 \x00\x18\x08\x14\x00\x8910\x00\x00\x00'
 
@@ -503,8 +508,8 @@ def test_command_line_runner(tmp_path, capsys, source, lines_list, term):
 
     ],
 )
-def test_command_line_runner(tmp_path, capsys, monkeypatch, user_entry, source,
-                             lines_list, term):
+def test_command_line_runner_interactive(tmp_path, capsys, monkeypatch,
+                                         user_entry, source, lines_list, term):
     """
     End to end test to check that function command_line_runner() is properly
     generating the correct output for a given command line input.
