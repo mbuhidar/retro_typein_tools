@@ -1,9 +1,10 @@
 from io import StringIO
 import pytest
 
-from debug_tokenize.debug_tokenize import (parse_args,
-                                           print_checksums,
-                                           command_line_runner)
+from retrotype_cli import (parse_args,
+                           print_checksums,
+                           command_line_runner,
+                           )
 
 
 @pytest.mark.parametrize(

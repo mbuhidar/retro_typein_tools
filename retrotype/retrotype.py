@@ -9,15 +9,7 @@ import re
 import sys
 
 # import char_maps.py: Module containing Commodore to magazine conversion maps
-import char_maps
-
-
-# import char_maps.py: Module containing Commodore to magazine conversion maps
-# try:
-#     import char_maps
-# except ImportError:
-      # case for executing pytest
-#     from debug_tokenize import char_maps
+from retrotype import char_maps
 
 
 def read_file(filename):
@@ -425,92 +417,3 @@ def write_checksums(filename, ahoy_checksums):
     with open(filename, 'w') as f:
         for line in output:
             f.write(line)
-
-
-def command_line_runner(argv=None, width=None):
-
-    # call function to parse command line input arguments
-    args = parse_args(argv)
-
-    # call function to read input file lines
-    try:
-        lines_list = read_file(args.file_in)
-    except IOError:
-        print("File read failed - please check source file name and path.")
-        sys.exit(1)
-
-    # check each line to insure each starts with a line number
-    check_line_number_seq(lines_list)
-
-    # Create lines list while checking for loose brackets/braces and converting
-    # to common special character codes in braces
-    if args.source[0][:4] == 'ahoy':
-        lines_list = ahoy_lines_list(lines_list)
-        # handle loose brace error returned from ahoy_lines_list()
-        if lines_list[0] is None:
-            line_no = split_line_num(lines_list[1])[0]
-            print(f"Loose brace/bracket error in line: {line_no}\n"
-                  "Special characters should be enclosed in braces/brackets.\n"
-                  "Please check for unmatched single brace/bracket in above "
-                  "line.")
-            sys.exit(1)
-
-    addr = int(args.loadaddr[0], 16)
-
-    out_list = []
-    ahoy_checksums = []
-
-    for line in lines_list:
-        # split each line into line number and remaining text
-        (line_num, line_txt) = split_line_num(line)
-
-        token_ln = []
-        # add load address at start of first line only
-        if addr == int(args.loadaddr[0], 16):
-            token_ln.append(addr.to_bytes(2, 'little'))
-        byte_list = scan_manager(line_txt)
-
-        addr = addr + len(byte_list) + 4
-
-        token_ln.extend((addr.to_bytes(2, 'little'),
-                         line_num.to_bytes(2, 'little'), byte_list))
-
-        token_ln = [byte for sublist in token_ln for byte in sublist]
-
-        # call checksum generator function to build list of tuples
-        if args.source[0] == 'ahoy1':
-            ahoy_checksums.append((line_num, ahoy1_checksum(byte_list)))
-        elif args.source[0] == 'ahoy2':
-            ahoy_checksums.append((line_num, ahoy2_checksum(byte_list)))
-        elif args.source[0] == 'ahoy3':
-            ahoy_checksums.append((line_num,
-                                   ahoy3_checksum(line_num, byte_list)))
-        else:
-            print("Magazine format not yet supported.")
-            sys.exit(1)
-
-        out_list.append(token_ln)
-
-    out_list.append([0, 0])
-
-    dec_list = [byte for sublist in out_list for byte in sublist]
-
-    file_stem = args.file_in.split('.')[0]
-    bin_file = f'{file_stem}.prg'
-
-    # Write binary file compatible with Commodore computers or emulators
-    write_binary(bin_file, dec_list)
-
-    # Print line checksums to terminal, formatted based on screen width
-    print('Line Checksums:\n')
-    if not width:
-        width = get_terminal_size()[0]
-    print_checksums(ahoy_checksums, width)
-
-    # Write text file containing line numbers, checksums, and line count
-    chk_file = f'{file_stem}.chk'
-    write_checksums(chk_file, ahoy_checksums)
-
-
-if __name__ == '__main__':
-    sys.exit(command_line_runner())

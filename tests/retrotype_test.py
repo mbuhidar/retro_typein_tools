@@ -1,18 +1,19 @@
 from io import StringIO
 import pytest
 
-from debug_tokenize.retrotype import (read_file,
-                                           check_line_number_seq,
-                                           ahoy_lines_list,
-                                           split_line_num,
-                                           _scan,
-                                           scan_manager,
-                                           write_binary,
-                                           ahoy1_checksum,
-                                           ahoy2_checksum,
-                                           ahoy3_checksum,
-                                           confirm_overwrite,
-                                           write_checksums)
+from retrotype.retrotype import (read_file,
+                                 check_line_number_seq,
+                                 ahoy_lines_list,
+                                 split_line_num,
+                                 _scan,
+                                 scan_manager,
+                                 write_binary,
+                                 ahoy1_checksum,
+                                 ahoy2_checksum,
+                                 ahoy3_checksum,
+                                 confirm_overwrite,
+                                 write_checksums,
+                                 )
 
 
 @pytest.fixture

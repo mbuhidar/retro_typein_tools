@@ -10,7 +10,7 @@ from os import get_terminal_size
 import sys
 import math
 
-import retrotype
+from retrotype import retrotype
 
 
 def parse_args(argv):
