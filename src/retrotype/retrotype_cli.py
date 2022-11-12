@@ -10,7 +10,17 @@ from os import get_terminal_size
 import sys
 import math
 
-from retrotype import retrotype
+from retrotype import (read_file,
+                       check_line_number_seq,
+                       ahoy_lines_list,
+                       split_line_num,
+                       scan_manager,
+                       ahoy1_checksum,
+                       ahoy2_checksum,
+                       ahoy3_checksum,
+                       write_binary,
+                       write_checksums,
+                       )
 
 
 def parse_args(argv):
@@ -109,21 +119,21 @@ def command_line_runner(argv=None, width=None):
 
     # call function to read input file lines
     try:
-        lines_list = retrotype.read_file(args.file_in)
+        lines_list = read_file(args.file_in)
     except IOError:
         print("File read failed - please check source file name and path.")
         sys.exit(1)
 
     # check each line to insure each starts with a line number
-    retrotype.check_line_number_seq(lines_list)
+    check_line_number_seq(lines_list)
 
     # Create lines list while checking for loose brackets/braces and converting
     # to common special character codes in braces
     if args.source[0][:4] == 'ahoy':
-        lines_list = retrotype.ahoy_lines_list(lines_list)
+        lines_list = ahoy_lines_list(lines_list)
         # handle loose brace error returned from ahoy_lines_list()
         if lines_list[0] is None:
-            line_no = retrotype.split_line_num(lines_list[1])[0]
+            line_no = split_line_num(lines_list[1])[0]
             print(f"Loose brace/bracket error in line: {line_no}\n"
                   "Special characters should be enclosed in braces/brackets.\n"
                   "Please check for unmatched single brace/bracket in above "
@@ -137,13 +147,13 @@ def command_line_runner(argv=None, width=None):
 
     for line in lines_list:
         # split each line into line number and remaining text
-        (line_num, line_txt) = retrotype.split_line_num(line)
+        (line_num, line_txt) = split_line_num(line)
 
         token_ln = []
         # add load address at start of first line only
         if addr == int(args.loadaddr[0], 16):
             token_ln.append(addr.to_bytes(2, 'little'))
-        byte_list = retrotype.scan_manager(line_txt)
+        byte_list = scan_manager(line_txt)
 
         addr = addr + len(byte_list) + 4
 
@@ -155,14 +165,13 @@ def command_line_runner(argv=None, width=None):
         # call checksum generator function to build list of tuples
         if args.source[0] == 'ahoy1':
             ahoy_checksums.append((line_num,
-                                   retrotype.ahoy1_checksum(byte_list)))
+                                   ahoy1_checksum(byte_list)))
         elif args.source[0] == 'ahoy2':
             ahoy_checksums.append((line_num, 
-                                   retrotype.ahoy2_checksum(byte_list)))
+                                   ahoy2_checksum(byte_list)))
         elif args.source[0] == 'ahoy3':
             ahoy_checksums.append((line_num,
-                                   retrotype.ahoy3_checksum(line_num,
-                                                            byte_list)))
+                                   ahoy3_checksum(line_num, byte_list)))
         else:
             print("Magazine format not yet supported.")
             sys.exit(1)
@@ -177,7 +186,7 @@ def command_line_runner(argv=None, width=None):
     bin_file = f'{file_stem}.prg'
 
     # Write binary file compatible with Commodore computers or emulators
-    retrotype.write_binary(bin_file, dec_list)
+    write_binary(bin_file, dec_list)
 
     # Print line checksums to terminal, formatted based on screen width
     print('Line Checksums:\n')
@@ -187,7 +196,7 @@ def command_line_runner(argv=None, width=None):
 
     # Write text file containing line numbers, checksums, and line count
     chk_file = f'{file_stem}.chk'
-    retrotype.write_checksums(chk_file, ahoy_checksums)
+    write_checksums(chk_file, ahoy_checksums)
 
 
 if __name__ == '__main__':

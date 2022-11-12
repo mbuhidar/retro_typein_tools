@@ -9,7 +9,10 @@ import re
 import sys
 
 # import char_maps.py: Module containing Commodore to magazine conversion maps
-from retrotype import char_maps
+try:
+    from retrotype import char_maps as char_maps
+except ImportError:  # Case for direct python execution
+    import char_maps
 
 
 def read_file(filename):
